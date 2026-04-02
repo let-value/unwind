@@ -25,7 +25,9 @@
     "format": "oxfmt ."
   },
   "dependencies": {
-    "jscodeshift": "^17.3.0"
+    "@tailwindcss/node": "^4.2.2",
+    "jscodeshift": "^17.3.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/jscodeshift": "^0.12.0",
