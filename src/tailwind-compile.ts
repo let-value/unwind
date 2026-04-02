@@ -1,75 +1,247 @@
 import { compile } from "@tailwindcss/node";
+import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
+import postcssNested from "postcss-nested";
+import selectorParser, { type Selector } from "postcss-selector-parser";
+import { runCssCodemod, type CssCodemodTransform } from "./css-codemod.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss/theme";\n@import "tailwindcss/utilities";`;
 
-interface CompiledRule {
-  selector: string;
-  body: string;
+function createEmptyRule(selector: string): Rule {
+  return postcss.rule({ selector });
 }
 
-function extractFirstClassRule(css: string): CompiledRule | null {
-  let index = 0;
-
-  while (index < css.length) {
-    if (css[index] !== ".") {
-      index += 1;
-      continue;
-    }
-
-    if (index > 0 && css[index - 1] !== "\n") {
-      index += 1;
-      continue;
-    }
-
-    const braceIndex = css.indexOf("{", index);
-    if (braceIndex === -1) {
-      break;
-    }
-
-    const selector = css.slice(index, braceIndex).trim();
-    if (!selector.startsWith(".")) {
-      index = braceIndex + 1;
-      continue;
-    }
-
-    let depth = 0;
-    let cursor = braceIndex;
-
-    do {
-      const char = css[cursor];
-      if (char === "{") {
-        depth += 1;
-      } else if (char === "}") {
-        depth -= 1;
-      }
-      cursor += 1;
-    } while (cursor < css.length && depth > 0);
-
-    const body = css.slice(braceIndex + 1, cursor - 1).trim();
-    if (body.length > 0) {
-      return { selector, body };
-    }
-
-    index = cursor;
-  }
-
-  return null;
-}
-
-function normalizeClassTokens(classNames: string): string[] {
+export function normalizeClassTokens(classNames: string): string[] {
   return [...new Set(classNames.split(/\s+/).map((token) => token.trim()).filter(Boolean))];
 }
 
-function normalizeVariantBody(body: string): { suffix: string; body: string } {
-  const match = body.match(/^&(:[^{\s]+)\s*\{([\s\S]*)\}$/);
-  if (!match) {
-    return { suffix: "", body };
+function createSelectorTemplate(selector: string): Selector {
+  const root = selectorParser().astSync(selector);
+  const firstSelector = root.first;
+
+  if (!firstSelector) {
+    throw new Error(`Expected a selector, received "${selector}"`);
   }
 
-  return {
-    suffix: match[1],
-    body: match[2].trim(),
-  };
+  return firstSelector.clone();
+}
+
+function collectClassNamesFromSelector(selector: string): Set<string> {
+  const classNames = new Set<string>();
+
+  selectorParser((root) => {
+    root.walkClasses((node) => {
+      classNames.add(node.value);
+    });
+  }).processSync(selector);
+
+  return classNames;
+}
+
+function replaceUtilitySelector(
+  selector: string,
+  utilityClassNames: Set<string>,
+  outputSelector: string,
+): string {
+  const outputTemplate = createSelectorTemplate(outputSelector);
+
+  return selectorParser((root) => {
+    root.each((entry) => {
+      const rewrittenNodes = entry.nodes.flatMap((node) => {
+        if (node.type !== "class" || !utilityClassNames.has(node.value)) {
+          return [node.clone()];
+        }
+
+        return outputTemplate.nodes.map((templateNode) => templateNode.clone());
+      });
+
+      entry.removeAll();
+
+      for (const rewrittenNode of rewrittenNodes) {
+        entry.append(rewrittenNode);
+      }
+    });
+  }).processSync(selector);
+}
+
+function cloneMatchingRulesInClassOrder(
+  root: Root,
+  classTokens: string[],
+  outputSelector: string,
+): Root {
+  const utilityClassNames = new Set(classTokens);
+  const selectedRulesByClassName = new Map<string, Rule>();
+  const rewrittenRoot = postcss.root();
+
+  root.walkRules((rule) => {
+    if (rule.parent?.type !== "root") {
+      return;
+    }
+
+    const selectorClassNames = collectClassNamesFromSelector(rule.selector);
+    const matchesRequestedClass = [...selectorClassNames].some((className) =>
+      utilityClassNames.has(className),
+    );
+
+    if (!matchesRequestedClass) {
+      return;
+    }
+
+    for (const className of selectorClassNames) {
+      if (!utilityClassNames.has(className) || selectedRulesByClassName.has(className)) {
+        continue;
+      }
+
+      const rewrittenRule = rule.clone();
+      rewrittenRule.selector = replaceUtilitySelector(
+        rewrittenRule.selector,
+        utilityClassNames,
+        outputSelector,
+      );
+      rewrittenRule.raws.before = "";
+      selectedRulesByClassName.set(className, rewrittenRule);
+    }
+  });
+
+  for (const classToken of classTokens) {
+    const selectedRule = selectedRulesByClassName.get(classToken);
+    if (selectedRule) {
+      rewrittenRoot.append(selectedRule);
+    }
+  }
+
+  if (rewrittenRoot.nodes.length === 0) {
+    rewrittenRoot.append(createEmptyRule(outputSelector));
+  }
+
+  return rewrittenRoot;
+}
+
+function moveChildren(from: Container<Node>, to: Container<Node>) {
+  for (const child of from.nodes?.slice() ?? []) {
+    child.remove();
+    to.append(child);
+  }
+}
+
+function mergeDuplicateChildren(container: Container<Node>) {
+  if (!container.nodes) {
+    return;
+  }
+
+  const rulesBySelector = new Map<string, Rule>();
+  const atRulesBySignature = new Map<string, AtRule>();
+  const serializedLeafNodes = new Set<string>();
+
+  for (const node of container.nodes.slice()) {
+    if (node.type === "rule") {
+      mergeDuplicateChildren(node);
+
+      const existingRule = rulesBySelector.get(node.selector);
+      if (existingRule) {
+        moveChildren(node, existingRule);
+        node.remove();
+        mergeDuplicateChildren(existingRule);
+        continue;
+      }
+
+      rulesBySelector.set(node.selector, node);
+      continue;
+    }
+
+    if (node.type === "atrule" && node.nodes) {
+      mergeDuplicateChildren(node);
+
+      const signature = `${node.name}:${node.params}`;
+      const existingAtRule = atRulesBySignature.get(signature);
+      if (existingAtRule) {
+        moveChildren(node, existingAtRule);
+        node.remove();
+        mergeDuplicateChildren(existingAtRule);
+        continue;
+      }
+
+      atRulesBySignature.set(signature, node);
+      continue;
+    }
+
+    const serializedNode = node.toString();
+    if (serializedLeafNodes.has(serializedNode)) {
+      node.remove();
+      continue;
+    }
+
+    serializedLeafNodes.add(serializedNode);
+  }
+}
+
+function flattenNestedRoot(root: Root): Root {
+  const flattenedRoot = postcss([postcssNested]).process(root, {
+    from: undefined,
+  }).root;
+
+  if (!flattenedRoot) {
+    throw new Error("Expected nested PostCSS transform to return a root node");
+  }
+
+  if (flattenedRoot.first) {
+    flattenedRoot.first.raws.before = "";
+  }
+
+  return flattenedRoot;
+}
+
+function serializeRoot(root: Root): string {
+  return postcss.parse(root.toString()).toString();
+}
+
+const selectAndRewriteTailwindUtilities: CssCodemodTransform = (file, api) => {
+  const [classNames, outputSelector] = file.path.split("\0");
+  const classTokens = normalizeClassTokens(classNames);
+
+  if (classTokens.length === 0) {
+    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
+  }
+
+  const compiledRoot = api.parse(file.source);
+  const rewrittenRoot = cloneMatchingRulesInClassOrder(compiledRoot, classTokens, outputSelector);
+  return serializeRoot(rewrittenRoot);
+};
+
+export async function compileTailwindUtilities(classNames: string): Promise<string> {
+  const classTokens = normalizeClassTokens(classNames);
+
+  if (classTokens.length === 0) {
+    return "";
+  }
+
+  const compiler = await compile(TAILWIND_ENTRYPOINT, {
+    base: process.cwd(),
+    onDependency: () => {},
+  });
+
+  return compiler.build(classTokens);
+}
+
+export function replaceTailwindSelectors(
+  compiledCss: string,
+  classNames: string,
+  outputSelector: string,
+): string {
+  const classTokens = normalizeClassTokens(classNames);
+
+  if (classTokens.length === 0) {
+    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
+  }
+
+  return runCssCodemod(compiledCss, selectAndRewriteTailwindUtilities, {
+    path: `${classTokens.join(" ")}\0${outputSelector}`,
+  });
+}
+
+export function finalizeTailwindCss(rewrittenCss: string): string {
+  const rewrittenRoot = postcss.parse(rewrittenCss);
+  mergeDuplicateChildren(rewrittenRoot);
+  return serializeRoot(flattenNestedRoot(rewrittenRoot));
 }
 
 /**
@@ -83,38 +255,10 @@ export async function compileTailwindClasses(
   const classTokens = normalizeClassTokens(classNames);
 
   if (classTokens.length === 0) {
-    return `${outputSelector} {\n}`;
+    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
   }
 
-  const bodiesBySuffix = new Map<string, string[]>();
-
-  for (const classToken of classTokens) {
-    const compiler = await compile(TAILWIND_ENTRYPOINT, {
-      base: process.cwd(),
-      onDependency: () => {},
-    });
-
-    const compiled = compiler.build([classToken]);
-    const rule = extractFirstClassRule(compiled);
-
-    if (!rule) {
-      continue;
-    }
-
-    const normalized = normalizeVariantBody(rule.body);
-    const list = bodiesBySuffix.get(normalized.suffix) ?? [];
-    list.push(normalized.body);
-    bodiesBySuffix.set(normalized.suffix, list);
-  }
-
-  if (bodiesBySuffix.size === 0) {
-    return `${outputSelector} {\n}`;
-  }
-
-  const blocks = [...bodiesBySuffix.entries()].map(([suffix, bodies]) => {
-    const mergedBody = bodies.map((body) => `  ${body.replaceAll("\n", "\n  ")}`).join("\n");
-    return `${outputSelector}${suffix} {\n${mergedBody}\n}`;
-  });
-
-  return blocks.join("\n\n");
+  const compiledCss = await compileTailwindUtilities(classNames);
+  const rewrittenCss = replaceTailwindSelectors(compiledCss, classNames, outputSelector);
+  return finalizeTailwindCss(rewrittenCss);
 }

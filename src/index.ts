@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import jscodeshift from "jscodeshift";
 import { transform } from "./transform.ts";
 
+export { compileTailwindClasses } from "./tailwind-compile.ts";
+
 export interface RunOptions {
   /** Glob patterns to match files */
   patterns: string[];

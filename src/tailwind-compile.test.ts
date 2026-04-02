@@ -1,15 +1,65 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { compileTailwindClasses } from "./tailwind-compile.ts";
+import {
+  compileTailwindClasses,
+  compileTailwindUtilities,
+  finalizeTailwindCss,
+  normalizeClassTokens,
+  replaceTailwindSelectors,
+} from "./tailwind-compile.ts";
 
-interface Case {
+describe("normalizeClassTokens", () => {
+  it("deduplicates and trims class tokens", () => {
+    assert.deepEqual(normalizeClassTokens("  p-4  hover:bg-blue-600 p-4 "), [
+      "p-4",
+      "hover:bg-blue-600",
+    ]);
+  });
+});
+
+describe("compileTailwindUtilities", () => {
+  it("snapshots the raw Tailwind output", async (t) => {
+    const css = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
+
+    assert.ok(css.includes(".p-4"));
+    assert.ok(css.includes(".hover\\:bg-blue-600"));
+    assert.ok(css.includes(".before\\:block"));
+    t.assert.snapshot(css);
+  });
+});
+
+describe("replaceTailwindSelectors", () => {
+  it("snapshots selector replacement output before finalization", async (t) => {
+    const compiledCss = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
+    const rewrittenCss = replaceTailwindSelectors(compiledCss, "p-4 hover:bg-blue-600 before:block", ".card");
+
+    assert.ok(rewrittenCss.includes(".card"));
+    assert.ok(rewrittenCss.includes("&:hover"));
+    assert.ok(rewrittenCss.includes("&::before"));
+    t.assert.snapshot(rewrittenCss);
+  });
+});
+
+describe("finalizeTailwindCss", () => {
+  it("snapshots deduped and flattened CSS", async (t) => {
+    const compiledCss = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
+    const rewrittenCss = replaceTailwindSelectors(compiledCss, "p-4 hover:bg-blue-600 before:block", ".card");
+    const finalizedCss = finalizeTailwindCss(rewrittenCss);
+
+    assert.ok(finalizedCss.includes(".card:hover"));
+    assert.ok(finalizedCss.includes(".card::before"));
+    t.assert.snapshot(finalizedCss);
+  });
+});
+
+interface FinalCase {
   name: string;
   classNames: string;
   outputSelector?: string;
   expectedSelectors?: string[];
 }
 
-const cases: Case[] = [
+const finalCases: FinalCase[] = [
   {
     name: "single utility",
     classNames: "p-4",
@@ -29,12 +79,18 @@ const cases: Case[] = [
     name: "regular and hover utilities",
     classNames: "p-4 hover:bg-blue-600",
     outputSelector: ".output",
-    expectedSelectors: [".output {", ".output:hover {"],
+    expectedSelectors: [".output {", ".output:hover {", "@media (hover: hover) {"],
+  },
+  {
+    name: "compound variants and pseudo elements",
+    classNames: "before:block sm:hover:text-red-500",
+    outputSelector: "[data-ui]",
+    expectedSelectors: ["[data-ui]::before", "[data-ui]:hover", "@media (width >= 40rem) {"],
   },
 ];
 
 describe("compileTailwindClasses", () => {
-  for (const testCase of cases) {
+  for (const testCase of finalCases) {
     it(`snapshots ${testCase.name}`, async (t) => {
       const css = await compileTailwindClasses(
         testCase.classNames,

@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "noEmit": true,
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ESNext"],
+    "types": ["@types/node"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -12,7 +14,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
