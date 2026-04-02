@@ -1,0 +1,41 @@
+{
+  "name": "unwind",
+  "version": "0.1.0",
+  "description": "A CLI codemod tool powered by jscodeshift",
+  "bin": {
+    "unwind": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "node --experimental-strip-types --test src/**/*.test.ts",
+    "test:coverage": "node --experimental-strip-types --test --experimental-test-coverage src/**/*.test.ts",
+    "lint": "oxlint .",
+    "format": "oxfmt ."
+  },
+  "dependencies": {
+    "jscodeshift": "^17.3.0"
+  },
+  "devDependencies": {
+    "@types/jscodeshift": "^0.12.0",
+    "@types/node": "^22.0.0",
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.58.0",
+    "tsdown": "^0.21.7",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
