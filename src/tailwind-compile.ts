@@ -38,10 +38,8 @@ function collectClassNamesFromSelector(selector: string): Set<string> {
 function replaceUtilitySelector(
   selector: string,
   utilityClassNames: Set<string>,
-  outputSelector: string,
+  outputTemplate: Selector,
 ): string {
-  const outputTemplate = createSelectorTemplate(outputSelector);
-
   return selectorParser((root) => {
     root.each((entry) => {
       const rewrittenNodes = entry.nodes.flatMap((node) => {
@@ -69,6 +67,7 @@ function cloneMatchingRulesInClassOrder(
   const utilityClassNames = new Set(classTokens);
   const selectedRulesByClassName = new Map<string, Rule>();
   const rewrittenRoot = postcss.root();
+  const outputTemplate = createSelectorTemplate(outputSelector);
 
   root.walkRules((rule) => {
     if (rule.parent?.type !== "root") {
@@ -93,7 +92,7 @@ function cloneMatchingRulesInClassOrder(
       rewrittenRule.selector = replaceUtilitySelector(
         rewrittenRule.selector,
         utilityClassNames,
-        outputSelector,
+        outputTemplate,
       );
       rewrittenRule.raws.before = "";
       selectedRulesByClassName.set(className, rewrittenRule);
@@ -172,8 +171,8 @@ function mergeDuplicateChildren(container: Container<Node>) {
   }
 }
 
-function serializeRoot(root: Root): string {
-  return postcss.parse(root.toString()).toString();
+function createRootWithEmptyRule(selector: string): Root {
+  return postcss.root({ nodes: [createEmptyRule(selector)] });
 }
 
 function parseCss(source: string): Root {
@@ -193,54 +192,48 @@ function parseCss(source: string): Root {
   return root;
 }
 
-function selectAndRewriteTailwindUtilities(
-  compiledCss: string,
+function selectAndRewriteTailwindUtilitiesAst(
+  compiledRoot: Root,
   classNames: string,
   outputSelector: string,
-): string {
+): Root {
   const classTokens = normalizeClassTokens(classNames);
 
   if (classTokens.length === 0) {
-    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
+    return createRootWithEmptyRule(outputSelector);
   }
 
-  const compiledRoot = parseCss(compiledCss);
-  const rewrittenRoot = cloneMatchingRulesInClassOrder(compiledRoot, classTokens, outputSelector);
-  return serializeRoot(rewrittenRoot);
+  return cloneMatchingRulesInClassOrder(compiledRoot, classTokens, outputSelector);
 }
 
-export async function compileTailwindUtilities(classNames: string): Promise<string> {
+async function compileTailwindClassesAst(
+  classNames: string,
+  outputSelector: string,
+): Promise<Root> {
   const classTokens = normalizeClassTokens(classNames);
 
   if (classTokens.length === 0) {
-    return "";
+    return createRootWithEmptyRule(outputSelector);
   }
 
   const compiler = await compile(TAILWIND_ENTRYPOINT, {
     base: process.cwd(),
     onDependency: () => { },
   });
+  const compiledRoot = parseCss(compiler.build(classTokens));
+  const rewrittenRoot = selectAndRewriteTailwindUtilitiesAst(
+    compiledRoot,
+    classNames,
+    outputSelector,
+  );
 
-  return compiler.build(classTokens);
-}
-
-export function replaceTailwindSelectors(
-  compiledCss: string,
-  classNames: string,
-  outputSelector: string,
-): string {
-  return selectAndRewriteTailwindUtilities(compiledCss, classNames, outputSelector);
-}
-
-export function finalizeTailwindCss(rewrittenCss: string): string {
-  const rewrittenRoot = postcss.parse(rewrittenCss);
   mergeDuplicateChildren(rewrittenRoot);
 
   if (rewrittenRoot.first) {
     rewrittenRoot.first.raws.before = "";
   }
 
-  return serializeRoot(rewrittenRoot);
+  return rewrittenRoot;
 }
 
 /**
@@ -251,13 +244,5 @@ export async function compileTailwindClasses(
   classNames: string,
   outputSelector: string = ".output",
 ): Promise<string> {
-  const classTokens = normalizeClassTokens(classNames);
-
-  if (classTokens.length === 0) {
-    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
-  }
-
-  const compiledCss = await compileTailwindUtilities(classNames);
-  const rewrittenCss = replaceTailwindSelectors(compiledCss, classNames, outputSelector);
-  return finalizeTailwindCss(rewrittenCss);
+  return (await compileTailwindClassesAst(classNames, outputSelector)).toString();
 }

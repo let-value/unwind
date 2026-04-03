@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   compileTailwindClasses,
-  compileTailwindUtilities,
-  finalizeTailwindCss,
   normalizeClassTokens,
-  replaceTailwindSelectors,
 } from "./tailwind-compile.ts";
 
 function snapshotCss(css: string): string[] {
@@ -18,61 +15,6 @@ describe("normalizeClassTokens", () => {
       "p-4",
       "hover:bg-blue-600",
     ]);
-  });
-});
-
-describe("compileTailwindUtilities", () => {
-  it("snapshots the raw Tailwind output", async (t) => {
-    const css = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
-
-    assert.ok(css.includes(".p-4"));
-    assert.ok(css.includes(".hover\\:bg-blue-600"));
-    assert.ok(css.includes(".before\\:block"));
-    t.assert.snapshot(snapshotCss(css));
-  });
-});
-
-describe("replaceTailwindSelectors", () => {
-  it("snapshots selector replacement output before finalization", async (t) => {
-    const compiledCss = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
-    const rewrittenCss = replaceTailwindSelectors(compiledCss, "p-4 hover:bg-blue-600 before:block", ".card");
-
-    assert.ok(rewrittenCss.includes(".card"));
-    assert.ok(rewrittenCss.includes("&:hover"));
-    assert.ok(rewrittenCss.includes("&::before"));
-    t.assert.snapshot(snapshotCss(rewrittenCss));
-  });
-});
-
-describe("finalizeTailwindCss", () => {
-  it("snapshots deduped nested CSS", async (t) => {
-    const compiledCss = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
-    const rewrittenCss = replaceTailwindSelectors(compiledCss, "p-4 hover:bg-blue-600 before:block", ".card");
-    const finalizedCss = finalizeTailwindCss(rewrittenCss);
-
-    assert.ok(finalizedCss.includes("&:hover"));
-    assert.ok(finalizedCss.includes("&::before"));
-    t.assert.snapshot(snapshotCss(finalizedCss));
-  });
-
-  it("merges duplicate nested variant selectors", () => {
-    const finalizedCss = finalizeTailwindCss(`
-.card {
-  &:hover {
-    color: red;
-  }
-}
-
-.card {
-  &:hover {
-    background: blue;
-  }
-}
-`);
-
-    assert.equal((finalizedCss.match(/&:hover/g) ?? []).length, 1);
-    assert.ok(finalizedCss.includes("color: red"));
-    assert.ok(finalizedCss.includes("background: blue"));
   });
 });
 
@@ -113,6 +55,24 @@ const finalCases: FinalCase[] = [
 ];
 
 describe("compileTailwindClasses", () => {
+  it("emits rewritten utilities under the requested selector", async (t) => {
+    const css = await compileTailwindClasses("p-4 hover:bg-blue-600 before:block", ".card");
+
+    assert.ok(css.includes(".card"));
+    assert.ok(css.includes("&:hover"));
+    assert.ok(css.includes("&::before"));
+    assert.ok(css.includes("padding:"));
+    assert.ok(css.includes("display: block"));
+  });
+
+  it("merges duplicate nested variant selectors", async () => {
+    const css = await compileTailwindClasses("hover:text-red-500 hover:bg-blue-600", ".card");
+
+    assert.equal((css.match(/&:hover/g) ?? []).length, 1);
+    assert.ok(css.includes("color:"));
+    assert.ok(css.includes("background-color:"));
+  });
+
   for (const testCase of finalCases) {
     it(`snapshots ${testCase.name}`, async (t) => {
       const css = await compileTailwindClasses(
