@@ -59,8 +59,8 @@ describe("compileTailwindClasses", () => {
     const css = await compileTailwindClasses("p-4 hover:bg-blue-600 before:block", ".card");
 
     assert.ok(css.includes(".card"));
-    assert.ok(css.includes("&:hover"));
-    assert.ok(css.includes("&::before"));
+    assert.ok(css.includes(".card:hover"));
+    assert.ok(css.includes(".card::before"));
     assert.ok(css.includes("padding:"));
     assert.ok(css.includes("display: block"));
   });
@@ -68,7 +68,7 @@ describe("compileTailwindClasses", () => {
   it("merges duplicate nested variant selectors", async () => {
     const css = await compileTailwindClasses("hover:text-red-500 hover:bg-blue-600", ".card");
 
-    assert.equal((css.match(/&:hover/g) ?? []).length, 1);
+    assert.equal((css.match(/\.card:hover/g) ?? []).length, 1);
     assert.ok(css.includes("color:"));
     assert.ok(css.includes("background-color:"));
   });

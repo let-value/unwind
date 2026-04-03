@@ -1,17 +1,15 @@
 exports[`compileTailwindClasses > snapshots compound variants and pseudo elements 1`] = `
 [
-  "[data-ui] {",
-  "  &::before {",
+  "[data-ui]::before {",
   "    content: var(--tw-content);",
   "    display: block;",
-  "  }",
-  "  @media (width >= 40rem) {",
-  "    &:hover {",
-  "      @media (hover: hover) {",
-  "        color: var(--color-red-500);",
-  "      }",
+  "}",
+  "@media (width >= 40rem) {",
+  "    @media (hover: hover) {",
+  "        [data-ui]:hover {",
+  "            color: var(--color-red-500)",
+  "        }",
   "    }",
-  "  }",
   "}"
 ]
 `;
@@ -19,10 +17,10 @@ exports[`compileTailwindClasses > snapshots compound variants and pseudo element
 exports[`compileTailwindClasses > snapshots custom selector 1`] = `
 [
   ".compiled {",
-  "  font-size: var(--text-sm);",
-  "  line-height: var(--tw-leading, var(--text-sm--line-height));",
-  "  --tw-font-weight: var(--font-weight-medium);",
-  "  font-weight: var(--font-weight-medium);",
+  "    font-size: var(--text-sm);",
+  "    line-height: var(--tw-leading, var(--text-sm--line-height));",
+  "    --tw-font-weight: var(--font-weight-medium);",
+  "    font-weight: var(--font-weight-medium);",
   "}"
 ]
 `;
@@ -30,8 +28,8 @@ exports[`compileTailwindClasses > snapshots custom selector 1`] = `
 exports[`compileTailwindClasses > snapshots merged utilities 1`] = `
 [
   ".output {",
-  "  padding: calc(var(--spacing) * 4);",
-  "  background-color: var(--color-blue-500);",
+  "    padding: calc(var(--spacing) * 4);",
+  "    background-color: var(--color-blue-500);",
   "}"
 ]
 `;
@@ -39,12 +37,12 @@ exports[`compileTailwindClasses > snapshots merged utilities 1`] = `
 exports[`compileTailwindClasses > snapshots regular and hover utilities 1`] = `
 [
   ".output {",
-  "  padding: calc(var(--spacing) * 4);",
-  "  &:hover {",
-  "    @media (hover: hover) {",
-  "      background-color: var(--color-blue-600);",
+  "    padding: calc(var(--spacing) * 4);",
+  "}",
+  "@media (hover: hover) {",
+  "    .output:hover {",
+  "        background-color: var(--color-blue-600)",
   "    }",
-  "  }",
   "}"
 ]
 `;
@@ -52,7 +50,7 @@ exports[`compileTailwindClasses > snapshots regular and hover utilities 1`] = `
 exports[`compileTailwindClasses > snapshots single utility 1`] = `
 [
   ".output {",
-  "  padding: calc(var(--spacing) * 4);",
+  "    padding: calc(var(--spacing) * 4);",
   "}"
 ]
 `;

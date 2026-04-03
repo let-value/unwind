@@ -3,7 +3,8 @@ import { resolve } from "node:path";
 import jscodeshift from "jscodeshift";
 import { transform } from "./transform.ts";
 
-export { compileTailwindClasses } from "./tailwind-compile.ts";
+export { compileTailwindClasses, compileTailwindTargets } from "./tailwind-compile.ts";
+export { resolveTailwindProjectContext } from "./tailwind-context.ts";
 
 export interface RunOptions {
   /** Glob patterns to match files */
@@ -54,20 +55,20 @@ export async function run(options: RunOptions): Promise<FileResult[]> {
         const api = {
           j,
           jscodeshift: j,
-          stats: () => {},
-          report: () => {},
+          stats: () => { },
+          report: () => { },
         };
 
         const output = await transform({ path: file, source }, api);
 
-        if (output == null || output === source) {
+        if (output == null || (output.localCss.length === 0 && output.globalCss.length === 0)) {
           results.push({ file, status: "unchanged" });
           return;
         }
 
-        if (!dry) {
-          await writeFile(file, output, "utf8");
-        }
+        // This phase only computes compilation results and does not emit files yet.
+        void writeFile;
+        void dry;
 
         results.push({ file, status: "modified" });
       } catch (error) {

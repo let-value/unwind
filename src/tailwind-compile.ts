@@ -1,12 +1,50 @@
+import { readFile } from "node:fs/promises";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { compile } from "@tailwindcss/node";
 import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
+import postcssNested from "postcss-nested";
 import selectorParser, { type Selector } from "postcss-selector-parser";
+import type { TailwindProjectContext } from "./tailwind-context.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss/theme";\n@import "tailwindcss/utilities";`;
 
 export interface TailwindCompileTarget {
   classNames: string;
   outputSelector: string;
+}
+
+export interface TailwindCompileOptions {
+  context?: TailwindProjectContext;
+  cssEntryFilePath?: string;
+  cssEntrySource?: string;
+}
+
+export interface TailwindCompileResult {
+  localCss: string;
+  globalCss: string;
+}
+
+function stripReplacedContextImports(source: string): string {
+  return source
+    .replace(/^\s*@import\s+["']tailwindcss["'];?\s*$/gm, "")
+    .replace(/^\s*@import\s+["']shadcn\/tailwind\.css["'];?\s*$/gm, "")
+    .trim();
+}
+
+function composeContextEntrySource(context: TailwindProjectContext): string {
+  const segments = [`@import "tailwindcss";`];
+  const shadcnDefaultSource = context.shadcn?.defaultTailwindCssSource?.trim();
+  const projectSource = stripReplacedContextImports(context.tailwindCssEntrySource);
+
+  if (shadcnDefaultSource) {
+    segments.push(shadcnDefaultSource);
+  }
+
+  if (projectSource) {
+    segments.push(projectSource);
+  }
+
+  return `${segments.join("\n\n")}\n`;
 }
 
 function createEmptyRule(selector: string): Rule {
@@ -40,6 +78,18 @@ function collectClassNamesFromSelector(selector: string): Set<string> {
   return classNames;
 }
 
+function collectIdsFromSelector(selector: string): Set<string> {
+  const ids = new Set<string>();
+
+  selectorParser((root) => {
+    root.walkIds((node) => {
+      ids.add(node.value);
+    });
+  }).processSync(selector);
+
+  return ids;
+}
+
 function replaceUtilitySelector(
   selector: string,
   utilityClassNames: Set<string>,
@@ -64,21 +114,37 @@ function replaceUtilitySelector(
   }).processSync(selector);
 }
 
+function wrapNodeWithAtRuleAncestors(node: Node, rule: Rule): Node {
+  let wrappedNode = node;
+  let currentParent = rule.parent;
+
+  while (currentParent && currentParent.type !== "root") {
+    if (currentParent.type === "atrule") {
+      const wrappedAtRule = postcss.atRule({
+        name: currentParent.name,
+        params: currentParent.params,
+      });
+      wrappedAtRule.append(wrappedNode);
+      wrappedNode = wrappedAtRule;
+    }
+
+    currentParent = currentParent.parent;
+  }
+
+  return wrappedNode;
+}
+
 function cloneMatchingRulesInClassOrder(
   root: Root,
   classTokens: string[],
   outputSelector: string,
 ): Root {
   const utilityClassNames = new Set(classTokens);
-  const selectedRulesByClassName = new Map<string, Rule>();
+  const selectedRulesByClassName = new Map<string, Node>();
   const rewrittenRoot = postcss.root();
   const outputTemplate = createSelectorTemplate(outputSelector);
 
   root.walkRules((rule) => {
-    if (rule.parent?.type !== "root") {
-      return;
-    }
-
     const selectorClassNames = collectClassNamesFromSelector(rule.selector);
     const matchesRequestedClass = [...selectorClassNames].some((className) =>
       utilityClassNames.has(className),
@@ -100,7 +166,7 @@ function cloneMatchingRulesInClassOrder(
         outputTemplate,
       );
       rewrittenRule.raws.before = "";
-      selectedRulesByClassName.set(className, rewrittenRule);
+      selectedRulesByClassName.set(className, wrapNodeWithAtRuleAncestors(rewrittenRule, rule));
     }
   });
 
@@ -109,10 +175,6 @@ function cloneMatchingRulesInClassOrder(
     if (selectedRule) {
       rewrittenRoot.append(selectedRule);
     }
-  }
-
-  if (rewrittenRoot.nodes.length === 0) {
-    rewrittenRoot.append(createEmptyRule(outputSelector));
   }
 
   return rewrittenRoot;
@@ -176,10 +238,6 @@ function mergeDuplicateChildren(container: Container<Node>) {
   }
 }
 
-function createRootWithEmptyRule(selector: string): Root {
-  return postcss.root({ nodes: [createEmptyRule(selector)] });
-}
-
 function parseCss(source: string): Root {
   const result = postcss([]).process(source, {
     from: undefined,
@@ -197,63 +255,305 @@ function parseCss(source: string): Root {
   return root;
 }
 
-function selectAndRewriteTailwindUtilitiesAst(
-  compiledRoot: Root,
-  classNames: string,
-  outputSelector: string,
-): Root {
-  const classTokens = normalizeClassTokens(classNames);
+function isInsideKeyframes(rule: Rule): boolean {
+  let currentParent = rule.parent;
 
-  if (classTokens.length === 0) {
-    return createRootWithEmptyRule(outputSelector);
+  while (currentParent) {
+    if (currentParent.type === "atrule" && currentParent.name === "keyframes") {
+      return true;
+    }
+
+    currentParent = currentParent.parent;
   }
 
-  return cloneMatchingRulesInClassOrder(compiledRoot, classTokens, outputSelector);
+  return false;
+}
+
+interface SelectorReferenceSet {
+  classes: Set<string>;
+  ids: Set<string>;
+}
+
+function collectSelectorReferences(root: Root): SelectorReferenceSet {
+  const classes = new Set<string>();
+  const ids = new Set<string>();
+
+  root.walkRules((rule) => {
+    if (isInsideKeyframes(rule)) {
+      return;
+    }
+
+    for (const className of collectClassNamesFromSelector(rule.selector)) {
+      classes.add(className);
+    }
+
+    for (const id of collectIdsFromSelector(rule.selector)) {
+      ids.add(id);
+    }
+  });
+
+  return { classes, ids };
+}
+
+function collectTargetSelectorReferences(targets: TailwindCompileTarget[]): SelectorReferenceSet {
+  const classes = new Set<string>();
+  const ids = new Set<string>();
+
+  for (const target of targets) {
+    for (const className of collectClassNamesFromSelector(target.outputSelector)) {
+      classes.add(className);
+    }
+
+    for (const id of collectIdsFromSelector(target.outputSelector)) {
+      ids.add(id);
+    }
+  }
+
+  return { classes, ids };
+}
+
+function isInsideGlobalPseudo(node: selectorParser.Node): boolean {
+  let currentParent = node.parent;
+
+  while (currentParent) {
+    if (currentParent.type === "pseudo" && currentParent.value === ":global") {
+      return true;
+    }
+
+    currentParent = currentParent.parent;
+  }
+
+  return false;
+}
+
+function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
+  return selectorParser.pseudo({
+    value: ":global",
+    nodes: [
+      selectorParser.selector({
+        nodes: [node.clone()],
+      }),
+    ],
+  });
+}
+
+function protectGlobalSelectorReferences(
+  root: Root,
+  globalReferences: SelectorReferenceSet,
+  localReferences: SelectorReferenceSet,
+) {
+  root.walkRules((rule) => {
+    if (isInsideKeyframes(rule)) {
+      return;
+    }
+
+    rule.selector = selectorParser((selectorRoot) => {
+      selectorRoot.walkClasses((node) => {
+        if (
+          !globalReferences.classes.has(node.value)
+          || localReferences.classes.has(node.value)
+          || isInsideGlobalPseudo(node)
+        ) {
+          return;
+        }
+
+        node.replaceWith(createGlobalWrapper(node));
+      });
+
+      selectorRoot.walkIds((node) => {
+        if (
+          !globalReferences.ids.has(node.value)
+          || localReferences.ids.has(node.value)
+          || isInsideGlobalPseudo(node)
+        ) {
+          return;
+        }
+
+        node.replaceWith(createGlobalWrapper(node));
+      });
+    }).processSync(rule.selector);
+  });
+}
+
+async function flattenNestedRoot(root: Root): Promise<Root> {
+  const result = await postcss([postcssNested]).process(root.toString(), {
+    from: undefined,
+  });
+
+  return parseCss(result.css);
+}
+
+function normalizeOutputAst(root: Root): Root {
+  root.walkDecls((declaration) => {
+    declaration.value = declaration.value.trim();
+  });
+
+  root.cleanRaws();
+  return root;
+}
+
+async function finalizeLocalStylesAst(
+  localRoot: Root,
+  globalRoot: Root,
+  targets: TailwindCompileTarget[],
+): Promise<Root> {
+  const flattenedRoot = await flattenNestedRoot(localRoot);
+
+  protectGlobalSelectorReferences(
+    flattenedRoot,
+    collectSelectorReferences(globalRoot),
+    collectTargetSelectorReferences(targets),
+  );
+  mergeDuplicateChildren(flattenedRoot);
+  return normalizeOutputAst(flattenedRoot);
+}
+
+function pruneEmptyContainers(container: Container<Node>) {
+  if (!container.nodes) {
+    return;
+  }
+
+  for (const node of container.nodes.slice()) {
+    if ("nodes" in node && node.nodes) {
+      pruneEmptyContainers(node);
+
+      if (node.nodes.length === 0 && node.type !== "root") {
+        node.remove();
+      }
+    }
+  }
+}
+
+function extractLocalStylesAst(
+  compiledRoot: Root,
+  targets: TailwindCompileTarget[],
+): Root {
+  const localRoot = postcss.root();
+
+  for (const target of targets) {
+    const rewrittenRoot = cloneMatchingRulesInClassOrder(
+      compiledRoot,
+      normalizeClassTokens(target.classNames),
+      target.outputSelector,
+    );
+
+    mergeDuplicateChildren(rewrittenRoot);
+    moveChildren(rewrittenRoot, localRoot);
+  }
+
+  mergeDuplicateChildren(localRoot);
+  return normalizeOutputAst(localRoot);
+}
+
+function extractGlobalStylesAst(
+  compiledRoot: Root,
+  classTokens: string[],
+): Root {
+  const globalRoot = compiledRoot.clone();
+  const requestedClassTokens = new Set(classTokens);
+
+  if (requestedClassTokens.size > 0) {
+    globalRoot.walkRules((rule) => {
+      const selectorClassNames = collectClassNamesFromSelector(rule.selector);
+      const matchesRequestedClass = [...selectorClassNames].some((className) =>
+        requestedClassTokens.has(className),
+      );
+
+      if (matchesRequestedClass) {
+        rule.remove();
+      }
+    });
+  }
+
+  pruneEmptyContainers(globalRoot);
+  mergeDuplicateChildren(globalRoot);
+  return normalizeOutputAst(globalRoot);
+}
+
+async function resolveCompilerInput(options: TailwindCompileOptions): Promise<{
+  base: string;
+  entrySource: string;
+  includeGlobalContext: boolean;
+}> {
+  if (options.context) {
+    return {
+      base: dirname(options.context.tailwindCssEntryPath),
+      entrySource: composeContextEntrySource(options.context),
+      includeGlobalContext: true,
+    };
+  }
+
+  if (options.cssEntrySource && options.cssEntryFilePath) {
+    const cssEntryFilePath = isAbsolute(options.cssEntryFilePath)
+      ? options.cssEntryFilePath
+      : resolve(process.cwd(), options.cssEntryFilePath);
+
+    return {
+      base: dirname(cssEntryFilePath),
+      entrySource: options.cssEntrySource,
+      includeGlobalContext: true,
+    };
+  }
+
+  if (options.cssEntryFilePath) {
+    const cssEntryFilePath = isAbsolute(options.cssEntryFilePath)
+      ? options.cssEntryFilePath
+      : resolve(process.cwd(), options.cssEntryFilePath);
+
+    return {
+      base: dirname(cssEntryFilePath),
+      entrySource: await readFile(cssEntryFilePath, "utf8"),
+      includeGlobalContext: true,
+    };
+  }
+
+  return {
+    base: process.cwd(),
+    entrySource: TAILWIND_ENTRYPOINT,
+    includeGlobalContext: false,
+  };
 }
 
 async function compileTailwindClassesAst(
   classNames: string,
   outputSelector: string,
-): Promise<Root> {
-  return compileTailwindTargetsAst([{ classNames, outputSelector }]);
+  options: TailwindCompileOptions = {},
+): Promise<TailwindCompileResult> {
+  return compileTailwindTargetsAst([{ classNames, outputSelector }], options);
 }
 
-async function compileTailwindTargetsAst(targets: TailwindCompileTarget[]): Promise<Root> {
-  const combinedRoot = postcss.root();
+async function compileTailwindTargetsAst(
+  targets: TailwindCompileTarget[],
+  options: TailwindCompileOptions = {},
+): Promise<TailwindCompileResult> {
   const classTokens = [...new Set(targets.flatMap((target) => normalizeClassTokens(target.classNames)))];
+  const { base, entrySource, includeGlobalContext } = await resolveCompilerInput(options);
 
-  if (classTokens.length === 0) {
-    for (const target of targets) {
-      combinedRoot.append(createEmptyRule(target.outputSelector));
-    }
-
-    return combinedRoot;
+  if (classTokens.length === 0 && !includeGlobalContext) {
+    return {
+      localCss: "",
+      globalCss: "",
+    };
   }
 
-  const compiler = await compile(TAILWIND_ENTRYPOINT, {
-    base: process.cwd(),
+  const compiler = await compile(entrySource, {
+    base,
     onDependency: () => { },
   });
   const compiledRoot = parseCss(compiler.build(classTokens));
+  const globalRoot = includeGlobalContext
+    ? extractGlobalStylesAst(compiledRoot, classTokens)
+    : postcss.root();
+  const localRoot = await finalizeLocalStylesAst(
+    extractLocalStylesAst(compiledRoot, targets),
+    globalRoot,
+    targets,
+  );
 
-  for (const target of targets) {
-    const rewrittenRoot = selectAndRewriteTailwindUtilitiesAst(
-      compiledRoot,
-      target.classNames,
-      target.outputSelector,
-    );
-
-    mergeDuplicateChildren(rewrittenRoot);
-    moveChildren(rewrittenRoot, combinedRoot);
-  }
-
-  mergeDuplicateChildren(combinedRoot);
-
-  if (combinedRoot.first) {
-    combinedRoot.first.raws.before = "";
-  }
-
-  return combinedRoot;
+  return {
+    localCss: localRoot.toString(),
+    globalCss: globalRoot.toString(),
+  };
 }
 
 /**
@@ -263,12 +563,14 @@ async function compileTailwindTargetsAst(targets: TailwindCompileTarget[]): Prom
 export async function compileTailwindClasses(
   classNames: string,
   outputSelector: string = ".output",
+  options: TailwindCompileOptions = {},
 ): Promise<string> {
-  return (await compileTailwindClassesAst(classNames, outputSelector)).toString();
+  return (await compileTailwindClassesAst(classNames, outputSelector, options)).localCss;
 }
 
 export async function compileTailwindTargets(
   targets: TailwindCompileTarget[],
-): Promise<string> {
-  return (await compileTailwindTargetsAst(targets)).toString();
+  options: TailwindCompileOptions = {},
+): Promise<TailwindCompileResult> {
+  return compileTailwindTargetsAst(targets, options);
 }
