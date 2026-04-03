@@ -1,31 +1,134 @@
 exports[`compileTailwindClasses > snapshots compound variants and pseudo elements 1`] = `
-"[data-ui] {\\n  &::before {\\n    content: var(--tw-content);\\n    display: block;\\n  }\\n  @media (width >= 40rem) {\\n    &:hover {\\n      @media (hover: hover) {\\n        color: var(--color-red-500);\\n      }\\n    }\\n  }\\n}"
+[
+  "[data-ui] {",
+  "  &::before {",
+  "    content: var(--tw-content);",
+  "    display: block;",
+  "  }",
+  "  @media (width >= 40rem) {",
+  "    &:hover {",
+  "      @media (hover: hover) {",
+  "        color: var(--color-red-500);",
+  "      }",
+  "    }",
+  "  }",
+  "}"
+]
 `;
 
 exports[`compileTailwindClasses > snapshots custom selector 1`] = `
-".compiled {\\n  font-size: var(--text-sm);\\n  line-height: var(--tw-leading, var(--text-sm--line-height));\\n  --tw-font-weight: var(--font-weight-medium);\\n  font-weight: var(--font-weight-medium);\\n}"
+[
+  ".compiled {",
+  "  font-size: var(--text-sm);",
+  "  line-height: var(--tw-leading, var(--text-sm--line-height));",
+  "  --tw-font-weight: var(--font-weight-medium);",
+  "  font-weight: var(--font-weight-medium);",
+  "}"
+]
 `;
 
 exports[`compileTailwindClasses > snapshots merged utilities 1`] = `
-".output {\\n  padding: calc(var(--spacing) * 4);\\n  background-color: var(--color-blue-500);\\n}"
+[
+  ".output {",
+  "  padding: calc(var(--spacing) * 4);",
+  "  background-color: var(--color-blue-500);",
+  "}"
+]
 `;
 
 exports[`compileTailwindClasses > snapshots regular and hover utilities 1`] = `
-".output {\\n  padding: calc(var(--spacing) * 4);\\n  &:hover {\\n    @media (hover: hover) {\\n      background-color: var(--color-blue-600);\\n    }\\n  }\\n}"
+[
+  ".output {",
+  "  padding: calc(var(--spacing) * 4);",
+  "  &:hover {",
+  "    @media (hover: hover) {",
+  "      background-color: var(--color-blue-600);",
+  "    }",
+  "  }",
+  "}"
+]
 `;
 
 exports[`compileTailwindClasses > snapshots single utility 1`] = `
-".output {\\n  padding: calc(var(--spacing) * 4);\\n}"
+[
+  ".output {",
+  "  padding: calc(var(--spacing) * 4);",
+  "}"
+]
 `;
 
 exports[`compileTailwindUtilities > snapshots the raw Tailwind output 1`] = `
-"/*! tailwindcss v4.2.2 | MIT License | https://tailwindcss.com */\\n@layer properties;\\n:root, :host {\\n  --color-blue-600: oklch(54.6% 0.245 262.881);\\n  --spacing: 0.25rem;\\n}\\n.p-4 {\\n  padding: calc(var(--spacing) * 4);\\n}\\n.before\\\\:block {\\n  &::before {\\n    content: var(--tw-content);\\n    display: block;\\n  }\\n}\\n.hover\\\\:bg-blue-600 {\\n  &:hover {\\n    @media (hover: hover) {\\n      background-color: var(--color-blue-600);\\n    }\\n  }\\n}\\n@property --tw-content {\\n  syntax: \\"*\\";\\n  initial-value: \\"\\";\\n  inherits: false;\\n}\\n@layer properties {\\n  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {\\n    *, ::before, ::after, ::backdrop {\\n      --tw-content: \\"\\";\\n    }\\n  }\\n}\\n"
+[
+  "/*! tailwindcss v4.2.2 | MIT License | https://tailwindcss.com */",
+  "@layer properties;",
+  ":root, :host {",
+  "  --color-blue-600: oklch(54.6% 0.245 262.881);",
+  "  --spacing: 0.25rem;",
+  "}",
+  ".p-4 {",
+  "  padding: calc(var(--spacing) * 4);",
+  "}",
+  ".before\\\\:block {",
+  "  &::before {",
+  "    content: var(--tw-content);",
+  "    display: block;",
+  "  }",
+  "}",
+  ".hover\\\\:bg-blue-600 {",
+  "  &:hover {",
+  "    @media (hover: hover) {",
+  "      background-color: var(--color-blue-600);",
+  "    }",
+  "  }",
+  "}",
+  "@property --tw-content {",
+  "  syntax: \\"*\\";",
+  "  initial-value: \\"\\";",
+  "  inherits: false;",
+  "}",
+  "@layer properties {",
+  "  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {",
+  "    *, ::before, ::after, ::backdrop {",
+  "      --tw-content: \\"\\";",
+  "    }",
+  "  }",
+  "}",
+  ""
+]
 `;
 
 exports[`finalizeTailwindCss > snapshots deduped nested CSS 1`] = `
-".card {\\n  padding: calc(var(--spacing) * 4);\\n  &:hover {\\n    @media (hover: hover) {\\n      background-color: var(--color-blue-600);\\n    }\\n  }\\n  &::before {\\n    content: var(--tw-content);\\n    display: block;\\n  }\\n}"
+[
+  ".card {",
+  "  padding: calc(var(--spacing) * 4);",
+  "  &:hover {",
+  "    @media (hover: hover) {",
+  "      background-color: var(--color-blue-600);",
+  "    }",
+  "  }",
+  "  &::before {",
+  "    content: var(--tw-content);",
+  "    display: block;",
+  "  }",
+  "}"
+]
 `;
 
 exports[`replaceTailwindSelectors > snapshots selector replacement output before finalization 1`] = `
-".card {\\n  padding: calc(var(--spacing) * 4);\\n}.card {\\n  &:hover {\\n    @media (hover: hover) {\\n      background-color: var(--color-blue-600);\\n    }\\n  }\\n}.card {\\n  &::before {\\n    content: var(--tw-content);\\n    display: block;\\n  }\\n}"
+[
+  ".card {",
+  "  padding: calc(var(--spacing) * 4);",
+  "}.card {",
+  "  &:hover {",
+  "    @media (hover: hover) {",
+  "      background-color: var(--color-blue-600);",
+  "    }",
+  "  }",
+  "}.card {",
+  "  &::before {",
+  "    content: var(--tw-content);",
+  "    display: block;",
+  "  }",
+  "}"
+]
 `;

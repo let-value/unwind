@@ -199,7 +199,7 @@ export async function compileTailwindUtilities(classNames: string): Promise<stri
 
   const compiler = await compile(TAILWIND_ENTRYPOINT, {
     base: process.cwd(),
-    onDependency: () => {},
+    onDependency: () => { },
   });
 
   return compiler.build(classTokens);

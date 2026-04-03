@@ -8,6 +8,10 @@ import {
   replaceTailwindSelectors,
 } from "./tailwind-compile.ts";
 
+function snapshotCss(css: string): string[] {
+  return css.split("\n");
+}
+
 describe("normalizeClassTokens", () => {
   it("deduplicates and trims class tokens", () => {
     assert.deepEqual(normalizeClassTokens("  p-4  hover:bg-blue-600 p-4 "), [
@@ -24,7 +28,7 @@ describe("compileTailwindUtilities", () => {
     assert.ok(css.includes(".p-4"));
     assert.ok(css.includes(".hover\\:bg-blue-600"));
     assert.ok(css.includes(".before\\:block"));
-    t.assert.snapshot(css);
+    t.assert.snapshot(snapshotCss(css));
   });
 });
 
@@ -36,7 +40,7 @@ describe("replaceTailwindSelectors", () => {
     assert.ok(rewrittenCss.includes(".card"));
     assert.ok(rewrittenCss.includes("&:hover"));
     assert.ok(rewrittenCss.includes("&::before"));
-    t.assert.snapshot(rewrittenCss);
+    t.assert.snapshot(snapshotCss(rewrittenCss));
   });
 });
 
@@ -48,7 +52,7 @@ describe("finalizeTailwindCss", () => {
 
     assert.ok(finalizedCss.includes("&:hover"));
     assert.ok(finalizedCss.includes("&::before"));
-    t.assert.snapshot(finalizedCss);
+    t.assert.snapshot(snapshotCss(finalizedCss));
   });
 
   it("merges duplicate nested variant selectors", () => {
@@ -123,7 +127,7 @@ describe("compileTailwindClasses", () => {
         assert.ok(css.includes(selector));
       }
 
-      t.assert.snapshot(css);
+      t.assert.snapshot(snapshotCss(css));
     });
   }
 });
