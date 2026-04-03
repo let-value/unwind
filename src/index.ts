@@ -58,7 +58,7 @@ export async function run(options: RunOptions): Promise<FileResult[]> {
           report: () => {},
         };
 
-        const output = transform({ path: file, source }, api);
+        const output = await transform({ path: file, source }, api);
 
         if (output == null || output === source) {
           results.push({ file, status: "unchanged" });

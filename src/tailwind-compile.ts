@@ -4,6 +4,11 @@ import selectorParser, { type Selector } from "postcss-selector-parser";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss/theme";\n@import "tailwindcss/utilities";`;
 
+export interface TailwindCompileTarget {
+  classNames: string;
+  outputSelector: string;
+}
+
 function createEmptyRule(selector: string): Rule {
   return postcss.rule({ selector });
 }
@@ -210,10 +215,19 @@ async function compileTailwindClassesAst(
   classNames: string,
   outputSelector: string,
 ): Promise<Root> {
-  const classTokens = normalizeClassTokens(classNames);
+  return compileTailwindTargetsAst([{ classNames, outputSelector }]);
+}
+
+async function compileTailwindTargetsAst(targets: TailwindCompileTarget[]): Promise<Root> {
+  const combinedRoot = postcss.root();
+  const classTokens = [...new Set(targets.flatMap((target) => normalizeClassTokens(target.classNames)))];
 
   if (classTokens.length === 0) {
-    return createRootWithEmptyRule(outputSelector);
+    for (const target of targets) {
+      combinedRoot.append(createEmptyRule(target.outputSelector));
+    }
+
+    return combinedRoot;
   }
 
   const compiler = await compile(TAILWIND_ENTRYPOINT, {
@@ -221,19 +235,25 @@ async function compileTailwindClassesAst(
     onDependency: () => { },
   });
   const compiledRoot = parseCss(compiler.build(classTokens));
-  const rewrittenRoot = selectAndRewriteTailwindUtilitiesAst(
-    compiledRoot,
-    classNames,
-    outputSelector,
-  );
 
-  mergeDuplicateChildren(rewrittenRoot);
+  for (const target of targets) {
+    const rewrittenRoot = selectAndRewriteTailwindUtilitiesAst(
+      compiledRoot,
+      target.classNames,
+      target.outputSelector,
+    );
 
-  if (rewrittenRoot.first) {
-    rewrittenRoot.first.raws.before = "";
+    mergeDuplicateChildren(rewrittenRoot);
+    moveChildren(rewrittenRoot, combinedRoot);
   }
 
-  return rewrittenRoot;
+  mergeDuplicateChildren(combinedRoot);
+
+  if (combinedRoot.first) {
+    combinedRoot.first.raws.before = "";
+  }
+
+  return combinedRoot;
 }
 
 /**
@@ -245,4 +265,10 @@ export async function compileTailwindClasses(
   outputSelector: string = ".output",
 ): Promise<string> {
   return (await compileTailwindClassesAst(classNames, outputSelector)).toString();
+}
+
+export async function compileTailwindTargets(
+  targets: TailwindCompileTarget[],
+): Promise<string> {
+  return (await compileTailwindTargetsAst(targets)).toString();
 }

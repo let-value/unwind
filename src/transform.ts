@@ -1,28 +1,26 @@
 import type { API, FileInfo, Options } from "jscodeshift";
+import { compileTailwindTargets } from "./tailwind-compile.ts";
+import { createTransformTargets } from "./transform-targets.ts";
+import { extractClassNameStringsFromSource } from "./classname-extract.ts";
 
 export interface TransformOptions extends Options {
-  /** Dry run — report changes without writing to disk */
+  /** Dry run â€” report changes without writing to disk */
   dry?: boolean;
 }
 
-/**
- * A no-op identity transform that can be extended with real codemod logic.
- *
- * Replace the body of this function with your actual transformation.
- */
-export function transform(
+export async function transform(
   file: FileInfo,
-  api: API,
+  _api: API,
   _options: TransformOptions = {},
-): string | undefined {
-  const j = api.jscodeshift;
-  const root = j(file.source);
+): Promise<string | undefined> {
+  const classNames = extractClassNameStringsFromSource(file.source);
+  const targets = createTransformTargets(classNames);
 
-  // Example: walk all nodes (extend this with real codemod logic)
-  root.find(j.Node);
+  if (targets.length === 0) {
+    return undefined;
+  }
 
-  // Return the modified source, or `undefined` to leave the file unchanged.
-  return root.toSource();
+  return compileTailwindTargets(targets);
 }
 
 export default transform;
