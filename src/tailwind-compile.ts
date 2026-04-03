@@ -1,7 +1,6 @@
 import { compile } from "@tailwindcss/node";
 import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
 import selectorParser, { type Selector } from "postcss-selector-parser";
-import { runCssCodemod, type CssCodemodTransform } from "./css-codemod.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss/theme";\n@import "tailwindcss/utilities";`;
 
@@ -177,18 +176,38 @@ function serializeRoot(root: Root): string {
   return postcss.parse(root.toString()).toString();
 }
 
-const selectAndRewriteTailwindUtilities: CssCodemodTransform = (file, api) => {
-  const [classNames, outputSelector] = file.path.split("\0");
+function parseCss(source: string): Root {
+  const result = postcss([]).process(source, {
+    from: undefined,
+  });
+  const { root } = result;
+
+  if ((result as { error?: Error }).error) {
+    throw (result as { error: Error }).error;
+  }
+
+  if (root?.type !== "root") {
+    throw new Error(`Unexpected root node: ${String(root)}`);
+  }
+
+  return root;
+}
+
+function selectAndRewriteTailwindUtilities(
+  compiledCss: string,
+  classNames: string,
+  outputSelector: string,
+): string {
   const classTokens = normalizeClassTokens(classNames);
 
   if (classTokens.length === 0) {
     return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
   }
 
-  const compiledRoot = api.parse(file.source);
+  const compiledRoot = parseCss(compiledCss);
   const rewrittenRoot = cloneMatchingRulesInClassOrder(compiledRoot, classTokens, outputSelector);
   return serializeRoot(rewrittenRoot);
-};
+}
 
 export async function compileTailwindUtilities(classNames: string): Promise<string> {
   const classTokens = normalizeClassTokens(classNames);
@@ -210,15 +229,7 @@ export function replaceTailwindSelectors(
   classNames: string,
   outputSelector: string,
 ): string {
-  const classTokens = normalizeClassTokens(classNames);
-
-  if (classTokens.length === 0) {
-    return serializeRoot(postcss.root({ nodes: [createEmptyRule(outputSelector)] }));
-  }
-
-  return runCssCodemod(compiledCss, selectAndRewriteTailwindUtilities, {
-    path: `${classTokens.join(" ")}\0${outputSelector}`,
-  });
+  return selectAndRewriteTailwindUtilities(compiledCss, classNames, outputSelector);
 }
 
 export function finalizeTailwindCss(rewrittenCss: string): string {

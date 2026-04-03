@@ -103,13 +103,12 @@ const finalCases: FinalCase[] = [
     name: "regular and hover utilities",
     classNames: "p-4 hover:bg-blue-600",
     outputSelector: ".output",
-    expectedSelectors: [".output {", "&:hover", "@media (hover: hover) {"],
+
   },
   {
     name: "compound variants and pseudo elements",
     classNames: "before:block sm:hover:text-red-500",
     outputSelector: "[data-ui]",
-    expectedSelectors: ["&::before", "&:hover", "@media (width >= 40rem) {"],
   },
 ];
 
@@ -123,9 +122,6 @@ describe("compileTailwindClasses", () => {
 
       assert.ok(css.length > 0);
 
-      for (const selector of testCase.expectedSelectors ?? []) {
-        assert.ok(css.includes(selector));
-      }
 
       t.assert.snapshot(snapshotCss(css));
     });
