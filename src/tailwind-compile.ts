@@ -1,6 +1,5 @@
 import { compile } from "@tailwindcss/node";
 import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
-import postcssNested from "postcss-nested";
 import selectorParser, { type Selector } from "postcss-selector-parser";
 import { runCssCodemod, type CssCodemodTransform } from "./css-codemod.ts";
 
@@ -174,22 +173,6 @@ function mergeDuplicateChildren(container: Container<Node>) {
   }
 }
 
-function flattenNestedRoot(root: Root): Root {
-  const flattenedRoot = postcss([postcssNested]).process(root, {
-    from: undefined,
-  }).root;
-
-  if (!flattenedRoot) {
-    throw new Error("Expected nested PostCSS transform to return a root node");
-  }
-
-  if (flattenedRoot.first) {
-    flattenedRoot.first.raws.before = "";
-  }
-
-  return flattenedRoot;
-}
-
 function serializeRoot(root: Root): string {
   return postcss.parse(root.toString()).toString();
 }
@@ -241,7 +224,12 @@ export function replaceTailwindSelectors(
 export function finalizeTailwindCss(rewrittenCss: string): string {
   const rewrittenRoot = postcss.parse(rewrittenCss);
   mergeDuplicateChildren(rewrittenRoot);
-  return serializeRoot(flattenNestedRoot(rewrittenRoot));
+
+  if (rewrittenRoot.first) {
+    rewrittenRoot.first.raws.before = "";
+  }
+
+  return serializeRoot(rewrittenRoot);
 }
 
 /**

@@ -41,14 +41,34 @@ describe("replaceTailwindSelectors", () => {
 });
 
 describe("finalizeTailwindCss", () => {
-  it("snapshots deduped and flattened CSS", async (t) => {
+  it("snapshots deduped nested CSS", async (t) => {
     const compiledCss = await compileTailwindUtilities("p-4 hover:bg-blue-600 before:block");
     const rewrittenCss = replaceTailwindSelectors(compiledCss, "p-4 hover:bg-blue-600 before:block", ".card");
     const finalizedCss = finalizeTailwindCss(rewrittenCss);
 
-    assert.ok(finalizedCss.includes(".card:hover"));
-    assert.ok(finalizedCss.includes(".card::before"));
+    assert.ok(finalizedCss.includes("&:hover"));
+    assert.ok(finalizedCss.includes("&::before"));
     t.assert.snapshot(finalizedCss);
+  });
+
+  it("merges duplicate nested variant selectors", () => {
+    const finalizedCss = finalizeTailwindCss(`
+.card {
+  &:hover {
+    color: red;
+  }
+}
+
+.card {
+  &:hover {
+    background: blue;
+  }
+}
+`);
+
+    assert.equal((finalizedCss.match(/&:hover/g) ?? []).length, 1);
+    assert.ok(finalizedCss.includes("color: red"));
+    assert.ok(finalizedCss.includes("background: blue"));
   });
 });
 
@@ -79,13 +99,13 @@ const finalCases: FinalCase[] = [
     name: "regular and hover utilities",
     classNames: "p-4 hover:bg-blue-600",
     outputSelector: ".output",
-    expectedSelectors: [".output {", ".output:hover {", "@media (hover: hover) {"],
+    expectedSelectors: [".output {", "&:hover", "@media (hover: hover) {"],
   },
   {
     name: "compound variants and pseudo elements",
     classNames: "before:block sm:hover:text-red-500",
     outputSelector: "[data-ui]",
-    expectedSelectors: ["[data-ui]::before", "[data-ui]:hover", "@media (width >= 40rem) {"],
+    expectedSelectors: ["&::before", "&:hover", "@media (width >= 40rem) {"],
   },
 ];
 
