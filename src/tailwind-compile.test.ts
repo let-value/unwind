@@ -1,22 +1,8 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 import {
   compileTailwindClasses,
   normalizeClassTokens,
 } from "./tailwind-compile.ts";
-
-function snapshotCss(css: string): string[] {
-  return css.split("\n");
-}
-
-describe("normalizeClassTokens", () => {
-  it("deduplicates and trims class tokens", () => {
-    assert.deepEqual(normalizeClassTokens("  p-4  hover:bg-blue-600 p-4 "), [
-      "p-4",
-      "hover:bg-blue-600",
-    ]);
-  });
-});
 
 interface FinalCase {
   name: string;
@@ -45,7 +31,6 @@ const finalCases: FinalCase[] = [
     name: "regular and hover utilities",
     classNames: "p-4 hover:bg-blue-600",
     outputSelector: ".output",
-
   },
   {
     name: "compound variants and pseudo elements",
@@ -54,36 +39,43 @@ const finalCases: FinalCase[] = [
   },
 ];
 
+describe("normalizeClassTokens", () => {
+  it("deduplicates and trims class tokens", () => {
+    expect(normalizeClassTokens("  p-4  hover:bg-blue-600 p-4 ")).toEqual([
+      "p-4",
+      "hover:bg-blue-600",
+    ]);
+  });
+});
+
 describe("compileTailwindClasses", () => {
-  it("emits rewritten utilities under the requested selector", async (t) => {
+  it("emits rewritten utilities under the requested selector", async () => {
     const css = await compileTailwindClasses("p-4 hover:bg-blue-600 before:block", ".card");
 
-    assert.ok(css.includes(".card"));
-    assert.ok(css.includes(".card:hover"));
-    assert.ok(css.includes(".card::before"));
-    assert.ok(css.includes("padding:"));
-    assert.ok(css.includes("display: block"));
+    expect(css).toContain(".card");
+    expect(css).toContain(".card:hover");
+    expect(css).toContain(".card::before");
+    expect(css).toContain("padding:");
+    expect(css).toContain("display: block");
   });
 
   it("merges duplicate nested variant selectors", async () => {
     const css = await compileTailwindClasses("hover:text-red-500 hover:bg-blue-600", ".card");
 
-    assert.equal((css.match(/\.card:hover/g) ?? []).length, 1);
-    assert.ok(css.includes("color:"));
-    assert.ok(css.includes("background-color:"));
+    expect((css.match(/\.card:hover/g) ?? []).length).toBe(1);
+    expect(css).toContain("color:");
+    expect(css).toContain("background-color:");
   });
 
   for (const testCase of finalCases) {
-    it(`snapshots ${testCase.name}`, async (t) => {
+    it(`snapshots ${testCase.name}`, async () => {
       const css = await compileTailwindClasses(
         testCase.classNames,
         testCase.outputSelector ?? ".output",
       );
 
-      assert.ok(css.length > 0);
-
-
-      t.assert.snapshot(snapshotCss(css));
+      expect(css.length).toBeGreaterThan(0);
+      expect(css).toMatchSnapshot();
     });
   }
 });

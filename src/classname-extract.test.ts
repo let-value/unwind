@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 import { extractClassNameStringsFromSource } from "./classname-extract.ts";
 
 function expectBreadcrumbs(
@@ -7,8 +6,8 @@ function expectBreadcrumbs(
   value: string,
 ) {
   const entry = extracted.find((candidate) => candidate.value === value);
-  assert.ok(entry, `Expected to extract "${value}"`);
-  return entry;
+  expect(entry).toBeDefined();
+  return entry!;
 }
 
 describe("extractClassNameStringsFromSource", () => {
@@ -41,12 +40,12 @@ describe("extractClassNameStringsFromSource", () => {
     const block = expectBreadcrumbs(extracted, "block");
     const hidden = expectBreadcrumbs(extracted, "hidden");
 
-    assert.deepEqual(base.breadcrumbs, [
+    expect(base.breadcrumbs).toEqual([
       { kind: "variable", name: "cardVariants" },
       { kind: "cva" },
     ]);
 
-    assert.deepEqual(icon.breadcrumbs, [
+    expect(icon.breadcrumbs).toEqual([
       { kind: "variable", name: "cardVariants" },
       { kind: "cva" },
       { kind: "variants" },
@@ -54,28 +53,28 @@ describe("extractClassNameStringsFromSource", () => {
       { kind: "classNames", name: "icon" },
     ]);
 
-    assert.deepEqual(hover.breadcrumbs, [
+    expect(hover.breadcrumbs).toEqual([
       { kind: "variable", name: "cardVariants" },
       { kind: "cva" },
       { kind: "condition", name: "isActive" },
     ]);
 
-    assert.deepEqual(compound.breadcrumbs, [
+    expect(compound.breadcrumbs).toEqual([
       { kind: "variable", name: "cardVariants" },
       { kind: "cva" },
       { kind: "compoundVariants" },
       { kind: "classNames", name: "0" },
     ]);
 
-    assert.equal(block.source, "className");
-    assert.deepEqual(block.breadcrumbs, [
+    expect(block.source).toBe("className");
+    expect(block.breadcrumbs).toEqual([
       { kind: "function", name: "Card" },
       { kind: "className" },
       { kind: "condition", name: "isOpen" },
     ]);
 
-    assert.equal(hidden.source, "className");
-    assert.deepEqual(hidden.breadcrumbs, [
+    expect(hidden.source).toBe("className");
+    expect(hidden.breadcrumbs).toEqual([
       { kind: "function", name: "Card" },
       { kind: "className" },
       { kind: "condition", name: "isOpen" },

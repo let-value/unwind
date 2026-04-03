@@ -1,15 +1,10 @@
-import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 import {
   resolveOriginalShadcnIndexCssFromComponentsJsonPath,
   resolveShadcnProjectMetadata,
 } from "./shadcn-strategy.ts";
-
-function snapshotCss(css: string): string[] {
-  return css.split("\n");
-}
 
 describe("resolveOriginalShadcnIndexCssFromComponentsJsonPath", () => {
   const componentsJsonPath = fileURLToPath(
@@ -19,23 +14,23 @@ describe("resolveOriginalShadcnIndexCssFromComponentsJsonPath", () => {
     new URL("./test/shadcn/project/src/index.css", import.meta.url),
   );
 
-
   it("reads the configured index.css source from components.json", async () => {
     const source = await resolveOriginalShadcnIndexCssFromComponentsJsonPath(componentsJsonPath);
     const fixtureSource = await readFile(fixtureIndexCssPath, "utf8");
 
-    assert.ok(source);
-    assert.equal(source, fixtureSource);
+    expect(source).toBeDefined();
+    expect(source).toBe(fixtureSource);
   });
 
-  it("snapshots the resolved index.css alongside the fixture source", async (t) => {
-    const resolvedSource = await resolveOriginalShadcnIndexCssFromComponentsJsonPath(componentsJsonPath);
+  it("snapshots the resolved index.css alongside the fixture source", async () => {
+    const resolvedSource = await resolveOriginalShadcnIndexCssFromComponentsJsonPath(
+      componentsJsonPath,
+    );
     const fixtureSource = await readFile(fixtureIndexCssPath, "utf8");
 
-    assert.ok(resolvedSource);
-    assert.equal(resolvedSource, fixtureSource);
-
-    t.assert.snapshot(snapshotCss(resolvedSource));
+    expect(resolvedSource).toBeDefined();
+    expect(resolvedSource).toBe(fixtureSource);
+    expect(resolvedSource).toMatchSnapshot();
   });
 });
 
@@ -55,15 +50,15 @@ describe("resolveShadcnProjectMetadata", () => {
       },
     });
 
-    assert.ok(metadata);
-    assert.equal(metadata.style, "base-vega");
-    assert.equal(metadata.baseColor, "neutral");
-    assert.equal(metadata.iconLibrary, "lucide");
-    assert.equal(metadata.font, "inter");
-    assert.equal(metadata.fontHeading, "inherit");
-    assert.equal(metadata.preset?.name, "base-vega");
-    assert.ok(metadata.defaultTailwindCssPath?.endsWith("shadcn\\dist\\tailwind.css"));
-    assert.ok(metadata.defaultTailwindCssSource?.includes("@custom-variant data-open"));
-    assert.equal(metadata.originalIndexCssSource, fixtureSource);
+    expect(metadata).toBeDefined();
+    expect(metadata.style).toBe("base-vega");
+    expect(metadata.baseColor).toBe("neutral");
+    expect(metadata.iconLibrary).toBe("lucide");
+    expect(metadata.font).toBe("inter");
+    expect(metadata.fontHeading).toBe("inherit");
+    expect(metadata.preset?.name).toBe("base-vega");
+    expect(metadata.defaultTailwindCssPath?.endsWith("shadcn\\dist\\tailwind.css")).toBe(true);
+    expect(metadata.defaultTailwindCssSource?.includes("@custom-variant data-open")).toBe(true);
+    expect(metadata.originalIndexCssSource).toBe(fixtureSource);
   });
 });

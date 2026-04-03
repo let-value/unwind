@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 import { createTransformTargets } from "./transform-targets.ts";
 
 describe("createTransformTargets", () => {
@@ -44,17 +43,16 @@ describe("createTransformTargets", () => {
       },
     ]);
 
-    assert.deepEqual(
+    expect(
       targets.map((target) => ({
         selectorName: target.selectorName,
         classNames: target.classNames,
       })),
-      [
-        { selectorName: "button", classNames: "rounded-md border" },
-        { selectorName: "button-size", classNames: "size-9" },
-        { selectorName: "card-open-block", classNames: "block" },
-        { selectorName: "card-open-hidden", classNames: "hidden" },
-      ],
-    );
+    ).toEqual([
+      { selectorName: "button", classNames: "rounded-md border" },
+      { selectorName: "button-size", classNames: "size-9" },
+      { selectorName: "card-open-block", classNames: "block" },
+      { selectorName: "card-open-hidden", classNames: "hidden" },
+    ]);
   });
 });
