@@ -12,7 +12,6 @@ const buttonFilePath = fileURLToPath(
   new URL("./project/src/components/ui/button.tsx", import.meta.url),
 );
 
-
 describe("extractClassNameStringsFromFile", () => {
   it("finds shadcn button class strings from the fixture source", async () => {
     const extracted = await extractClassNameStringsFromFile(buttonFilePath);
@@ -135,3 +134,4 @@ describe("extractClassNameStringsFromFile", () => {
     expect(result.globalCss).toMatchSnapshot();
   });
 });
+
