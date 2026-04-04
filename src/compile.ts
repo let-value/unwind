@@ -16,6 +16,10 @@ export function normalizeClassTokens(classNames: string): string[] {
   ];
 }
 
+export function extractClassNameTokens(classNames: Iterable<string>): string[] {
+  return normalizeClassTokens([...classNames].join(" "));
+}
+
 function createSelectorTemplate(selector: string): Selector {
   const root = selectorParser().astSync(selector);
   const firstSelector = root.first;

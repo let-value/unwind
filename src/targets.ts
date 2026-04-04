@@ -1,12 +1,8 @@
 import type { Breadcrumb, ExtractedClassName } from "./classnames.ts";
-import { extractClassNameTokens } from "./classnames.ts";
+import { extractClassNameTokens } from "./compile.ts";
 
-export interface TransformTarget {
-  classNames: string;
-  selectorName: string;
+export interface TransformTarget extends ExtractedClassName {
   outputSelector: string;
-  source: ExtractedClassName["source"];
-  breadcrumbs: Breadcrumb[];
 }
 
 interface SelectorSeed {
@@ -37,7 +33,6 @@ function splitWords(value: string): string[] {
 
 function dedupeWords(words: Iterable<string>): string[] {
   const seen = new Set<string>();
-  const deduped: string[] = [];
 
   for (const word of words) {
     if (!word || seen.has(word)) {
@@ -45,10 +40,9 @@ function dedupeWords(words: Iterable<string>): string[] {
     }
 
     seen.add(word);
-    deduped.push(word);
   }
 
-  return deduped;
+  return Array.from(seen);
 }
 
 function normalizeNameWords(name: string): string[] {
@@ -96,15 +90,6 @@ function toSelectorName(words: Iterable<string>): string {
   return dedupeWords(words).join("-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
-function createSelectorSeed(entry: ExtractedClassName, index: number): SelectorSeed {
-  return {
-    entry,
-    index,
-    baseWords: getBaseSelectorWords(entry),
-    valueWords: getValueSelectorWords(entry.value),
-  };
-}
-
 function findUniqueSelectorName(
   seed: SelectorSeed,
   usedNames: Set<string>,
@@ -146,7 +131,13 @@ function findUniqueSelectorName(
 }
 
 export function createTransformTargets(extracted: ExtractedClassName[]): TransformTarget[] {
-  const seeds = extracted.map(createSelectorSeed);
+  const seeds = extracted.map((entry, index) => ({
+    entry,
+    index,
+    baseWords: getBaseSelectorWords(entry),
+    valueWords: getValueSelectorWords(entry.value),
+  }));
+
   const groups = new Map<string, SelectorSeed[]>();
 
   for (const seed of seeds) {
@@ -178,11 +169,8 @@ export function createTransformTargets(extracted: ExtractedClassName[]): Transfo
     const selectorName = selectorNamesByIndex.get(index) ?? `class-${index + 1}`;
 
     return {
-      classNames: entry.value,
-      selectorName,
+      ...entry,
       outputSelector: `.${selectorName}`,
-      source: entry.source,
-      breadcrumbs: entry.breadcrumbs,
     };
   });
 }

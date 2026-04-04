@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import jscodeshift from "jscodeshift";
 import { describe, expect, it } from "vitest";
 import { getSourceClassNames } from "./classnames.ts";
-import { createTransformTargets } from "./transform-targets.ts";
+import { createTransformTargets } from "./targets.ts";
 import {
   deriveTargetCssModulePath,
   resolveTailwindCssEntryPath,

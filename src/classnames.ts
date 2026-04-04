@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { type File, type ASTNode } from "jscodeshift";
-import { normalizeClassTokens } from "./tailwind-compile.ts";
+
 import { codeshift } from "./codeshift.ts";
 
 type Source = "className" | "cva";
@@ -527,8 +527,4 @@ export function getSourceClassNames(source: string): ExtractedClassName[] {
 export async function getFileClassNames(path: string): Promise<ExtractedClassName[]> {
   const source = await readFile(path, "utf8");
   return getSourceClassNames(source);
-}
-
-export function extractClassNameTokens(classNames: Iterable<string>): string[] {
-  return normalizeClassTokens([...classNames].join(" "));
 }

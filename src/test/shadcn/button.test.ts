@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 import { getFileClassNames, extractClassNameTokens } from "../../classnames.ts";
-import { compileTailwindTargets } from "../../tailwind-compile.ts";
+import { compileTailwindTargets } from "../../compile.ts";
 import { resolveTailwindProjectContext } from "../../tailwind-context.ts";
 import { createTransformTargets } from "../../transform-targets.ts";
 

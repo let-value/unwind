@@ -1,16 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { createTransformTargets } from "./transform-targets.ts";
+import { createTransformTargets } from "../targets.ts";
 
-describe("createTransformTargets", () => {
+describe(createTransformTargets, () => {
   it("derives concise selector names from isolated class-name entries", () => {
     const targets = createTransformTargets([
       {
         source: "cva",
         value: "rounded-md border",
-        breadcrumbs: [
-          { kind: "variable", name: "buttonVariants" },
-          { kind: "cva" },
-        ],
+        breadcrumbs: [{ kind: "variable", name: "buttonVariants" }, { kind: "cva" }],
       },
       {
         source: "cva",
@@ -45,14 +42,14 @@ describe("createTransformTargets", () => {
 
     expect(
       targets.map((target) => ({
-        selectorName: target.selectorName,
-        classNames: target.classNames,
+        outputSelector: target.outputSelector,
+        value: target.value,
       })),
     ).toEqual([
-      { selectorName: "button", classNames: "rounded-md border" },
-      { selectorName: "button-size", classNames: "size-9" },
-      { selectorName: "card-open-block", classNames: "block" },
-      { selectorName: "card-open-hidden", classNames: "hidden" },
+      { outputSelector: ".button", value: "rounded-md border" },
+      { outputSelector: ".button-size", value: "size-9" },
+      { outputSelector: ".card-open-block", value: "block" },
+      { outputSelector: ".card-open-hidden", value: "hidden" },
     ]);
   });
 });
