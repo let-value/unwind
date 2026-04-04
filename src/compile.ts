@@ -426,15 +426,17 @@ export async function compileClasses({
   css,
   classNames,
   outputSelector = ".output",
+  base,
 }: {
   css?: string;
   classNames: string;
   outputSelector?: string;
+  base?: string;
 }) {
   const classTokens = normalizeClassTokens(classNames);
 
   const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
-    base: process.cwd(),
+    base: base ?? process.cwd(),
     onDependency: () => {},
   });
 
@@ -453,14 +455,17 @@ export async function compileClasses({
 export async function compileTailwindTargets({
   css,
   targets,
+  base,
 }: {
   css?: string;
   targets: TransformTarget[];
+  base?: string;
 }) {
   const results = await Promise.all(
     targets.map((target) =>
       compileClasses({
         css,
+        base,
         ...target,
       }),
     ),

@@ -112,6 +112,7 @@ test("compiles button fixture into local and hoisted global css", async () => {
   const { local, global } = await compileTailwindTargets({
     css: context?.tailwindCssEntrySource,
     targets,
+    base: context?.projectRoot,
   });
 
   expect(global.toString()).toMatchSnapshot();

@@ -3,9 +3,9 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { ArrowUpIcon } from "lucide-react";
 
-import "shadcn/src/index.css";
-import { ThemeProvider } from "shadcn/src/components/theme-provider";
-import { Button } from "shadcn/src/components/ui/button";
+import "shadcn-test/src/index.css";
+import { ThemeProvider } from "shadcn-test/src/components/theme-provider";
+import { Button } from "shadcn-test/src/components/ui/button";
 
 function ButtonDemo() {
   return (
