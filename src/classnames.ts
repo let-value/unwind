@@ -27,7 +27,7 @@ export interface Breadcrumb {
 
 export interface ExtractedClassName {
   source: Source;
-  value: string;
+  classNames: string;
   breadcrumbs: Breadcrumb[];
 }
 
@@ -150,12 +150,12 @@ function pushClassNameResult(
     return;
   }
 
-  const value = getStaticString(node)?.trim();
-  if (!value) {
+  const classNames = getStaticString(node)?.trim();
+  if (!classNames) {
     return;
   }
 
-  const key = `${source}:${serializeBreadcrumbs(breadcrumbs)}:${value}`;
+  const key = `${source}:${serializeBreadcrumbs(breadcrumbs)}:${classNames}`;
   if (seen.has(key)) {
     return;
   }
@@ -163,7 +163,7 @@ function pushClassNameResult(
   seen.add(key);
   results.push({
     source,
-    value,
+    classNames,
     breadcrumbs: Array.from(breadcrumbs),
   });
 }

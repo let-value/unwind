@@ -6,12 +6,12 @@ describe(createTransformTargets, () => {
     const targets = createTransformTargets([
       {
         source: "cva",
-        value: "rounded-md border",
+        classNames: "rounded-md border",
         breadcrumbs: [{ kind: "variable", name: "buttonVariants" }, { kind: "cva" }],
       },
       {
         source: "cva",
-        value: "size-9",
+        classNames: "size-9",
         breadcrumbs: [
           { kind: "variable", name: "buttonVariants" },
           { kind: "cva" },
@@ -22,7 +22,7 @@ describe(createTransformTargets, () => {
       },
       {
         source: "className",
-        value: "block",
+        classNames: "block",
         breadcrumbs: [
           { kind: "function", name: "Card" },
           { kind: "className" },
@@ -31,7 +31,7 @@ describe(createTransformTargets, () => {
       },
       {
         source: "className",
-        value: "hidden",
+        classNames: "hidden",
         breadcrumbs: [
           { kind: "function", name: "Card" },
           { kind: "className" },
@@ -43,7 +43,7 @@ describe(createTransformTargets, () => {
     expect(
       targets.map((target) => ({
         outputSelector: target.outputSelector,
-        value: target.value,
+        value: target.classNames,
       })),
     ).toEqual([
       { outputSelector: ".button", value: "rounded-md border" },

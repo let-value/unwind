@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { getSourceClassNames, type ExtractedClassName } from "../classnames.ts";
 
 function expectBreadcrumbs(extracted: ExtractedClassName[], value: string) {
-  const entry = extracted.find((candidate) => candidate.value === value);
+  const entry = extracted.find((candidate) => candidate.classNames === value);
   expect(entry).toBeDefined();
   return entry!;
 }

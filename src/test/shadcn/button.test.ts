@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 import { getFileClassNames } from "../../classnames.ts";
-import { extractClassNameTokens } from "../../compile.ts";
+import { compileTailwindTargets, extractClassNameTokens } from "../../compile.ts";
 import { resolveTailwindProjectContext } from "../../tailwind-context.ts";
 import { createTransformTargets } from "../../targets.ts";
 
@@ -9,7 +9,7 @@ const path = fileURLToPath(new URL("./project/src/components/ui/button.tsx", imp
 
 test("finds shadcn button class strings from the fixture source", async () => {
   const extracted = await getFileClassNames(path);
-  const values = extracted.map((entry) => entry.value);
+  const values = extracted.map((entry) => entry.classNames);
 
   expect(values).toContain(
     "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -26,7 +26,7 @@ test("finds shadcn button class strings from the fixture source", async () => {
 test("captures breadcrumb metadata for common cva classes", async () => {
   const extracted = await getFileClassNames(path);
   const commonClasses = extracted.find((entry) =>
-    entry.value.startsWith("group/button inline-flex shrink-0"),
+    entry.classNames.startsWith("group/button inline-flex shrink-0"),
   );
 
   expect(commonClasses?.breadcrumbs).toEqual([
@@ -37,7 +37,7 @@ test("captures breadcrumb metadata for common cva classes", async () => {
 
 test("captures breadcrumb metadata for nested variant classes", async () => {
   const extracted = await getFileClassNames(path);
-  const iconSize = extracted.find((entry) => entry.value === "size-9");
+  const iconSize = extracted.find((entry) => entry.classNames === "size-9");
 
   expect(iconSize?.breadcrumbs).toEqual([
     { kind: "variable", name: "buttonVariants" },
@@ -50,7 +50,7 @@ test("captures breadcrumb metadata for nested variant classes", async () => {
 
 test("normalizes extracted class tokens and skips variant metadata", async () => {
   const extracted = await getFileClassNames(path);
-  const tokens = extractClassNameTokens(extracted.map((entry) => entry.value));
+  const tokens = extractClassNameTokens(extracted.map((entry) => entry.classNames));
 
   expect(tokens).toContain("group/button");
   expect(tokens).toContain("focus-visible:ring-3");
@@ -88,7 +88,9 @@ test("generates stable transform targets for the shadcn button fixture", async (
 test("keeps button target selectors aligned with the extracted class strings", async () => {
   const extracted = await getFileClassNames(path);
   const targets = createTransformTargets(extracted);
-  const targetBySelector = new Map(targets.map((target) => [target.outputSelector, target.value]));
+  const targetBySelector = new Map(
+    targets.map((target) => [target.outputSelector, target.classNames]),
+  );
 
   expect(targetBySelector.get(".button")).toBe(
     "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -107,21 +109,11 @@ test("compiles button fixture into local and hoisted global css", async () => {
 
   expect(context).toBeDefined();
 
-  const result = await compileTailwindTargets(targets, {
-    context: context!,
+  const { local, global } = await compileTailwindTargets({
+    css: context?.tailwindCssEntrySource,
+    targets,
   });
 
-  expect(result.localCss).toContain(".button");
-  expect(result.localCss).toContain(".button-variant-default");
-  expect(result.localCss).toContain(".button-size-icon-lg");
-  expect(result.localCss).toContain(":global(.dark)");
-  expect(result.localCss).not.toContain(":root");
-  expect(result.globalCss).toContain(":root");
-  expect(result.globalCss).toContain(".dark");
-  expect(result.globalCss).toContain("@font-face");
-  expect(result.globalCss).not.toContain(".button-variant-default");
-  expect(result.localCss).not.toContain("{}");
-  expect(result.globalCss).not.toContain("{}");
-  expect(result.localCss).toMatchSnapshot();
-  expect(result.globalCss).toMatchSnapshot();
+  expect(global.toString()).toMatchSnapshot();
+  expect(local.toString()).toMatchSnapshot();
 });

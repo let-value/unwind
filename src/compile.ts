@@ -2,6 +2,7 @@ import { compile } from "@tailwindcss/node";
 import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
 import postcssNested from "postcss-nested";
 import selectorParser, { type Selector } from "postcss-selector-parser";
+import type { TransformTarget } from "./targets.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss";`;
 
@@ -422,17 +423,17 @@ function getGlobalStyles({ root, classTokens }: { root: Root; classTokens: strin
 }
 
 export async function compileClasses({
-  base,
+  css,
   classNames,
   outputSelector = ".output",
 }: {
-  base?: string;
+  css?: string;
   classNames: string;
   outputSelector?: string;
 }) {
   const classTokens = normalizeClassTokens(classNames);
 
-  const compiler = await compile(base ?? TAILWIND_ENTRYPOINT, {
+  const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
     base: process.cwd(),
     onDependency: () => {},
   });
@@ -446,5 +447,39 @@ export async function compileClasses({
   return {
     global,
     local,
+  };
+}
+
+export async function compileTailwindTargets({
+  css,
+  targets,
+}: {
+  css?: string;
+  targets: TransformTarget[];
+}) {
+  const results = await Promise.all(
+    targets.map((target) =>
+      compileClasses({
+        css,
+        ...target,
+      }),
+    ),
+  );
+
+  const global = postcss.root();
+  const local = postcss.root();
+  for (const result of results) {
+    moveChildren(result.global.clone(), global);
+    moveChildren(result.local.clone(), local);
+  }
+
+  pruneEmptyContainers(global);
+  pruneEmptyContainers(local);
+  mergeDuplicateChildren(global);
+  mergeDuplicateChildren(local);
+
+  return {
+    global: normalizeOutputAst(global),
+    local: normalizeOutputAst(local),
   };
 }

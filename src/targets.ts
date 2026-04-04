@@ -69,16 +69,16 @@ function getBreadcrumbWords(breadcrumb: Breadcrumb): string[] {
   }
 }
 
-function getBaseSelectorWords(entry: ExtractedClassName): string[] {
-  const words = dedupeWords(entry.breadcrumbs.flatMap(getBreadcrumbWords));
+function getBaseSelectorWords({ breadcrumbs, source }: ExtractedClassName): string[] {
+  const words = dedupeWords(breadcrumbs.flatMap(getBreadcrumbWords));
   if (words.length > 0) {
     return words;
   }
 
-  return entry.source === "cva" ? ["cva"] : ["class"];
+  return source === "cva" ? ["cva"] : ["class"];
 }
 
-function getValueSelectorWords(classNames: string): string[] {
+function getValueSelectorWords({ classNames }: ExtractedClassName): string[] {
   return dedupeWords(
     extractClassNameTokens([classNames]).flatMap((token) =>
       splitWords(token).filter((word) => !OMITTED_NAME_WORDS.has(word)),
@@ -135,7 +135,7 @@ export function createTransformTargets(extracted: ExtractedClassName[]): Transfo
     entry,
     index,
     baseWords: getBaseSelectorWords(entry),
-    valueWords: getValueSelectorWords(entry.value),
+    valueWords: getValueSelectorWords(entry),
   }));
 
   const groups = new Map<string, SelectorSeed[]>();

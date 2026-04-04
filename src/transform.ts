@@ -1,7 +1,7 @@
 import { dirname, join, parse } from "node:path";
 import type { API, FileInfo, Options } from "jscodeshift";
-import { getFileClassNames } from "./classnames.ts";
-import { compileTailwindTargets, type TailwindCompileResult } from "./compile.ts";
+import { getFileClassNames, getSourceClassNames } from "./classnames.ts";
+import { compileTailwindTargets } from "./compile.ts";
 import {
   resolveTailwindCssEntryPath,
   resolveTailwindProjectContext,
@@ -37,7 +37,7 @@ export async function transform(
   _api: API,
   _options: TransformOptions = {},
 ): Promise<TransformResult | undefined> {
-  const classNames = getFileClassNames(file.source);
+  const classNames = getSourceClassNames(file.source);
   const targets = createTransformTargets(classNames);
   const context = await resolveTailwindProjectContext(file.path);
 
