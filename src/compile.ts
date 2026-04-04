@@ -1,51 +1,9 @@
-import { readFile } from "node:fs/promises";
-import { dirname, isAbsolute, resolve } from "node:path";
 import { compile } from "@tailwindcss/node";
 import postcss, { type AtRule, type Container, type Node, type Root, type Rule } from "postcss";
 import postcssNested from "postcss-nested";
 import selectorParser, { type Selector } from "postcss-selector-parser";
-import type { TailwindProjectContext } from "./tailwind-context.ts";
 
-const TAILWIND_ENTRYPOINT = `@import "tailwindcss/theme";\n@import "tailwindcss/utilities";`;
-
-export interface TailwindCompileTarget {
-  classNames: string;
-  outputSelector: string;
-}
-
-export interface TailwindCompileOptions {
-  context?: TailwindProjectContext;
-  cssEntryFilePath?: string;
-  cssEntrySource?: string;
-}
-
-export interface TailwindCompileResult {
-  localCss: string;
-  globalCss: string;
-}
-
-function stripReplacedContextImports(source: string): string {
-  return source
-    .replace(/^\s*@import\s+["']tailwindcss["'];?\s*$/gm, "")
-    .replace(/^\s*@import\s+["']shadcn\/tailwind\.css["'];?\s*$/gm, "")
-    .trim();
-}
-
-function composeContextEntrySource(context: TailwindProjectContext): string {
-  const segments = [`@import "tailwindcss";`];
-  const shadcnDefaultSource = context.shadcn?.defaultTailwindCssSource?.trim();
-  const projectSource = stripReplacedContextImports(context.tailwindCssEntrySource);
-
-  if (shadcnDefaultSource) {
-    segments.push(shadcnDefaultSource);
-  }
-
-  if (projectSource) {
-    segments.push(projectSource);
-  }
-
-  return `${segments.join("\n\n")}\n`;
-}
+const TAILWIND_ENTRYPOINT = `@import "tailwindcss";`;
 
 export function normalizeClassTokens(classNames: string): string[] {
   return [
@@ -246,12 +204,7 @@ function mergeDuplicateChildren(container: Container<Node>) {
 }
 
 async function parseCss(source: string): Promise<Root> {
-  const root = await new Promise<Root>((resolve, reject) => {
-    postcss([])
-      .process(source)
-      .then((result) => resolve(result.root as Root))
-      .catch(reject);
-  });
+  const { root } = await postcss([]).process(source);
 
   if (root.type !== "root") {
     throw new Error(`Unexpected root node: ${String(root)}`);
@@ -300,18 +253,16 @@ function collectSelectorReferences(root: Root): SelectorReferenceSet {
   return { classes, ids };
 }
 
-function collectTargetSelectorReferences(targets: TailwindCompileTarget[]): SelectorReferenceSet {
+function collectTargetSelectorReferences(outputSelector: string): SelectorReferenceSet {
   const classes = new Set<string>();
   const ids = new Set<string>();
 
-  for (const target of targets) {
-    for (const className of collectClassNamesFromSelector(target.outputSelector)) {
-      classes.add(className);
-    }
+  for (const className of collectClassNamesFromSelector(outputSelector)) {
+    classes.add(className);
+  }
 
-    for (const id of collectIdsFromSelector(target.outputSelector)) {
-      ids.add(id);
-    }
+  for (const id of collectIdsFromSelector(outputSelector)) {
+    ids.add(id);
   }
 
   return { classes, ids };
@@ -397,22 +348,6 @@ function normalizeOutputAst(root: Root): Root {
   return root;
 }
 
-async function finalizeLocalStylesAst(
-  localRoot: Root,
-  globalRoot: Root,
-  targets: TailwindCompileTarget[],
-): Promise<Root> {
-  const flattenedRoot = await flattenNestedRoot(localRoot);
-
-  protectGlobalSelectorReferences(
-    flattenedRoot,
-    collectSelectorReferences(globalRoot),
-    collectTargetSelectorReferences(targets),
-  );
-  mergeDuplicateChildren(flattenedRoot);
-  return normalizeOutputAst(flattenedRoot);
-}
-
 function pruneEmptyContainers(container: Container<Node>) {
   if (!container.nodes) {
     return;
@@ -429,15 +364,17 @@ function pruneEmptyContainers(container: Container<Node>) {
   }
 }
 
-function getLocalStyles({
+async function getLocalStyles({
   root,
+  global,
   classTokens,
   outputSelector,
 }: {
   root: Root;
+  global: Root;
   classTokens: string[];
   outputSelector: string;
-}): Root {
+}) {
   const local = postcss.root();
 
   const rewrittenRoot = getMatchingRules({ root, classTokens, outputSelector });
@@ -446,7 +383,15 @@ function getLocalStyles({
   moveChildren(rewrittenRoot, local);
   mergeDuplicateChildren(local);
 
-  return normalizeOutputAst(local);
+  const flat = await flattenNestedRoot(local);
+
+  protectGlobalSelectorReferences(
+    flat,
+    collectSelectorReferences(global),
+    collectTargetSelectorReferences(outputSelector),
+  );
+  mergeDuplicateChildren(flat);
+  return normalizeOutputAst(flat);
 }
 
 function getGlobalStyles({ root, classTokens }: { root: Root; classTokens: string[] }): Root {
@@ -471,50 +416,6 @@ function getGlobalStyles({ root, classTokens }: { root: Root; classTokens: strin
   return normalizeOutputAst(global);
 }
 
-async function resolveCompilerInput(options: TailwindCompileOptions): Promise<{
-  base: string;
-  entrySource: string;
-  includeGlobalContext: boolean;
-}> {
-  if (options.context) {
-    return {
-      base: dirname(options.context.tailwindCssEntryPath),
-      entrySource: composeContextEntrySource(options.context),
-      includeGlobalContext: true,
-    };
-  }
-
-  if (options.cssEntrySource && options.cssEntryFilePath) {
-    const cssEntryFilePath = isAbsolute(options.cssEntryFilePath)
-      ? options.cssEntryFilePath
-      : resolve(process.cwd(), options.cssEntryFilePath);
-
-    return {
-      base: dirname(cssEntryFilePath),
-      entrySource: options.cssEntrySource,
-      includeGlobalContext: true,
-    };
-  }
-
-  if (options.cssEntryFilePath) {
-    const cssEntryFilePath = isAbsolute(options.cssEntryFilePath)
-      ? options.cssEntryFilePath
-      : resolve(process.cwd(), options.cssEntryFilePath);
-
-    return {
-      base: dirname(cssEntryFilePath),
-      entrySource: await readFile(cssEntryFilePath, "utf8"),
-      includeGlobalContext: true,
-    };
-  }
-
-  return {
-    base: process.cwd(),
-    entrySource: TAILWIND_ENTRYPOINT,
-    includeGlobalContext: false,
-  };
-}
-
 export async function compileClasses({
   base,
   classNames,
@@ -523,21 +424,19 @@ export async function compileClasses({
   base?: string;
   classNames: string;
   outputSelector?: string;
-  options?: TailwindCompileOptions;
 }) {
   const classTokens = normalizeClassTokens(classNames);
 
-  const compiler = await compile(TAILWIND_ENTRYPOINT, {
-    base: base ?? TAILWIND_ENTRYPOINT,
+  const compiler = await compile(base ?? TAILWIND_ENTRYPOINT, {
+    base: process.cwd(),
     onDependency: () => {},
   });
 
   const styles = compiler.build(classTokens);
 
   const root = await parseCss(styles);
-
   const global = getGlobalStyles({ root, classTokens });
-  const local = getLocalStyles({ root, classTokens, outputSelector });
+  const local = await getLocalStyles({ root, global, classTokens, outputSelector });
 
   return {
     global,
