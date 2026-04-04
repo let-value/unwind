@@ -1,16 +1,16 @@
-import type { ClassNameBreadcrumb, ExtractedClassNameString } from "./classname-extract.ts";
-import { extractClassNameTokens } from "./classname-extract.ts";
+import type { Breadcrumb, ExtractedClassName } from "./classnames.ts";
+import { extractClassNameTokens } from "./classnames.ts";
 
 export interface TransformTarget {
   classNames: string;
   selectorName: string;
   outputSelector: string;
-  source: ExtractedClassNameString["source"];
-  breadcrumbs: ClassNameBreadcrumb[];
+  source: ExtractedClassName["source"];
+  breadcrumbs: Breadcrumb[];
 }
 
 interface SelectorSeed {
-  entry: ExtractedClassNameString;
+  entry: ExtractedClassName;
   index: number;
   baseWords: string[];
   valueWords: string[];
@@ -25,16 +25,7 @@ const OMITTED_NAME_WORDS = new Set([
   "variants",
 ]);
 
-const BOOLEAN_PREFIXES = new Set([
-  "is",
-  "has",
-  "had",
-  "can",
-  "should",
-  "will",
-  "did",
-  "does",
-]);
+const BOOLEAN_PREFIXES = new Set(["is", "has", "had", "can", "should", "will", "did", "does"]);
 
 function splitWords(value: string): string[] {
   return value
@@ -62,15 +53,14 @@ function dedupeWords(words: Iterable<string>): string[] {
 
 function normalizeNameWords(name: string): string[] {
   const rawWords = splitWords(name);
-  const withoutBooleanPrefix = rawWords.length > 1 && BOOLEAN_PREFIXES.has(rawWords[0])
-    ? rawWords.slice(1)
-    : rawWords;
+  const withoutBooleanPrefix =
+    rawWords.length > 1 && BOOLEAN_PREFIXES.has(rawWords[0]) ? rawWords.slice(1) : rawWords;
   const filteredWords = withoutBooleanPrefix.filter((word) => !OMITTED_NAME_WORDS.has(word));
 
   return dedupeWords(filteredWords.length > 0 ? filteredWords : withoutBooleanPrefix);
 }
 
-function getBreadcrumbWords(breadcrumb: ClassNameBreadcrumb): string[] {
+function getBreadcrumbWords(breadcrumb: Breadcrumb): string[] {
   switch (breadcrumb.kind) {
     case "variable":
     case "function":
@@ -85,7 +75,7 @@ function getBreadcrumbWords(breadcrumb: ClassNameBreadcrumb): string[] {
   }
 }
 
-function getBaseSelectorWords(entry: ExtractedClassNameString): string[] {
+function getBaseSelectorWords(entry: ExtractedClassName): string[] {
   const words = dedupeWords(entry.breadcrumbs.flatMap(getBreadcrumbWords));
   if (words.length > 0) {
     return words;
@@ -103,16 +93,10 @@ function getValueSelectorWords(classNames: string): string[] {
 }
 
 function toSelectorName(words: Iterable<string>): string {
-  return dedupeWords(words)
-    .join("-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+  return dedupeWords(words).join("-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
-function createSelectorSeed(
-  entry: ExtractedClassNameString,
-  index: number,
-): SelectorSeed {
+function createSelectorSeed(entry: ExtractedClassName, index: number): SelectorSeed {
   return {
     entry,
     index,
@@ -133,12 +117,7 @@ function findUniqueSelectorName(
   }
 
   for (let size = 1; size <= seed.valueWords.length; size++) {
-    candidates.push(
-      toSelectorName([
-        ...seed.baseWords,
-        ...seed.valueWords.slice(0, size),
-      ]),
-    );
+    candidates.push(toSelectorName([...seed.baseWords, ...seed.valueWords.slice(0, size)]));
   }
 
   candidates.push(toSelectorName(seed.valueWords));
@@ -166,9 +145,7 @@ function findUniqueSelectorName(
   return fallback;
 }
 
-export function createTransformTargets(
-  extracted: ExtractedClassNameString[],
-): TransformTarget[] {
+export function createTransformTargets(extracted: ExtractedClassName[]): TransformTarget[] {
   const seeds = extracted.map(createSelectorSeed);
   const groups = new Map<string, SelectorSeed[]>();
 

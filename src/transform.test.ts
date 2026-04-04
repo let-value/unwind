@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import jscodeshift from "jscodeshift";
 import { describe, expect, it } from "vitest";
-import { extractClassNameStringsFromSource } from "./classname-extract.ts";
+import { getSourceClassNames } from "./classnames.ts";
 import { createTransformTargets } from "./transform-targets.ts";
 import {
   deriveTargetCssModulePath,
@@ -53,7 +53,7 @@ describe("transform", () => {
       }
     `;
 
-    const classNames = extractClassNameStringsFromSource(source);
+    const classNames = getSourceClassNames(source);
     const targets = createTransformTargets(classNames);
 
     expect(targets.map((target) => target.selectorName)).toEqual([
@@ -66,8 +66,8 @@ describe("transform", () => {
     const api = {
       j: jscodeshift.withParser("tsx"),
       jscodeshift: jscodeshift.withParser("tsx"),
-      stats: () => { },
-      report: () => { },
+      stats: () => {},
+      report: () => {},
     };
 
     const result = await transform({ path: "card.tsx", source }, api);
@@ -93,8 +93,8 @@ describe("transform", () => {
     const api = {
       j: jscodeshift.withParser("tsx"),
       jscodeshift: jscodeshift.withParser("tsx"),
-      stats: () => { },
-      report: () => { },
+      stats: () => {},
+      report: () => {},
     };
 
     const result = await transform({ path: buttonFilePath, source }, api);

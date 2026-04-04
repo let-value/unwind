@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  compileTailwindClasses,
-  normalizeClassTokens,
-} from "./tailwind-compile.ts";
+import { compileClasses, normalizeClassTokens } from "../compile.ts";
 
 interface FinalCase {
   name: string;
@@ -39,7 +36,7 @@ const finalCases: FinalCase[] = [
   },
 ];
 
-describe("normalizeClassTokens", () => {
+describe(normalizeClassTokens, () => {
   it("deduplicates and trims class tokens", () => {
     expect(normalizeClassTokens("  p-4  hover:bg-blue-600 p-4 ")).toEqual([
       "p-4",
@@ -48,9 +45,14 @@ describe("normalizeClassTokens", () => {
   });
 });
 
-describe("compileTailwindClasses", () => {
+describe(compileClasses, () => {
   it("emits rewritten utilities under the requested selector", async () => {
-    const css = await compileTailwindClasses("p-4 hover:bg-blue-600 before:block", ".card");
+    const { local } = await compileClasses({
+      classNames: "p-4 hover:bg-blue-600 before:block",
+      outputSelector: ".card",
+    });
+
+    const css = local.toString();
 
     expect(css).toContain(".card");
     expect(css).toContain(".card:hover");
@@ -60,7 +62,12 @@ describe("compileTailwindClasses", () => {
   });
 
   it("merges duplicate nested variant selectors", async () => {
-    const css = await compileTailwindClasses("hover:text-red-500 hover:bg-blue-600", ".card");
+    const { local } = await compileClasses({
+      classNames: "hover:text-red-500 hover:bg-blue-600",
+      outputSelector: ".card",
+    });
+
+    const css = local.toString();
 
     expect((css.match(/\.card:hover/g) ?? []).length).toBe(1);
     expect(css).toContain("color:");
@@ -69,10 +76,9 @@ describe("compileTailwindClasses", () => {
 
   for (const testCase of finalCases) {
     it(`snapshots ${testCase.name}`, async () => {
-      const css = await compileTailwindClasses(
-        testCase.classNames,
-        testCase.outputSelector ?? ".output",
-      );
+      const { local } = await compileClasses(testCase);
+
+      const css = local.toString();
 
       expect(css.length).toBeGreaterThan(0);
       expect(css).toMatchSnapshot();

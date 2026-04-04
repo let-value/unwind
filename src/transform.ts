@@ -1,19 +1,13 @@
 import { dirname, join, parse } from "node:path";
 import type { API, FileInfo, Options } from "jscodeshift";
-import { extractClassNameStringsFromSource } from "./classname-extract.ts";
-import {
-  compileTailwindTargets,
-  type TailwindCompileResult,
-} from "./tailwind-compile.ts";
+import { getFileClassNames } from "./classnames.ts";
+import { compileTailwindTargets, type TailwindCompileResult } from "./tailwind-compile.ts";
 import {
   resolveTailwindCssEntryPath,
   resolveTailwindProjectContext,
   type TailwindProjectContext,
 } from "./tailwind-context.ts";
-import {
-  createTransformTargets,
-  type TransformTarget,
-} from "./transform-targets.ts";
+import { createTransformTargets, type TransformTarget } from "./transform-targets.ts";
 
 export interface TransformOptions extends Options {
   /** Dry run - report changes without writing to disk */
@@ -43,7 +37,7 @@ export async function transform(
   _api: API,
   _options: TransformOptions = {},
 ): Promise<TransformResult | undefined> {
-  const classNames = extractClassNameStringsFromSource(file.source);
+  const classNames = getFileClassNames(file.source);
   const targets = createTransformTargets(classNames);
   const context = await resolveTailwindProjectContext(file.path);
 

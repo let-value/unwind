@@ -47,12 +47,15 @@ function composeContextEntrySource(context: TailwindProjectContext): string {
   return `${segments.join("\n\n")}\n`;
 }
 
-function createEmptyRule(selector: string): Rule {
-  return postcss.rule({ selector });
-}
-
 export function normalizeClassTokens(classNames: string): string[] {
-  return [...new Set(classNames.split(/\s+/).map((token) => token.trim()).filter(Boolean))];
+  return [
+    ...new Set(
+      classNames
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 function createSelectorTemplate(selector: string): Selector {
@@ -134,11 +137,15 @@ function wrapNodeWithAtRuleAncestors(node: Node, rule: Rule): Node {
   return wrappedNode;
 }
 
-function cloneMatchingRulesInClassOrder(
-  root: Root,
-  classTokens: string[],
-  outputSelector: string,
-): Root {
+function getMatchingRules({
+  root,
+  classTokens,
+  outputSelector,
+}: {
+  root: Root;
+  classTokens: string[];
+  outputSelector: string;
+}): Root {
   const utilityClassNames = new Set(classTokens);
   const selectedRulesByClassName = new Map<string, Node>();
   const rewrittenRoot = postcss.root();
@@ -238,17 +245,15 @@ function mergeDuplicateChildren(container: Container<Node>) {
   }
 }
 
-function parseCss(source: string): Root {
-  const result = postcss([]).process(source, {
-    from: undefined,
+async function parseCss(source: string): Promise<Root> {
+  const root = await new Promise<Root>((resolve, reject) => {
+    postcss([])
+      .process(source)
+      .then((result) => resolve(result.root as Root))
+      .catch(reject);
   });
-  const { root } = result;
 
-  if ((result as { error?: Error }).error) {
-    throw (result as { error: Error }).error;
-  }
-
-  if (root?.type !== "root") {
+  if (root.type !== "root") {
     throw new Error(`Unexpected root node: ${String(root)}`);
   }
 
@@ -350,9 +355,9 @@ function protectGlobalSelectorReferences(
     rule.selector = selectorParser((selectorRoot) => {
       selectorRoot.walkClasses((node) => {
         if (
-          !globalReferences.classes.has(node.value)
-          || localReferences.classes.has(node.value)
-          || isInsideGlobalPseudo(node)
+          !globalReferences.classes.has(node.value) ||
+          localReferences.classes.has(node.value) ||
+          isInsideGlobalPseudo(node)
         ) {
           return;
         }
@@ -362,9 +367,9 @@ function protectGlobalSelectorReferences(
 
       selectorRoot.walkIds((node) => {
         if (
-          !globalReferences.ids.has(node.value)
-          || localReferences.ids.has(node.value)
-          || isInsideGlobalPseudo(node)
+          !globalReferences.ids.has(node.value) ||
+          localReferences.ids.has(node.value) ||
+          isInsideGlobalPseudo(node)
         ) {
           return;
         }
@@ -424,36 +429,32 @@ function pruneEmptyContainers(container: Container<Node>) {
   }
 }
 
-function extractLocalStylesAst(
-  compiledRoot: Root,
-  targets: TailwindCompileTarget[],
-): Root {
-  const localRoot = postcss.root();
+function getLocalStyles({
+  root,
+  classTokens,
+  outputSelector,
+}: {
+  root: Root;
+  classTokens: string[];
+  outputSelector: string;
+}): Root {
+  const local = postcss.root();
 
-  for (const target of targets) {
-    const rewrittenRoot = cloneMatchingRulesInClassOrder(
-      compiledRoot,
-      normalizeClassTokens(target.classNames),
-      target.outputSelector,
-    );
+  const rewrittenRoot = getMatchingRules({ root, classTokens, outputSelector });
 
-    mergeDuplicateChildren(rewrittenRoot);
-    moveChildren(rewrittenRoot, localRoot);
-  }
+  mergeDuplicateChildren(rewrittenRoot);
+  moveChildren(rewrittenRoot, local);
+  mergeDuplicateChildren(local);
 
-  mergeDuplicateChildren(localRoot);
-  return normalizeOutputAst(localRoot);
+  return normalizeOutputAst(local);
 }
 
-function extractGlobalStylesAst(
-  compiledRoot: Root,
-  classTokens: string[],
-): Root {
-  const globalRoot = compiledRoot.clone();
+function getGlobalStyles({ root, classTokens }: { root: Root; classTokens: string[] }): Root {
+  const global = root.clone();
   const requestedClassTokens = new Set(classTokens);
 
   if (requestedClassTokens.size > 0) {
-    globalRoot.walkRules((rule) => {
+    global.walkRules((rule) => {
       const selectorClassNames = collectClassNamesFromSelector(rule.selector);
       const matchesRequestedClass = [...selectorClassNames].some((className) =>
         requestedClassTokens.has(className),
@@ -465,9 +466,9 @@ function extractGlobalStylesAst(
     });
   }
 
-  pruneEmptyContainers(globalRoot);
-  mergeDuplicateChildren(globalRoot);
-  return normalizeOutputAst(globalRoot);
+  pruneEmptyContainers(global);
+  mergeDuplicateChildren(global);
+  return normalizeOutputAst(global);
 }
 
 async function resolveCompilerInput(options: TailwindCompileOptions): Promise<{
@@ -514,63 +515,32 @@ async function resolveCompilerInput(options: TailwindCompileOptions): Promise<{
   };
 }
 
-async function compileTailwindClassesAst(
-  classNames: string,
-  outputSelector: string,
-  options: TailwindCompileOptions = {},
-): Promise<TailwindCompileResult> {
-  return compileTailwindTargetsAst([{ classNames, outputSelector }], options);
-}
+export async function compileClasses({
+  base,
+  classNames,
+  outputSelector = ".output",
+}: {
+  base?: string;
+  classNames: string;
+  outputSelector?: string;
+  options?: TailwindCompileOptions;
+}) {
+  const classTokens = normalizeClassTokens(classNames);
 
-async function compileTailwindTargetsAst(
-  targets: TailwindCompileTarget[],
-  options: TailwindCompileOptions = {},
-): Promise<TailwindCompileResult> {
-  const classTokens = [...new Set(targets.flatMap((target) => normalizeClassTokens(target.classNames)))];
-  const { base, entrySource, includeGlobalContext } = await resolveCompilerInput(options);
-
-  if (classTokens.length === 0 && !includeGlobalContext) {
-    return {
-      localCss: "",
-      globalCss: "",
-    };
-  }
-
-  const compiler = await compile(entrySource, {
-    base,
-    onDependency: () => { },
+  const compiler = await compile(TAILWIND_ENTRYPOINT, {
+    base: base ?? TAILWIND_ENTRYPOINT,
+    onDependency: () => {},
   });
-  const compiledRoot = parseCss(compiler.build(classTokens));
-  const globalRoot = includeGlobalContext
-    ? extractGlobalStylesAst(compiledRoot, classTokens)
-    : postcss.root();
-  const localRoot = await finalizeLocalStylesAst(
-    extractLocalStylesAst(compiledRoot, targets),
-    globalRoot,
-    targets,
-  );
+
+  const styles = compiler.build(classTokens);
+
+  const root = await parseCss(styles);
+
+  const global = getGlobalStyles({ root, classTokens });
+  const local = getLocalStyles({ root, classTokens, outputSelector });
 
   return {
-    localCss: localRoot.toString(),
-    globalCss: globalRoot.toString(),
+    global,
+    local,
   };
-}
-
-/**
- * Compile Tailwind utility classes and emit custom selector blocks.
- * Variant utilities (e.g. hover) are emitted as separate selector blocks.
- */
-export async function compileTailwindClasses(
-  classNames: string,
-  outputSelector: string = ".output",
-  options: TailwindCompileOptions = {},
-): Promise<string> {
-  return (await compileTailwindClassesAst(classNames, outputSelector, options)).localCss;
-}
-
-export async function compileTailwindTargets(
-  targets: TailwindCompileTarget[],
-  options: TailwindCompileOptions = {},
-): Promise<TailwindCompileResult> {
-  return compileTailwindTargetsAst(targets, options);
 }
