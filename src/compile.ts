@@ -149,14 +149,14 @@ function getMatchingRules({
   return rewrittenRoot;
 }
 
-function moveChildren(from: Container<Node>, to: Container<Node>) {
+function moveChildren(from: Container, to: Container) {
   for (const child of from.nodes?.slice() ?? []) {
     child.remove();
     to.append(child);
   }
 }
 
-function mergeDuplicateChildren(container: Container<Node>) {
+function mergeDuplicateChildren(container: Container) {
   if (!container.nodes) {
     return;
   }
@@ -218,10 +218,10 @@ async function parseCss(source: string): Promise<Root> {
 }
 
 function isInsideKeyframes(rule: Rule): boolean {
-  let currentParent = rule.parent;
+  let currentParent: Node | undefined = rule.parent;
 
   while (currentParent) {
-    if (currentParent.type === "atrule" && currentParent.name === "keyframes") {
+    if (currentParent.type === "atrule" && (currentParent as AtRule).name === "keyframes") {
       return true;
     }
 
@@ -291,6 +291,7 @@ function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
     value: ":global",
     nodes: [
       selectorParser.selector({
+        value: "",
         nodes: [node.clone()],
       }),
     ],
@@ -352,16 +353,16 @@ function normalizeOutputAst(root: Root): Root {
   return root;
 }
 
-function pruneEmptyContainers(container: Container<Node>) {
+function pruneEmptyContainers(container: Container) {
   if (!container.nodes) {
     return;
   }
 
   for (const node of container.nodes.slice()) {
-    if ("nodes" in node && node.nodes) {
+    if ((node.type === "rule" || node.type === "atrule") && node.nodes) {
       pruneEmptyContainers(node);
 
-      if (node.nodes.length === 0 && node.type !== "root") {
+      if (node.nodes.length === 0) {
         node.remove();
       }
     }

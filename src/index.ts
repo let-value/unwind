@@ -3,10 +3,6 @@ import { resolve } from "node:path";
 import jscodeshift from "jscodeshift";
 import { transform } from "./transform.ts";
 
-export {
-  compileClasses as compileTailwindClasses,
-  compileTailwindTargets,
-} from "./tailwind-compile.ts";
 export { resolveTailwindProjectContext } from "./tailwind-context.ts";
 
 export interface RunOptions {
