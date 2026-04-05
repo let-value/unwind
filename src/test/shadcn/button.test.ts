@@ -2,8 +2,9 @@ import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 import { getFileClassNames } from "../../classnames.ts";
 import { compileTailwindTargets, extractClassNameTokens } from "../../compile.ts";
-import { resolveTailwindProjectContext } from "../../tailwind-context.ts";
+
 import { createTransformTargets } from "../../targets.ts";
+import { resolveShadcnProject } from "../../shadcn.ts";
 
 const path = fileURLToPath(new URL("./project/src/components/ui/button.tsx", import.meta.url));
 
@@ -105,7 +106,7 @@ test("keeps button target selectors aligned with the extracted class strings", a
 test("compiles button fixture into local and hoisted global css", async () => {
   const extracted = await getFileClassNames(path);
   const targets = createTransformTargets(extracted);
-  const context = await resolveTailwindProjectContext(path);
+  const context = await resolveShadcnProject(path);
 
   expect(context).toBeDefined();
 

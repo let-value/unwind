@@ -1,4 +1,4 @@
-// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiles button fixture into local and hoisted global css 1`] = `
 "/*! tailwindcss v4.2.2 | MIT License | https://tailwindcss.com */
