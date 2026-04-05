@@ -17,6 +17,9 @@ export default defineConfig({
       },
       {
         plugins: [react(), tailwindcss()],
+        resolve: {
+          dedupe: ["react", "react-dom"],
+        },
         test: {
           name: "browser",
           include: ["**/*.test.tsx"],
@@ -33,8 +36,5 @@ export default defineConfig({
         },
       },
     ],
-  },
-  resolve: {
-    dedupe: ["react", "react-dom"],
   },
 });
