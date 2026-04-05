@@ -1,7 +1,9 @@
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { z } from "zod";
 import { walkUp } from "./utils.ts";
-import resolver from "oxc-resolver";
+import { ResolverFactory } from "oxc-resolver";
+import assert from "node:assert";
 
 export const schema = z.object({
   style: z.string(),
@@ -26,39 +28,61 @@ export const schema = z.object({
 export type ComponentsConfig = z.infer<typeof schema>;
 
 export interface ShadcnMetadata {
-  components: ComponentsConfig;
+  packageJsonPath: string;
+  componentsJsonPath: string;
+  componentsJson: ComponentsConfig;
+  cssPath: string;
+  css: string;
+  componentsPath: string;
+  uiPath?: string;
 }
 
-export async function resolveShadcnProject(path: string) {
-  let root: string | undefined;
+const file = new ResolverFactory({ tsconfig: "auto" });
+const context = file.cloneWithOptions({ tsconfig: "auto", resolveToContext: true });
+
+export async function resolveShadcnProject(
+  searchPath: string,
+): Promise<ShadcnMetadata | undefined> {
+  let dir: string | undefined;
   let config: ComponentsConfig | undefined;
-  for (const segment of walkUp(path)) {
+  let componentsJsonPath: string | undefined;
+  for (const segment of walkUp(searchPath)) {
+    const location = resolve(segment, "components.json");
     let json: string;
     try {
-      const path = resolve(segment, "components.json");
-      json = await import(path);
+      json = await import(location);
     } catch {
       continue;
     }
 
     config = await schema.parseAsync(json);
-    root = segment;
+    dir = segment;
+    componentsJsonPath = location;
     break;
   }
 
-  if (!root || !config) {
+  if (!dir || !config || !componentsJsonPath) {
     return;
   }
 
-  const css = resolver.sync(root, config.tailwind.css);
-  if (css.error) {
-    throw new Error(`Failed to resolve tailwind css file at ${config.tailwind.css} from ${root}`);
-  }
-  const components = resolver.sync(root, config.aliases.components);
-  const utils = resolver.sync(root, config.aliases.utils);
-  const ui = config.aliases.ui ? resolver.sync(root, config.aliases.ui) : undefined;
-  const lib = config.aliases.lib ? resolver.sync(root, config.aliases.lib) : undefined;
-  const hooks = config.aliases.hooks ? resolver.sync(root, config.aliases.hooks) : undefined;
+  const css = file.resolveFileSync(componentsJsonPath, config.tailwind.css);
+  assert(css.path, "Failed to resolve Tailwind CSS entry point");
+  assert(css.packageJsonPath, "Failed to resolve Tailwind CSS entry point package.json");
 
-  return config;
+  const components = context.resolveFileSync(componentsJsonPath, config.aliases.components);
+  assert(components.path, "Failed to resolve components directory");
+
+  const ui = config.aliases.ui
+    ? context.resolveFileSync(componentsJsonPath, config.aliases.ui)
+    : undefined;
+
+  return {
+    packageJsonPath: css.packageJsonPath,
+    componentsJsonPath,
+    componentsJson: config,
+    cssPath: css.path,
+    css: await readFile(css.path, "utf8"),
+    componentsPath: components.path,
+    uiPath: ui?.path,
+  };
 }
