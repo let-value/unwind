@@ -1,15 +1,20 @@
 import { describe, expect, it } from "vitest";
+import type { ASTNode } from "jscodeshift";
 import { createTransformTargets } from "../targets.ts";
+
+const node = {} as ASTNode;
 
 describe(createTransformTargets, () => {
   it("derives concise selector names from isolated class-name entries", () => {
     const targets = createTransformTargets([
       {
+        node,
         source: "cva",
         classNames: "rounded-md border",
         breadcrumbs: [{ kind: "variable", name: "buttonVariants" }, { kind: "cva" }],
       },
       {
+        node,
         source: "cva",
         classNames: "size-9",
         breadcrumbs: [
@@ -21,6 +26,7 @@ describe(createTransformTargets, () => {
         ],
       },
       {
+        node,
         source: "className",
         classNames: "block",
         breadcrumbs: [
@@ -30,6 +36,7 @@ describe(createTransformTargets, () => {
         ],
       },
       {
+        node,
         source: "className",
         classNames: "hidden",
         breadcrumbs: [

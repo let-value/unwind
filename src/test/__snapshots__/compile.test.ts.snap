@@ -57,19 +57,18 @@ exports[`compileClasses > snapshots single utility 1`] = `
 }"
 `;
 
-exports[`compileClasses snapshots single utility 1`] = `
+exports[`compileClasses snapshots compound variants and pseudo elements 1`] = `
 "@layer utilities {
-    .output {
-        padding: calc(var(--spacing) * 4);
+    [data-ui]::before {
+        content: var(--tw-content);
+        display: block;
     }
-}"
-`;
-
-exports[`compileClasses snapshots merged utilities 1`] = `
-"@layer utilities {
-    .output {
-        padding: calc(var(--spacing) * 4);
-        background-color: var(--color-blue-500);
+    @media (width >= 40rem) {
+        @media (hover: hover) {
+            [data-ui]:hover {
+                color: var(--color-red-500)
+            }
+        }
     }
 }"
 `;
@@ -81,6 +80,15 @@ exports[`compileClasses snapshots custom selector 1`] = `
         line-height: var(--tw-leading, var(--text-sm--line-height));
         --tw-font-weight: var(--font-weight-medium);
         font-weight: var(--font-weight-medium);
+    }
+}"
+`;
+
+exports[`compileClasses snapshots merged utilities 1`] = `
+"@layer utilities {
+    .output {
+        padding: calc(var(--spacing) * 4);
+        background-color: var(--color-blue-500);
     }
 }"
 `;
@@ -98,18 +106,10 @@ exports[`compileClasses snapshots regular and hover utilities 1`] = `
 }"
 `;
 
-exports[`compileClasses snapshots compound variants and pseudo elements 1`] = `
+exports[`compileClasses snapshots single utility 1`] = `
 "@layer utilities {
-    [data-ui]::before {
-        content: var(--tw-content);
-        display: block;
-    }
-    @media (width >= 40rem) {
-        @media (hover: hover) {
-            [data-ui]:hover {
-                color: var(--color-red-500)
-            }
-        }
+    .output {
+        padding: calc(var(--spacing) * 4);
     }
 }"
 `;

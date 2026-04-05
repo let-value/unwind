@@ -1,12 +1,12 @@
 import { relative, dirname } from "node:path";
 import type { ASTNode, Collection, File } from "jscodeshift";
 import type { Root } from "postcss";
+import { readFile } from "node:fs/promises";
 
 import { j } from "./codeshift.ts";
 import { getCssModulePath, getTreeClassNames } from "./classnames.ts";
 import { createTransformTargets } from "./targets.ts";
 import { compileTailwindTargets } from "./compile.ts";
-import { readFile } from "node:fs/promises";
 
 export interface TransformOptions {
   path: string;
@@ -17,6 +17,8 @@ export interface TransformOptions {
 }
 
 export interface TransformResult {
+  path: string;
+  cssModulePath: string;
   root: Collection;
   global: Root;
   local: Root;
@@ -103,5 +105,5 @@ export async function transform({
     }
   }
 
-  return { root, global, local };
+  return { path, cssModulePath, root, global, local };
 }
