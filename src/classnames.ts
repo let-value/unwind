@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { type File, type ASTNode } from "jscodeshift";
 
 import { codeshift } from "./codeshift.ts";
+import { dirname, join, parse } from "node:path";
 
 type Source = "className" | "cva";
 
@@ -527,4 +528,14 @@ export function getSourceClassNames(source: string): ExtractedClassName[] {
 export async function getFileClassNames(path: string): Promise<ExtractedClassName[]> {
   const source = await readFile(path, "utf8");
   return getSourceClassNames(source);
+}
+
+export function getCssModulePath(sourceFilePath: string): string {
+  const parsed = parse(sourceFilePath);
+
+  if (parsed.ext.length === 0) {
+    return join(dirname(sourceFilePath), `${parsed.base}.module.css`);
+  }
+
+  return join(parsed.dir, `${parsed.name}.module.css`);
 }

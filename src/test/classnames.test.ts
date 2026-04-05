@@ -1,5 +1,5 @@
-import { expect, test } from "vitest";
-import { getSourceClassNames, type ExtractedClassName } from "../classnames.ts";
+import { describe, expect, it, test } from "vitest";
+import { getCssModulePath, getSourceClassNames, type ExtractedClassName } from "../classnames.ts";
 
 function expectBreadcrumbs(extracted: ExtractedClassName[], value: string) {
   const entry = extracted.find((candidate) => candidate.classNames === value);
@@ -72,4 +72,16 @@ test("walks nested expression branches while preserving semantic breadcrumbs", a
     { kind: "className" },
     { kind: "condition", name: "isOpen" },
   ]);
+});
+
+describe(getCssModulePath, () => {
+  it("derives a css module file path next to a tsx source file", () => {
+    expect(getCssModulePath("src\\test\\shadcn\\project\\src\\components\\ui\\button.tsx")).toBe(
+      "src\\test\\shadcn\\project\\src\\components\\ui\\button.module.css",
+    );
+  });
+
+  it("derives a css module file path for relative source paths", () => {
+    expect(getCssModulePath("components/button.tsx")).toBe("components\\button.module.css");
+  });
 });
