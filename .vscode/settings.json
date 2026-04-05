@@ -1,0 +1,13 @@
+{
+  "files.eol": "\n",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "json.schemaDownload.trustedDomains": {
+    "https://ui.shadcn.com": true
+  },
+  "cSpell.words": ["hugeicons", "remixicon", "tabler"]
+}
