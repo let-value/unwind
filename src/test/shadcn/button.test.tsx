@@ -98,273 +98,83 @@ test("ButtonIconRight", async (t) => {
     <Example title="Icon Right">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="xs">
-          Default{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Default <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="xs" variant="secondary">
-          Secondary{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Secondary <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="xs" variant="outline">
-          Outline{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Outline <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="xs" variant="ghost">
-          Ghost{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Ghost <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="xs" variant="destructive">
-          Destructive{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Destructive <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="xs" variant="link">
-          Link{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Link <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm">
           Default
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="sm" variant="secondary">
-          Secondary{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Secondary <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="sm" variant="outline">
-          Outline{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          Outline <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="sm" variant="ghost">
-          Ghost{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Ghost <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="sm" variant="destructive">
-          Destructive{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Destructive <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="sm" variant="link">
-          Link{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Link <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button>
-          Default{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Default <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button variant="secondary">
-          Secondary{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Secondary <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button variant="outline">
-          Outline{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Outline <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button variant="ghost">
-          Ghost{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Ghost <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button variant="destructive">
-          Destructive{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Destructive <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button variant="link">
-          Link{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Link <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="lg">
-          Default{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Default <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="lg" variant="secondary">
-          Secondary{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Secondary <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="lg" variant="outline">
-          Outline{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Outline <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="lg" variant="ghost">
-          Ghost{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Ghost <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="lg" variant="destructive">
-          Destructive{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Destructive <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
         <Button size="lg" variant="link">
-          Link{" "}
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-            data-icon="inline-end"
-          />
+          Link <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
         </Button>
       </div>
     </Example>,
@@ -378,274 +188,90 @@ test("ButtonIconLeft", async (t) => {
     <Example title="Icon Left">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="xs">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Default
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Default
         </Button>
         <Button size="xs" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Secondary
         </Button>
         <Button size="xs" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Outline
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Outline
         </Button>
         <Button size="xs" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Ghost
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Ghost
         </Button>
         <Button size="xs" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Destructive
         </Button>
         <Button size="xs" variant="link">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Link
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Link
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Default
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Default
         </Button>
         <Button size="sm" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Secondary
         </Button>
         <Button size="sm" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Outline
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Outline
         </Button>
         <Button size="sm" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Ghost
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Ghost
         </Button>
         <Button size="sm" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Destructive
         </Button>
         <Button size="sm" variant="link">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Link
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Link
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button>
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Default
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Default
         </Button>
         <Button variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Secondary
         </Button>
         <Button variant="outline">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Outline
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Outline
         </Button>
         <Button variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Ghost
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Ghost
         </Button>
         <Button variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Destructive
         </Button>
         <Button variant="link">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Link
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Link
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="lg">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Default
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Default
         </Button>
         <Button size="lg" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Secondary
         </Button>
         <Button size="lg" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Outline
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Outline
         </Button>
         <Button size="lg" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Ghost
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Ghost
         </Button>
         <Button size="lg" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" />{" "}
           Destructive
         </Button>
         <Button size="lg" variant="link">
-          <IconPlaceholder
-            lucide="ArrowLeftCircleIcon"
-            hugeicons="CircleArrowLeft02Icon"
-            tabler="IconCircleArrowLeft"
-            phosphor="ArrowCircleLeftIcon"
-            remixicon="RiArrowLeftCircleLine"
-            data-icon="inline-start"
-          />{" "}
-          Link
+          <IconPlaceholder lucide="ArrowLeftCircleIcon" hugeicons="CircleArrowLeft02Icon" /> Link
         </Button>
       </div>
     </Example>,
@@ -659,226 +285,82 @@ test("ButtonIconOnly", async (t) => {
     <Example title="Icon Only">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="icon-xs">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-xs" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-xs" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-xs" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-xs" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-xs" variant="link">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="icon-sm">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-sm" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-sm" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-sm" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-sm" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-sm" variant="link">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="icon">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon" variant="link">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="icon-lg">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-lg" variant="secondary">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-lg" variant="outline">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-lg" variant="ghost">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-lg" variant="destructive">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
         <Button size="icon-lg" variant="link">
-          <IconPlaceholder
-            lucide="ArrowRightIcon"
-            tabler="IconArrowRight"
-            hugeicons="ArrowRight02Icon"
-            phosphor="ArrowRightIcon"
-            remixicon="RiArrowRightLine"
-          />
+          <IconPlaceholder lucide="ArrowRightIcon" />
         </Button>
       </div>
     </Example>,
@@ -894,28 +376,13 @@ test("ButtonExamples", async (t) => {
         <div className="flex items-center gap-2">
           <Button variant="outline">Cancel</Button>
           <Button>
-            Submit{" "}
-            <IconPlaceholder
-              lucide="ArrowRightIcon"
-              tabler="IconArrowRight"
-              hugeicons="ArrowRight02Icon"
-              phosphor="ArrowRightIcon"
-              remixicon="RiArrowRightLine"
-              data-icon="inline-end"
-            />
+            Submit <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
           </Button>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="destructive">Delete</Button>
           <Button size="icon">
-            <IconPlaceholder
-              lucide="ArrowRightIcon"
-              tabler="IconArrowRight"
-              hugeicons="ArrowRight02Icon"
-              phosphor="ArrowRightIcon"
-              remixicon="RiArrowRightLine"
-              data-icon="inline-end"
-            />
+            <IconPlaceholder lucide="ArrowRightIcon" data-icon="inline-end" />
           </Button>
         </div>
         <a href="#" className={buttonVariants()}>
