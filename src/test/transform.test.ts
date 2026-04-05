@@ -11,7 +11,8 @@ const path = fileURLToPath(
 describe("className JSX attribute", () => {
   test("replaces a plain className string with a CSS module reference", async () => {
     const source = `export function Foo() { return <div className="p-4 text-sm" />; }`;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`styles["foo"]`);
     expect(result).not.toContain(`"p-4 text-sm"`);
@@ -20,14 +21,16 @@ describe("className JSX attribute", () => {
 
   test("wraps the replacement in a JSX expression container", async () => {
     const source = `export function Foo() { return <div className="p-4" />; }`;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`className={styles["foo"]}`);
   });
 
   test("replaces className with JSX expression container string", async () => {
     const source = `export function Foo() { return <div className={"p-4"} />; }`;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`className={styles["foo"]}`);
     expect(result).not.toContain(`"p-4"`);
@@ -35,7 +38,8 @@ describe("className JSX attribute", () => {
 
   test("replaces className with JSX expression container template literal", async () => {
     const source = "export function Foo() { return <div className={`p-4`} />; }";
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`className={styles["foo"]}`);
     expect(result).not.toContain("`p-4`");
@@ -51,7 +55,8 @@ describe("className JSX attribute", () => {
         );
       }
     `;
-    const result = await transform({ source, path: "/project/src/Card.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Card.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`className={styles["`);
 
@@ -67,7 +72,8 @@ describe("className JSX attribute", () => {
         return <svg className="size-4 shrink-0" aria-label="close icon" role="img" />;
       }
     `;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`aria-label="close icon"`);
     expect(result).toContain(`role="img"`);
@@ -79,7 +85,8 @@ describe("className JSX attribute", () => {
       const msg = "hello world";
       export function Foo() { return <div className="p-4" aria-label="button" />; }
     `;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`"hello world"`);
     expect(result).toContain(`"button"`);
@@ -93,7 +100,8 @@ describe("cva arguments", () => {
       import { cva } from "class-variance-authority";
       const buttonVariants = cva("bg-primary text-white");
     `;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`styles["button"]`);
     expect(result).not.toContain(`"bg-primary text-white"`);
@@ -111,7 +119,8 @@ describe("cva arguments", () => {
         },
       });
     `;
-    const result = await transform({ source, path: "/project/src/Button.tsx" });
+    const { root } = await transform({ source, path: "/project/src/Button.tsx" });
+    const result = root.toSource();
 
     expect(result).toContain(`styles["button-size-sm"]`);
     expect(result).toContain(`styles["button-size-lg"]`);

@@ -39,8 +39,6 @@ export async function transform({
   const targets = createTransformTargets(extracted);
   const { global, local } = await compileTailwindTargets({ css, targets, base });
 
-  // Map each extracted node to its CSS module key. Because we reuse the same
-  // parse, node identity is preserved and Map lookups succeed.
   const nodeToKey = new Map<ASTNode, string>(
     targets.map((target) => [target.node, target.outputSelector.slice(1)]),
   );
