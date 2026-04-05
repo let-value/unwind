@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { type File, type ASTNode } from "jscodeshift";
 
-import { codeshift } from "./codeshift.ts";
+import { j } from "./codeshift.ts";
 import { dirname, join, parse } from "node:path";
 
 type Source = "className" | "cva";
@@ -27,6 +27,7 @@ export interface Breadcrumb {
 }
 
 export interface ExtractedClassName {
+  node: ASTNode;
   source: Source;
   classNames: string;
   breadcrumbs: Breadcrumb[];
@@ -163,6 +164,7 @@ function pushClassNameResult(
 
   seen.add(key);
   results.push({
+    node,
     source,
     classNames,
     breadcrumbs: Array.from(breadcrumbs),
@@ -521,7 +523,7 @@ export function getTreeClassNames(node: File): ExtractedClassName[] {
 }
 
 export function getSourceClassNames(source: string): ExtractedClassName[] {
-  const ast = codeshift(source).get().value as File;
+  const ast = j(source).get().value as File;
   return getTreeClassNames(ast);
 }
 
@@ -530,11 +532,11 @@ export async function getFileClassNames(path: string): Promise<ExtractedClassNam
   return getSourceClassNames(source);
 }
 
-export function getCssModulePath(sourceFilePath: string): string {
-  const parsed = parse(sourceFilePath);
+export function getCssModulePath(path: string): string {
+  const parsed = parse(path);
 
   if (parsed.ext.length === 0) {
-    return join(dirname(sourceFilePath), `${parsed.base}.module.css`);
+    return join(dirname(path), `${parsed.base}.module.css`);
   }
 
   return join(parsed.dir, `${parsed.name}.module.css`);

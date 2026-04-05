@@ -1,3 +1,3 @@
 import jscodeshift from "jscodeshift";
 
-export const codeshift = jscodeshift.withParser("tsx");
+export const j = jscodeshift.withParser("tsx");
