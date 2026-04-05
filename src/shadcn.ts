@@ -28,6 +28,7 @@ export const schema = z.object({
 export type ComponentsConfig = z.infer<typeof schema>;
 
 export interface ShadcnMetadata {
+  base: string;
   packageJsonPath: string;
   componentsJsonPath: string;
   componentsJson: ComponentsConfig;
@@ -43,7 +44,7 @@ const context = file.cloneWithOptions({ tsconfig: "auto", resolveToContext: true
 export async function resolveShadcnProject(
   searchPath: string,
 ): Promise<ShadcnMetadata | undefined> {
-  let dir: string | undefined;
+  let base: string | undefined;
   let config: ComponentsConfig | undefined;
   let componentsJsonPath: string | undefined;
   for (const segment of walkUp(searchPath)) {
@@ -56,12 +57,12 @@ export async function resolveShadcnProject(
     }
 
     config = await schema.parseAsync(json);
-    dir = segment;
+    base = segment;
     componentsJsonPath = location;
     break;
   }
 
-  if (!dir || !config || !componentsJsonPath) {
+  if (!base || !config || !componentsJsonPath) {
     return;
   }
 
@@ -77,6 +78,7 @@ export async function resolveShadcnProject(
     : undefined;
 
   return {
+    base,
     packageJsonPath: css.packageJsonPath,
     componentsJsonPath,
     componentsJson: config,

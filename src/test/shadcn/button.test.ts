@@ -106,14 +106,13 @@ test("keeps button target selectors aligned with the extracted class strings", a
 test("compiles button fixture into local and hoisted global css", async () => {
   const extracted = await getFileClassNames(path);
   const targets = createTransformTargets(extracted);
-  const context = await resolveShadcnProject(path);
+  const project = await resolveShadcnProject(path);
 
-  expect(context).toBeDefined();
+  expect(project).toBeDefined();
 
   const { local, global } = await compileTailwindTargets({
-    css: context?.tailwindCssEntrySource,
+    ...project,
     targets,
-    base: context?.projectRoot,
   });
 
   expect(global.toString()).toMatchSnapshot();
