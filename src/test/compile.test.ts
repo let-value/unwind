@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compileClasses, normalizeClassTokens } from "../compile.ts";
+import { compileClasses, compileTailwindTargets, normalizeClassTokens } from "../compile.ts";
 
 interface FinalCase {
   name: string;
@@ -72,6 +72,46 @@ describe(compileClasses, () => {
     expect((css.match(/\.card:hover/g) ?? []).length).toBe(1);
     expect(css).toContain("color:");
     expect(css).toContain("background-color:");
+  });
+
+  it("rewrites self group references to the output selector", async () => {
+    const { local } = await compileClasses({
+      classNames: "group/drawer-content group-data-[state=open]/drawer-content:block",
+      outputSelector: ".drawer-content",
+    });
+
+    const css = local.toString();
+
+    expect(css).toContain(".drawer-content");
+    expect(css).not.toContain(".group\\/drawer-content");
+  });
+
+  it("rewrites named group references across targets", async () => {
+    const { local } = await compileTailwindTargets({
+      targets: [
+        {
+          node: {} as never,
+          source: "className",
+          classNames: "group/drawer-content",
+          breadcrumbs: [],
+          outputSelector: ".drawer-content-group",
+        },
+        {
+          node: {} as never,
+          source: "className",
+          classNames:
+            "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
+          breadcrumbs: [],
+          outputSelector: ".drawer-header",
+        },
+      ],
+    });
+
+    const css = local.toString();
+
+    expect(css).toContain(".drawer-header");
+    expect(css).toContain(".drawer-content-group");
+    expect(css).not.toContain(".group\\/drawer-content");
   });
 
   for (const testCase of finalCases) {

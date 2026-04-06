@@ -80,6 +80,124 @@ function replaceUtilitySelector(
   }).processSync(selector);
 }
 
+function isStructuralMarkerToken(token: string): boolean {
+  return (
+    token === "group" ||
+    token === "peer" ||
+    token.startsWith("group/") ||
+    token.startsWith("peer/")
+  );
+}
+
+interface CompiledSelectorTarget {
+  classTokens: string[];
+  outputSelector: string;
+}
+
+type MarkerSelectors = Map<string, string[]>;
+
+function createMarkerSelectors(targets: CompiledSelectorTarget[]): MarkerSelectors {
+  const markerSelectors = new Map<string, string[]>();
+
+  for (const { classTokens, outputSelector } of targets) {
+    for (const classToken of classTokens) {
+      if (!isStructuralMarkerToken(classToken)) {
+        continue;
+      }
+
+      const selectors = markerSelectors.get(classToken) ?? [];
+      if (!selectors.includes(outputSelector)) {
+        selectors.push(outputSelector);
+      }
+      markerSelectors.set(classToken, selectors);
+    }
+  }
+
+  return markerSelectors;
+}
+
+async function compileTargetStyles({
+  css,
+  classTokens,
+  outputSelector,
+  base,
+  markerSelectors,
+}: {
+  css?: string;
+  classTokens: string[];
+  outputSelector: string;
+  base?: string;
+  markerSelectors: MarkerSelectors;
+}) {
+  const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
+    base: base ?? process.cwd(),
+    onDependency: () => {},
+  });
+
+  const styles = compiler.build(classTokens);
+
+  const root = await parseCss(styles);
+  const global = getGlobalStyles({ root, classTokens });
+  const local = await getLocalStyles({
+    root,
+    global,
+    classTokens,
+    outputSelector,
+    markerSelectors,
+  });
+
+  return {
+    global,
+    local,
+  };
+}
+
+function createSelectorReferenceNodes(outputSelectors: string[]): selectorParser.Node[] {
+  if (outputSelectors.length === 1) {
+    return createSelectorTemplate(outputSelectors[0]).nodes.map((node) => node.clone());
+  }
+
+  const wrapperRoot = selectorParser().astSync(`:is(${outputSelectors.join(", ")})`);
+  const wrapperSelector = wrapperRoot.first;
+
+  if (!wrapperSelector) {
+    throw new Error(`Expected selector references for "${outputSelectors.join(", ")}"`);
+  }
+
+  return wrapperSelector.nodes.map((node) => node.clone());
+}
+
+function rewriteStructuralReferenceSelectors(
+  selector: string,
+  markerSelectors: MarkerSelectors,
+): string {
+  if (markerSelectors.size === 0) {
+    return selector;
+  }
+
+  return selectorParser((root) => {
+    root.walkClasses((node) => {
+      const outputSelectors = markerSelectors.get(node.value);
+      if (!outputSelectors?.length) {
+        return;
+      }
+
+      node.replaceWith(...createSelectorReferenceNodes(outputSelectors));
+    });
+  }).processSync(selector);
+}
+
+function rewriteStructuralReferenceSelectorsInRule(
+  rule: Rule,
+  markerSelectors: MarkerSelectors,
+) {
+  rule.selector = rewriteStructuralReferenceSelectors(rule.selector, markerSelectors);
+
+  rule.walkRules((nestedRule) => {
+    nestedRule.selector = rewriteStructuralReferenceSelectors(nestedRule.selector, markerSelectors);
+  });
+}
+
 function wrapNodeWithAtRuleAncestors(node: Node, rule: Rule): Node {
   let wrappedNode = node;
   let currentParent = rule.parent;
@@ -104,10 +222,12 @@ function getMatchingRules({
   root,
   classTokens,
   outputSelector,
+  markerSelectors,
 }: {
   root: Root;
   classTokens: string[];
   outputSelector: string;
+  markerSelectors: MarkerSelectors;
 }): Root {
   const utilityClassNames = new Set(classTokens);
   const selectedRulesByClassName = new Map<string, Node>();
@@ -135,6 +255,7 @@ function getMatchingRules({
         utilityClassNames,
         outputTemplate,
       );
+      rewriteStructuralReferenceSelectorsInRule(rewrittenRule, markerSelectors);
       rewrittenRule.raws.before = "";
       selectedRulesByClassName.set(className, wrapNodeWithAtRuleAncestors(rewrittenRule, rule));
     }
@@ -209,7 +330,7 @@ function mergeDuplicateChildren(container: Container) {
 }
 
 async function parseCss(source: string): Promise<Root> {
-  const { root } = await postcss([]).process(source);
+  const { root } = await postcss([]).process(source, { from: undefined });
 
   if (root.type !== "root") {
     throw new Error(`Unexpected root node: ${String(root)}`);
@@ -414,15 +535,22 @@ async function getLocalStyles({
   global,
   classTokens,
   outputSelector,
+  markerSelectors,
 }: {
   root: Root;
   global: Root;
   classTokens: string[];
   outputSelector: string;
+  markerSelectors: MarkerSelectors;
 }) {
   const local = postcss.root();
 
-  const rewrittenRoot = getMatchingRules({ root, classTokens, outputSelector });
+  const rewrittenRoot = getMatchingRules({
+    root,
+    classTokens,
+    outputSelector,
+    markerSelectors,
+  });
 
   mergeDuplicateChildren(rewrittenRoot);
   moveChildren(rewrittenRoot, local);
@@ -476,22 +604,15 @@ export async function compileClasses({
   base?: string;
 }) {
   const classTokens = normalizeClassTokens(classNames);
+  const markerSelectors = createMarkerSelectors([{ classTokens, outputSelector }]);
 
-  const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
-    base: base ?? process.cwd(),
-    onDependency: () => {},
+  return compileTargetStyles({
+    css,
+    classTokens,
+    outputSelector,
+    base,
+    markerSelectors,
   });
-
-  const styles = compiler.build(classTokens);
-
-  const root = await parseCss(styles);
-  const global = getGlobalStyles({ root, classTokens });
-  const local = await getLocalStyles({ root, global, classTokens, outputSelector });
-
-  return {
-    global,
-    local,
-  };
 }
 
 export function mergeGlobalRoots(roots: Root[]): Root {
@@ -513,19 +634,32 @@ export async function compileTailwindTargets({
   targets: TransformTarget[];
   base?: string;
 }) {
-  const results = await Promise.all(
-    targets.map((target) =>
-      compileClasses({
+  const tokenizedTargets = targets.map((target) => ({
+    target,
+    classTokens: normalizeClassTokens(target.classNames),
+  }));
+  const markerSelectors = createMarkerSelectors(
+    tokenizedTargets.map(({ classTokens, target }) => ({
+      classTokens,
+      outputSelector: target.outputSelector,
+    })),
+  );
+
+  const compiledTargets = await Promise.all(
+    tokenizedTargets.map(({ classTokens, target }) =>
+      compileTargetStyles({
         css,
+        classTokens,
+        outputSelector: target.outputSelector,
         base,
-        ...target,
+        markerSelectors,
       }),
     ),
   );
 
   const local = postcss.root();
-  for (const result of results) {
-    moveChildren(result.local.clone(), local);
+  for (const compiledTarget of compiledTargets) {
+    moveChildren(compiledTarget.local.clone(), local);
   }
 
   pruneEmptyContainers(local);
@@ -533,7 +667,7 @@ export async function compileTailwindTargets({
   reorderSupportsBlocks(local);
 
   return {
-    global: mergeGlobalRoots(results.map((r) => r.global)),
+    global: mergeGlobalRoots(compiledTargets.map((compiledTarget) => compiledTarget.global)),
     local: normalizeOutputAst(local),
   };
 }
