@@ -3,11 +3,11 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { ArrowUpIcon } from "lucide-react";
 
+import "shadcn-compiled/tailwind.css";
 import "shadcn-compiled/globals.css";
 import { Button, buttonVariants } from "shadcn-compiled/button.tsx";
 
 import { Example, IconPlaceholder } from "./example.tsx";
-import "./tailwind.css";
 
 test("ButtonDemo", async (t) => {
   await render(
