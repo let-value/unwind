@@ -370,6 +370,45 @@ function pruneEmptyContainers(container: Container) {
   }
 }
 
+// CSS Modules only scopes selectors at the top level; selectors inside @layer
+// at-rules are not renamed. Unwrap every @layer block so its children become
+// direct children of the container.
+function unwrapLayers(container: Container): void {
+  for (const node of (container.nodes ?? []).slice()) {
+    if (node.type === "atrule" && (node as AtRule).name === "layer") {
+      const layer = node as AtRule;
+      for (const child of (layer.nodes ?? []).slice()) {
+        child.remove();
+        layer.before(child);
+      }
+      layer.remove();
+    }
+  }
+}
+
+// Tailwind emits @supports blocks (with opacity-correct color-mix values)
+// before the plain fallback rules for the same selector. After @layer
+// unwrapping both sets of rules exist at the same cascade level, so later
+// source order wins. Move every @supports block to the end of its container
+// so the opacity-correct values override the solid-color fallbacks in browsers
+// that support color-mix.
+function reorderSupportsBlocks(container: Container): void {
+  const supportsNodes: Node[] = [];
+  for (const node of (container.nodes ?? []).slice()) {
+    if (node.type !== "atrule") continue;
+    const atRule = node as AtRule;
+    if (atRule.name === "supports") {
+      supportsNodes.push(node);
+      atRule.remove();
+    } else if (atRule.name === "media") {
+      reorderSupportsBlocks(atRule);
+    }
+  }
+  for (const node of supportsNodes) {
+    container.append(node);
+  }
+}
+
 async function getLocalStyles({
   root,
   global,
@@ -396,6 +435,9 @@ async function getLocalStyles({
     collectSelectorReferences(global),
     collectTargetSelectorReferences(outputSelector),
   );
+  mergeDuplicateChildren(flat);
+  unwrapLayers(flat);
+  reorderSupportsBlocks(flat);
   mergeDuplicateChildren(flat);
   return normalizeOutputAst(flat);
 }
@@ -452,6 +494,16 @@ export async function compileClasses({
   };
 }
 
+export function mergeGlobalRoots(roots: Root[]): Root {
+  const merged = postcss.root();
+  for (const root of roots) {
+    moveChildren(root.clone(), merged);
+  }
+  pruneEmptyContainers(merged);
+  mergeDuplicateChildren(merged);
+  return normalizeOutputAst(merged);
+}
+
 export async function compileTailwindTargets({
   css,
   targets,
@@ -471,20 +523,17 @@ export async function compileTailwindTargets({
     ),
   );
 
-  const global = postcss.root();
   const local = postcss.root();
   for (const result of results) {
-    moveChildren(result.global.clone(), global);
     moveChildren(result.local.clone(), local);
   }
 
-  pruneEmptyContainers(global);
   pruneEmptyContainers(local);
-  mergeDuplicateChildren(global);
   mergeDuplicateChildren(local);
+  reorderSupportsBlocks(local);
 
   return {
-    global: normalizeOutputAst(global),
+    global: mergeGlobalRoots(results.map((r) => r.global)),
     local: normalizeOutputAst(local),
   };
 }

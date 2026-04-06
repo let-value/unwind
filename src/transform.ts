@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import { j } from "./codeshift.ts";
 import { getCssModulePath, getTreeClassNames } from "./classnames.ts";
 import { createTransformTargets } from "./targets.ts";
-import { compileTailwindTargets } from "./compile.ts";
+import { compileTailwindTargets, mergeGlobalRoots } from "./compile.ts";
 
 export interface TransformOptions {
   path: string;
@@ -106,4 +106,15 @@ export async function transform({
   }
 
   return { path, cssModulePath, root, global, local };
+}
+
+export interface TransformManyResult {
+  results: TransformResult[];
+  global: Root;
+}
+
+export async function transformMany(options: TransformOptions[]): Promise<TransformManyResult> {
+  const results = await Promise.all(options.map(transform));
+  const global = mergeGlobalRoots(results.map((r) => r.global));
+  return { results, global };
 }

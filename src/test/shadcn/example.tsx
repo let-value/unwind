@@ -1,25 +1,22 @@
 import type { ComponentType, PropsWithChildren } from "react";
-import "shadcn-test/src/index.css";
-import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
+
 import * as icons from "lucide-react";
 
 export function Example({ title, children }: PropsWithChildren<{ title?: string }>) {
   return (
-    <ThemeProvider>
-      <div className="flex flex-col gap-2 p-2" data-testid="example">
-        {title && <h1 className="text-2xl font-bold">{title}</h1>}
-        {children}
-      </div>
-    </ThemeProvider>
+    <div className="flex flex-col gap-2 p-2" data-testid="example">
+      {title && <h1 className="text-2xl font-bold">{title}</h1>}
+      {children}
+    </div>
   );
 }
 
 export function IconPlaceholder({
   lucide,
-  tabler,
-  hugeicons,
-  phosphor,
-  remixicon,
+  tabler: _tabler,
+  hugeicons: _hugeicons,
+  phosphor: _phosphor,
+  remixicon: _remixicon,
   ...rest
 }: {
   lucide?: keyof typeof icons;

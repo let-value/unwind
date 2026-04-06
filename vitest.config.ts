@@ -1,6 +1,8 @@
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
+import { resolve } from "node:path";
+import { platform } from "node:os";
 
 import { defineConfig } from "vitest/config";
 
@@ -32,6 +34,34 @@ export default defineConfig({
                 browser: "chromium",
               },
             ],
+            expect: {
+              toMatchScreenshot: {
+                resolveScreenshotPath: ({
+                  arg,
+                  ext,
+                  root,
+                  screenshotDirectory,
+                  testFileDirectory,
+                  testFileName,
+                  browserName,
+                }: {
+                  arg: string;
+                  ext: string;
+                  root: string;
+                  screenshotDirectory: string;
+                  testFileDirectory: string;
+                  testFileName: string;
+                  browserName: string;
+                }) =>
+                  resolve(
+                    root,
+                    testFileDirectory,
+                    screenshotDirectory,
+                    testFileName.replace(".compiled", ""),
+                    `${arg}-${browserName}-${platform()}${ext}`,
+                  ),
+              },
+            },
           },
         },
       },

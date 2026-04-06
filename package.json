@@ -26,7 +26,8 @@
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint .",
     "format": "oxfmt .",
-    "test:browser": "vitest --config vitest.browser.config.ts run"
+    "test:browser": "vitest --config vitest.browser.config.ts run",
+    "compile:shadcn": "node --experimental-strip-types src/test/shadcn/compiledSetup.ts"
   },
   "dependencies": {
     "@tailwindcss/node": "4.2.2",
@@ -48,6 +49,7 @@
     "@vitest/coverage-v8": "4.1.2",
     "oxfmt": "0.43.0",
     "oxlint": "1.58.0",
+    "shadcn-compiled": "file:./src/test/shadcn/compiled",
     "shadcn-test": "file:./src/test/shadcn/project",
     "tsdown": "0.21.7",
     "typescript": "6.0.2",

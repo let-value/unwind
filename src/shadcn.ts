@@ -49,9 +49,9 @@ export async function resolveShadcnProject(
   let componentsJsonPath: string | undefined;
   for (const segment of walkUp(searchPath)) {
     const location = resolve(segment, "components.json");
-    let json: string;
+    let json: unknown;
     try {
-      json = await import(location);
+      json = JSON.parse(await readFile(location, "utf-8"));
     } catch {
       continue;
     }
