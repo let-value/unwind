@@ -5,14 +5,8 @@ export default defineConfig({
     cli: "src/cli.ts",
     index: "src/index.ts",
   },
-  format: "esm",
-  clean: true,
+  format: ["esm", "cjs"],
   dts: true,
-  sourcemap: true,
-  platform: "node",
-  target: "node22",
   outDir: "dist",
-  deps: {
-    alwaysBundle: [/^(?!node:)/],
-  },
+  clean: true,
 });

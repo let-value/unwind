@@ -1,5 +1,5 @@
 {
-  "name": "unwind",
+  "name": "@let-value/unwind",
   "version": "0.1.0",
   "description": "A CLI codemod tool powered by jscodeshift",
   "bin": {
@@ -27,7 +27,9 @@
     "lint": "oxlint .",
     "format": "oxfmt .",
     "test:browser": "vitest --config vitest.browser.config.ts run",
-    "compile:shadcn": "node --experimental-strip-types src/test/shadcn/compiledSetup.ts"
+    "compile:shadcn": "node --experimental-strip-types src/test/shadcn/compiledSetup.ts",
+    "release": "bumpp",
+    "publish": "npm publish"
   },
   "dependencies": {
     "@tailwindcss/node": "4.2.2",
@@ -47,6 +49,7 @@
     "@vitejs/plugin-react": "6.0.1",
     "@vitest/browser-playwright": "4.1.2",
     "@vitest/coverage-v8": "4.1.2",
+    "bumpp": "^11.0.1",
     "oxfmt": "0.43.0",
     "oxlint": "1.58.0",
     "shadcn-compiled": "file:./src/test/shadcn/compiled",
