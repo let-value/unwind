@@ -2,7 +2,7 @@
 import { parseArgs } from "node:util";
 import { glob, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, dirname, join, sep } from "node:path";
-import type { Root } from "postcss";
+import postcss, { type Root } from "postcss";
 import { mergeGlobalRoots } from "./compile.ts";
 import { resolveShadcnProject } from "./shadcn.ts";
 import { transform } from "./transform.ts";
@@ -61,6 +61,31 @@ function commonAncestor(paths: string[]): string {
   let i = 0;
   while (i < minLen && parts.every((p) => p[i] === parts[0][i])) i++;
   return parts[0].slice(0, i).join(sep) || sep;
+}
+
+async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Promise<string> {
+  let existingLocalCss: string;
+  try {
+    existingLocalCss = await readFile(cssPath, "utf-8");
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+      return nextLocal.toString();
+    }
+
+    throw error;
+  }
+
+  if (existingLocalCss.trim() === "") {
+    return nextLocal.toString();
+  }
+
+  try {
+    const existingLocalRoot = postcss.parse(existingLocalCss);
+    return mergeGlobalRoots([existingLocalRoot, nextLocal]).toString();
+  } catch {
+    // Preserve existing authored CSS even if it cannot be parsed cleanly.
+    return `${existingLocalCss.trimEnd()}\n\n${nextLocal.toString()}`;
+  }
 }
 
 async function main() {
@@ -135,6 +160,10 @@ async function main() {
   for (const filePath of inputFiles) {
     try {
       const result = await transform({ path: filePath, css, base, importName });
+      if (result.targetCount === 0) {
+        continue;
+      }
+
       globalRoots.push(result.global);
 
       let sourceDest: string;
@@ -149,7 +178,7 @@ async function main() {
       }
 
       const sourceContent = result.root.toSource();
-      const localCss = result.local.toString();
+      const localCss = dry ? result.local.toString() : await mergeLocalCssWithExisting(cssDest, result.local);
 
       if (dry) {
         console.log(`  write: ${sourceDest}`);

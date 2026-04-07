@@ -19,6 +19,7 @@ export interface TransformOptions {
 export interface TransformResult {
   path: string;
   cssModulePath: string;
+  targetCount: number;
   root: Collection;
   global: Root;
   local: Root;
@@ -39,6 +40,17 @@ export async function transform({
 
   const extracted = getTreeClassNames(node);
   const targets = createTransformTargets(extracted);
+  if (targets.length === 0) {
+    return {
+      path,
+      cssModulePath,
+      targetCount: 0,
+      root,
+      global: mergeGlobalRoots([]),
+      local: mergeGlobalRoots([]),
+    };
+  }
+
   const { global, local } = await compileTailwindTargets({ css, targets, base });
 
   const nodeToKey = new Map<ASTNode, string>(
@@ -105,7 +117,7 @@ export async function transform({
     }
   }
 
-  return { path, cssModulePath, root, global, local };
+  return { path, cssModulePath, targetCount: targets.length, root, global, local };
 }
 
 export interface TransformManyResult {

@@ -249,6 +249,10 @@ function getExpressionBranches({ node, breadcrumbs, source }: Branch): Branch[] 
       return (Array.isArray(node.elements) ? node.elements : []).flatMap((element) =>
         isASTNode(element) ? [{ node: element, breadcrumbs, source }] : [],
       );
+    case "MemberExpression":
+      // styles["foo"] and similar lookups are already transformed references,
+      // not class strings to compile again.
+      return [];
     case "ConditionalExpression": {
       const name = isASTNode(node.test) ? getExpressionName(node.test) : undefined;
       const breadcrumb: Breadcrumb = { kind: "condition", name };
