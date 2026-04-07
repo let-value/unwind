@@ -2,8 +2,10 @@
 import { parseArgs } from "node:util";
 import { glob, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, dirname, join, sep } from "node:path";
-import { transform } from "./transform.ts";
+import type { Root } from "postcss";
+import { mergeGlobalRoots } from "./compile.ts";
 import { resolveShadcnProject } from "./shadcn.ts";
+import { transform } from "./transform.ts";
 
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
@@ -35,11 +37,11 @@ const { values, positionals } = parseArgs({
 if (values.help) {
   console.log(
     [
-      "unwind — compile Tailwind CSS classes into CSS modules",
+      "unwind - compile Tailwind CSS classes into CSS modules",
       "",
       "Usage:",
       "  unwind [glob...]           transform files matching glob pattern(s)",
-      "  unwind                     auto-detect shadcn project and transform ui components",
+      "  unwind                     auto-detect shadcn project, transform ui components, and rewrite global css",
       "",
       "Options:",
       "  -o, --output <dir>         write output to directory (default: in-place)",
@@ -52,6 +54,15 @@ if (values.help) {
   process.exit(0);
 }
 
+function commonAncestor(paths: string[]): string {
+  if (paths.length === 1) return dirname(paths[0]);
+  const parts = paths.map((p) => p.split(sep));
+  const minLen = Math.min(...parts.map((p) => p.length - 1));
+  let i = 0;
+  while (i < minLen && parts.every((p) => p[i] === parts[0][i])) i++;
+  return parts[0].slice(0, i).join(sep) || sep;
+}
+
 async function main() {
   const importName = values["import-name"] ?? "styles";
   const outputDir = values.output ? resolve(values.output) : undefined;
@@ -61,6 +72,8 @@ async function main() {
   let inputFiles: string[] = [];
   let css: string | undefined;
   let base: string | undefined;
+  let shadcnMode = false;
+  let shadcnMetadata: Awaited<ReturnType<typeof resolveShadcnProject>> | undefined;
 
   if (positionals.length > 0) {
     const cwd = process.cwd();
@@ -68,6 +81,7 @@ async function main() {
       positionals.map((pattern) => Array.fromAsync(glob(pattern, { cwd }))),
     );
     inputFiles = results.flat().map((f) => resolve(cwd, f));
+
     // Derive CSS context from shadcn when no explicit --css provided
     if (!values.css) {
       const metadata = await resolveShadcnProject(cwd);
@@ -77,16 +91,19 @@ async function main() {
       }
     }
   } else {
-    const metadata = await resolveShadcnProject(process.cwd());
-    if (!metadata) {
+    shadcnMetadata = await resolveShadcnProject(process.cwd());
+    if (!shadcnMetadata) {
       console.error(
         "No glob pattern provided and no shadcn project found (components.json not found).",
       );
       process.exit(1);
     }
-    css = metadata.css;
-    base = metadata.base;
-    const searchDir = metadata.uiPath ?? metadata.componentsPath;
+
+    shadcnMode = true;
+    css = shadcnMetadata.css;
+    base = shadcnMetadata.base;
+
+    const searchDir = shadcnMetadata.uiPath ?? shadcnMetadata.componentsPath;
     inputFiles = (await Array.fromAsync(glob("**/*.{tsx,ts,jsx,js}", { cwd: searchDir }))).map(
       (f) => resolve(searchDir, f),
     );
@@ -97,30 +114,28 @@ async function main() {
     css = await readFile(resolve(values.css), "utf-8");
   }
 
+  inputFiles = [...new Set(inputFiles)].sort();
+
   if (inputFiles.length === 0) {
     console.error("No input files found.");
     process.exit(1);
   }
 
-  // --- Common ancestor for output directory mirroring ---
-  function commonAncestor(paths: string[]): string {
-    if (paths.length === 1) return dirname(paths[0]);
-    const parts = paths.map((p) => p.split(sep));
-    const minLen = Math.min(...parts.map((p) => p.length - 1));
-    let i = 0;
-    while (i < minLen && parts.every((p) => p[i] === parts[0][i])) i++;
-    return parts[0].slice(0, i).join(sep) || sep;
-  }
-
-  const fileBase = outputDir ? commonAncestor(inputFiles) : undefined;
+  const fileBase = outputDir
+    ? shadcnMode && shadcnMetadata
+      ? shadcnMetadata.base
+      : commonAncestor(inputFiles)
+    : undefined;
 
   // --- Transform loop ---
   let successCount = 0;
   let failCount = 0;
+  const globalRoots: Root[] = [];
 
   for (const filePath of inputFiles) {
     try {
       const result = await transform({ path: filePath, css, base, importName });
+      globalRoots.push(result.global);
 
       let sourceDest: string;
       let cssDest: string;
@@ -135,25 +150,46 @@ async function main() {
 
       const sourceContent = result.root.toSource();
       const localCss = result.local.toString();
-      const globalCss = result.global.toString();
-      const globalDest = cssDest.replace(/\.module\.css$/, ".global.css");
 
       if (dry) {
         console.log(`  write: ${sourceDest}`);
         console.log(`  write: ${cssDest}`);
-        if (globalCss) console.log(`  write: ${globalDest}`);
       } else {
         await mkdir(dirname(sourceDest), { recursive: true });
         await writeFile(sourceDest, sourceContent, "utf-8");
         await mkdir(dirname(cssDest), { recursive: true });
         await writeFile(cssDest, localCss, "utf-8");
-        if (globalCss) await writeFile(globalDest, globalCss, "utf-8");
+      }
+
+      if (!shadcnMode) {
+        const globalCss = result.global.toString();
+        const globalDest = cssDest.replace(/\.module\.css$/, ".global.css");
+
+        if (dry) {
+          if (globalCss) console.log(`  write: ${globalDest}`);
+        } else {
+          if (globalCss) await writeFile(globalDest, globalCss, "utf-8");
+        }
       }
 
       successCount++;
     } catch (err) {
       console.error(`Error transforming ${filePath}:`, err);
       failCount++;
+    }
+  }
+
+  if (shadcnMode && shadcnMetadata && successCount > 0) {
+    const mergedGlobalCss = mergeGlobalRoots(globalRoots).toString();
+    const globalDest = outputDir
+      ? join(outputDir, relative(shadcnMetadata.base, shadcnMetadata.cssPath))
+      : shadcnMetadata.cssPath;
+
+    if (dry) {
+      console.log(`  write: ${globalDest}`);
+    } else {
+      await mkdir(dirname(globalDest), { recursive: true });
+      await writeFile(globalDest, mergedGlobalCss, "utf-8");
     }
   }
 

@@ -9,21 +9,24 @@ A CLI codemod tool powered by [jscodeshift](https://github.com/facebook/jscodesh
 ## Usage
 
 ```sh
-unwind <glob> [<glob> ...] [--dry]
+unwind [<glob> ...] [options]
 ```
 
 ### Arguments
 
-| Argument | Description |
-|----------|-------------|
-| `<glob>` | One or more glob patterns matching the files to transform. |
+| Argument | Description                                                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `<glob>` | Optional glob patterns matching files to transform. If omitted, `unwind` auto-detects a shadcn project and transforms all UI components. |
 
 ### Options
 
-| Flag | Description |
-|------|-------------|
-| `-d, --dry` | Dry run — report changes without writing to disk. |
-| `-h, --help` | Show the help message. |
+| Flag                   | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `-o, --output <dir>`   | Write output to a directory instead of in-place.  |
+| `--css <path>`         | Use a specific Tailwind CSS entry file.           |
+| `--import-name <name>` | CSS module import name (default: `styles`).       |
+| `-d, --dry`            | Dry run - report changes without writing to disk. |
+| `-h, --help`           | Show the help message.                            |
 
 ### Examples
 
@@ -33,6 +36,9 @@ unwind "components/ui/**/*"
 
 # Dry run over multiple patterns
 unwind "src/**/*.ts" "src/**/*.tsx" --dry
+
+# No args: detect shadcn, compile all UI components, and rewrite the configured global css
+unwind
 ```
 
 ## Development
@@ -44,7 +50,7 @@ npm install
 # Build (bundles to dist/ with tsdown)
 npm run build
 
-# Run tests (Node.js built-in test runner)
+# Run tests (Vitest)
 npm test
 
 # Lint (oxlint)
