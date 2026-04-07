@@ -1,5 +1,5 @@
 {
-  "name": "unwind",
+  "name": "@let-value/unwind",
   "version": "0.1.1-beta.4",
   "description": "A CLI codemod tool powered by jscodeshift",
   "bin": {
@@ -29,7 +29,7 @@
     "test:browser": "vitest --config vitest.browser.config.ts run",
     "compile:shadcn": "node --experimental-strip-types src/test/shadcn/compiledSetup.ts",
     "release": "bumpp",
-    "publish": "npm publish"
+    "publish:pkg": "npm publish"
   },
   "dependencies": {
     "@tailwindcss/node": "4.2.2",
@@ -61,5 +61,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
   }
 }
