@@ -14,19 +14,14 @@ jobs:
       matrix:
         registry:
           [
-            {
-              enabled: true,
-              public: false,
-              url: "https://npm.pkg.github.com",
-              token: GITHUB_TOKEN,
-            },
+            { enabled: true, public: true, url: "https://npm.pkg.github.com", token: GITHUB_TOKEN },
             { enabled: false, public: true, url: "https://registry.npmjs.org", token: NPM_TOKEN },
           ]
       fail-fast: false
     steps:
       - name: Early exit
         if: matrix.registry.enabled == false
-        run: exit 1
+        run: exit 0
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
