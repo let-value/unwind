@@ -114,6 +114,48 @@ describe(compileClasses, () => {
     expect(css).not.toContain(".group\\/drawer-content");
   });
 
+  it("marks arbitrary selector class references as global", async () => {
+    const { local, global } = await compileClasses({
+      classNames: "[.border-b]:pb-6",
+      outputSelector: ".card-header",
+    });
+
+    const css = local.toString();
+    const globalCss = global.toString();
+
+    expect(css).toContain(".card-header:is(:global(.border-b))");
+    expect(globalCss).toContain(".border-b");
+    expect(globalCss).toContain("border-bottom-width:");
+  });
+
+  it("rewrites named group references for arbitrary selector variants across targets", async () => {
+    const { local } = await compileTailwindTargets({
+      targets: [
+        {
+          node: {} as never,
+          source: "className",
+          classNames: "group/card",
+          breadcrumbs: [],
+          outputSelector: ".card",
+        },
+        {
+          node: {} as never,
+          source: "className",
+          classNames: "group-data-[size=sm]/card:[.border-b]:pb-4",
+          breadcrumbs: [],
+          outputSelector: ".card-header",
+        },
+      ],
+    });
+
+    const css = local.toString();
+
+    expect(css).toContain(
+      ".card-header:is(:where(.card)[data-size=\"sm\"] *):is(:global(.border-b))",
+    );
+    expect(css).not.toContain(".group\\/card");
+  });
+
   for (const testCase of finalCases) {
     it(`snapshots ${testCase.name}`, async () => {
       const { local } = await compileClasses(testCase);

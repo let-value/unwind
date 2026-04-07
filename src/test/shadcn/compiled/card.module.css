@@ -43,7 +43,7 @@
 .card-header:is(:where(.card)[data-size="sm"] *) {
     padding-inline: calc(var(--spacing) * 4);
 }
-.card-header:is(:where(.card)[data-size="sm"] *):is(.border-b) {
+.card-header:is(:where(.card)[data-size="sm"] *):is(:global(.border-b)) {
     padding-bottom: calc(var(--spacing) * 4);
 }
 .card-header:has(*[data-slot="card-action"]) {
@@ -52,7 +52,7 @@
 .card-header:has(*[data-slot="card-description"]) {
     grid-template-rows: auto auto;
 }
-.card-header:is(.border-b) {
+.card-header:is(:global(.border-b)) {
     padding-bottom: calc(var(--spacing) * 6);
 }
 .card-title {
@@ -96,10 +96,10 @@
 .card-footer:is(:where(.card)[data-size="sm"] *) {
     padding-inline: calc(var(--spacing) * 4);
 }
-.card-footer:is(:where(.card)[data-size="sm"] *):is(.border-t) {
+.card-footer:is(:where(.card)[data-size="sm"] *):is(:global(.border-t)) {
     padding-top: calc(var(--spacing) * 4);
 }
-.card-footer:is(.border-t) {
+.card-footer:is(:global(.border-t)) {
     padding-top: calc(var(--spacing) * 6);
 }
 @supports (color: color-mix(in lab, red, red)) {

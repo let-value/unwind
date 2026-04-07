@@ -501,6 +501,16 @@
         }
     }
 }
+@layer utilities {
+    .border-b {
+        border-bottom-style: var(--tw-border-style);
+        border-bottom-width: 1px;
+    }
+    .border-t {
+        border-top-style: var(--tw-border-style);
+        border-top-width: 1px;
+    }
+}
 @property --tw-leading {
     syntax: "*";
     inherits: false;

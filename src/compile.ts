@@ -21,6 +21,23 @@ export function extractClassNameTokens(classNames: Iterable<string>): string[] {
   return normalizeClassTokens([...classNames].join(" "));
 }
 
+function extractArbitrarySelectorUtilityClassTokens(classTokens: Iterable<string>): string[] {
+  const utilityClassTokens = new Set<string>();
+
+  for (const token of classTokens) {
+    const arbitrarySelectorMatches = token.match(/\[[^\]]+\]/g) ?? [];
+    for (const match of arbitrarySelectorMatches) {
+      const selectorSource = match.slice(1, -1);
+      const classes = selectorSource.match(/\.([_a-zA-Z0-9/-]+)/g) ?? [];
+      for (const classSelector of classes) {
+        utilityClassTokens.add(classSelector.slice(1).replace(/\\\//g, "/"));
+      }
+    }
+  }
+
+  return [...utilityClassTokens];
+}
+
 function createSelectorTemplate(selector: string): Selector {
   const root = selectorParser().astSync(selector);
   const firstSelector = root.first;
@@ -119,31 +136,35 @@ function createMarkerSelectors(targets: CompiledSelectorTarget[]): MarkerSelecto
 async function compileTargetStyles({
   css,
   classTokens,
+  buildTokens,
   outputSelector,
   base,
   markerSelectors,
+  localReferences,
 }: {
   css?: string;
   classTokens: string[];
+  buildTokens: string[];
   outputSelector: string;
   base?: string;
   markerSelectors: MarkerSelectors;
+  localReferences: SelectorReferenceSet;
 }) {
   const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
     base: base ?? process.cwd(),
     onDependency: () => {},
   });
 
-  const styles = compiler.build(classTokens);
+  const styles = compiler.build(buildTokens);
 
   const root = await parseCss(styles);
   const global = getGlobalStyles({ root, classTokens });
   const local = await getLocalStyles({
     root,
-    global,
     classTokens,
     outputSelector,
     markerSelectors,
+    localReferences,
   });
 
   return {
@@ -358,37 +379,18 @@ interface SelectorReferenceSet {
   ids: Set<string>;
 }
 
-function collectSelectorReferences(root: Root): SelectorReferenceSet {
+function collectTargetSelectorReferences(outputSelectors: Iterable<string>): SelectorReferenceSet {
   const classes = new Set<string>();
   const ids = new Set<string>();
 
-  root.walkRules((rule) => {
-    if (isInsideKeyframes(rule)) {
-      return;
-    }
-
-    for (const className of collectClassNamesFromSelector(rule.selector)) {
+  for (const outputSelector of outputSelectors) {
+    for (const className of collectClassNamesFromSelector(outputSelector)) {
       classes.add(className);
     }
 
-    for (const id of collectIdsFromSelector(rule.selector)) {
+    for (const id of collectIdsFromSelector(outputSelector)) {
       ids.add(id);
     }
-  });
-
-  return { classes, ids };
-}
-
-function collectTargetSelectorReferences(outputSelector: string): SelectorReferenceSet {
-  const classes = new Set<string>();
-  const ids = new Set<string>();
-
-  for (const className of collectClassNamesFromSelector(outputSelector)) {
-    classes.add(className);
-  }
-
-  for (const id of collectIdsFromSelector(outputSelector)) {
-    ids.add(id);
   }
 
   return { classes, ids };
@@ -422,7 +424,6 @@ function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
 
 function protectGlobalSelectorReferences(
   root: Root,
-  globalReferences: SelectorReferenceSet,
   localReferences: SelectorReferenceSet,
 ) {
   root.walkRules((rule) => {
@@ -433,7 +434,6 @@ function protectGlobalSelectorReferences(
     rule.selector = selectorParser((selectorRoot) => {
       selectorRoot.walkClasses((node) => {
         if (
-          !globalReferences.classes.has(node.value) ||
           localReferences.classes.has(node.value) ||
           isInsideGlobalPseudo(node)
         ) {
@@ -445,7 +445,6 @@ function protectGlobalSelectorReferences(
 
       selectorRoot.walkIds((node) => {
         if (
-          !globalReferences.ids.has(node.value) ||
           localReferences.ids.has(node.value) ||
           isInsideGlobalPseudo(node)
         ) {
@@ -532,16 +531,16 @@ function reorderSupportsBlocks(container: Container): void {
 
 async function getLocalStyles({
   root,
-  global,
   classTokens,
   outputSelector,
   markerSelectors,
+  localReferences,
 }: {
   root: Root;
-  global: Root;
   classTokens: string[];
   outputSelector: string;
   markerSelectors: MarkerSelectors;
+  localReferences: SelectorReferenceSet;
 }) {
   const local = postcss.root();
 
@@ -558,11 +557,7 @@ async function getLocalStyles({
 
   const flat = await flattenNestedRoot(local);
 
-  protectGlobalSelectorReferences(
-    flat,
-    collectSelectorReferences(global),
-    collectTargetSelectorReferences(outputSelector),
-  );
+  protectGlobalSelectorReferences(flat, localReferences);
   mergeDuplicateChildren(flat);
   unwrapLayers(flat);
   reorderSupportsBlocks(flat);
@@ -604,14 +599,20 @@ export async function compileClasses({
   base?: string;
 }) {
   const classTokens = normalizeClassTokens(classNames);
+  const buildTokens = normalizeClassTokens(
+    [...classTokens, ...extractArbitrarySelectorUtilityClassTokens(classTokens)].join(" "),
+  );
   const markerSelectors = createMarkerSelectors([{ classTokens, outputSelector }]);
+  const localReferences = collectTargetSelectorReferences([outputSelector]);
 
   return compileTargetStyles({
     css,
     classTokens,
+    buildTokens,
     outputSelector,
     base,
     markerSelectors,
+    localReferences,
   });
 }
 
@@ -644,17 +645,26 @@ export async function compileTailwindTargets({
       outputSelector: target.outputSelector,
     })),
   );
+  const localReferences = collectTargetSelectorReferences(
+    tokenizedTargets.map(({ target }) => target.outputSelector),
+  );
 
   const compiledTargets = await Promise.all(
-    tokenizedTargets.map(({ classTokens, target }) =>
-      compileTargetStyles({
+    tokenizedTargets.map(({ classTokens, target }) => {
+      const buildTokens = normalizeClassTokens(
+        [...classTokens, ...extractArbitrarySelectorUtilityClassTokens(classTokens)].join(" "),
+      );
+
+      return compileTargetStyles({
         css,
         classTokens,
+        buildTokens,
         outputSelector: target.outputSelector,
         base,
         markerSelectors,
-      }),
-    ),
+        localReferences,
+      });
+    }),
   );
 
   const local = postcss.root();
