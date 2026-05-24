@@ -63,6 +63,13 @@ function commonAncestor(paths: string[]): string {
   return parts[0].slice(0, i).join(sep) || sep;
 }
 
+// Returns true when the CSS string contains a Tailwind entry directive and can
+// be used as the Tailwind compiler input.  Returns false for already-compiled
+// output (which has no @import "tailwindcss" / @tailwind directives).
+function hasTailwindEntryDirective(css: string): boolean {
+  return /@import\s+["']tailwindcss["']/.test(css) || /@tailwind\b/.test(css);
+}
+
 async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Promise<string> {
   let existingLocalCss: string;
   try {
@@ -98,6 +105,7 @@ async function main() {
   let css: string | undefined;
   let base: string | undefined;
   let shadcnMode = false;
+  let shadcnCssIsCompiled = false;
   let shadcnMetadata: Awaited<ReturnType<typeof resolveShadcnProject>> | undefined;
 
   if (positionals.length > 0) {
@@ -111,7 +119,11 @@ async function main() {
     if (!values.css) {
       const metadata = await resolveShadcnProject(cwd);
       if (metadata) {
-        css = metadata.css;
+        // If the CSS file has been compiled by a previous run, fall back to the
+        // default Tailwind entry so new components can still be compiled.
+        if (hasTailwindEntryDirective(metadata.css)) {
+          css = metadata.css;
+        }
         base = metadata.base;
       }
     }
@@ -125,8 +137,16 @@ async function main() {
     }
 
     shadcnMode = true;
-    css = shadcnMetadata.css;
     base = shadcnMetadata.base;
+
+    // If the CSS file has been compiled by a previous run (no @import "tailwindcss"
+    // / @tailwind directives), fall back to the default Tailwind entry so new
+    // components can still be compiled correctly.
+    if (hasTailwindEntryDirective(shadcnMetadata.css)) {
+      css = shadcnMetadata.css;
+    } else {
+      shadcnCssIsCompiled = true;
+    }
 
     const searchDir = shadcnMetadata.uiPath ?? shadcnMetadata.componentsPath;
     inputFiles = (await Array.fromAsync(glob("**/*.{tsx,ts,jsx,js}", { cwd: searchDir }))).map(
@@ -209,7 +229,7 @@ async function main() {
   }
 
   if (shadcnMode && shadcnMetadata && successCount > 0) {
-    const mergedGlobalCss = mergeGlobalRoots(globalRoots).toString();
+    const newGlobalRoot = mergeGlobalRoots(globalRoots);
     const globalDest = outputDir
       ? join(outputDir, relative(shadcnMetadata.base, shadcnMetadata.cssPath))
       : shadcnMetadata.cssPath;
@@ -217,8 +237,14 @@ async function main() {
     if (dry) {
       console.log(`  write: ${globalDest}`);
     } else {
+      // When the source CSS was already compiled, we compiled new components
+      // using the default Tailwind entry. Merge the result into the existing
+      // file so previously generated base styles and theme variables are kept.
+      const globalCss = shadcnCssIsCompiled
+        ? await mergeLocalCssWithExisting(globalDest, newGlobalRoot)
+        : newGlobalRoot.toString();
       await mkdir(dirname(globalDest), { recursive: true });
-      await writeFile(globalDest, mergedGlobalCss, "utf-8");
+      await writeFile(globalDest, globalCss, "utf-8");
     }
   }
 

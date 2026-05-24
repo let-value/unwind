@@ -1,12 +1,22 @@
 import { spawn } from "node:child_process";
 import { access, cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 
 const cliPath = fileURLToPath(new URL("../cli.ts", import.meta.url));
 const fixtureProjectPath = fileURLToPath(new URL("./shadcn/project", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../../", import.meta.url));
+
+// Copy the fixture project to dest, skipping node_modules (253MB) to keep tests fast.
+// Only the `shadcn` package (5MB) is copied explicitly because it contains
+// shadcn/tailwind.css which is imported by the fixture's index.css but is not
+// present in the repo's top-level node_modules (all other CSS deps are there).
+async function copyFixture(dest: string): Promise<void> {
+  await cp(fixtureProjectPath, dest, { recursive: true, filter: (src) => basename(src) !== "node_modules" });
+  await mkdir(join(dest, "node_modules"), { recursive: true });
+  await cp(join(fixtureProjectPath, "node_modules", "shadcn"), join(dest, "node_modules", "shadcn"), { recursive: true });
+}
 
 interface CliResult {
   code: number | null;
@@ -33,7 +43,15 @@ function runCli(cwd: string, args: string[] = []): Promise<CliResult> {
     });
 
     child.on("error", reject);
-    child.on("close", (code) => resolve({ code, stdout, stderr }));
+    child.on("close", (code) => {
+      // Strip Node.js deprecation warnings emitted by --experimental-strip-types internals.
+      const filteredStderr = stderr
+        .split("\n")
+        .filter((line) => !/^\(node:\d+\)/.test(line) && !line.startsWith("(Use `node"))
+        .join("\n")
+        .trim();
+      resolve({ code, stdout, stderr: filteredStderr });
+    });
   });
 }
 
@@ -46,7 +64,7 @@ test(
     const projectPath = join(tempRoot, "project");
 
     try {
-      await cp(fixtureProjectPath, projectPath, { recursive: true });
+      await copyFixture(projectPath);
 
       const uiPath = join(projectPath, "src/components/ui");
       const uiEntries = await readdir(uiPath);
@@ -110,7 +128,7 @@ test(
     const projectPath = join(tempRoot, "project");
 
     try {
-      await cp(fixtureProjectPath, projectPath, { recursive: true });
+      await copyFixture(projectPath);
 
       const firstRunResult = await runCli(projectPath);
       expect(firstRunResult.code).toBe(0);
@@ -148,6 +166,86 @@ test(
       for (const selector of preservedSelectors) {
         expect(buttonModuleAfterSecondRun).toContain(selector);
       }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  },
+  120_000,
+);
+
+test(
+  "no-args mode compiles new components added after a previous run",
+  async () => {
+    const tempParent = join(repoRoot, ".vitest-attachments");
+    await mkdir(tempParent, { recursive: true });
+    const tempRoot = await mkdtemp(join(tempParent, "unwind-cli-"));
+    const projectPath = join(tempRoot, "project");
+
+    try {
+      await copyFixture(projectPath);
+
+      const firstRunResult = await runCli(projectPath);
+      expect(firstRunResult.code).toBe(0);
+      expect(firstRunResult.stderr).toBe("");
+
+      // After the first run the global CSS entry has been replaced with compiled
+      // output — it no longer contains Tailwind directives.
+      const globalCssAfterFirstRun = await readFile(
+        join(projectPath, "src/index.css"),
+        "utf-8",
+      );
+      expect(globalCssAfterFirstRun).not.toContain('@import "tailwindcss";');
+
+      // Add a new component file that still uses raw Tailwind class strings.
+      const uiPath = join(projectPath, "src/components/ui");
+      const newComponentPath = join(uiPath, "badge.tsx");
+      await writeFile(
+        newComponentPath,
+        [
+          `import { cn } from "#/lib/utils"`,
+          ``,
+          `function Badge({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {`,
+          `  return (`,
+          `    <div`,
+          `      className={cn(`,
+          `        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold",`,
+          `        className`,
+          `      )}`,
+          `      {...props}`,
+          `    />`,
+          `  )`,
+          `}`,
+          ``,
+          `export { Badge }`,
+        ].join("\n"),
+        "utf-8",
+      );
+
+      const secondRunResult = await runCli(projectPath);
+      expect(secondRunResult.code).toBe(0);
+      expect(secondRunResult.stderr).toBe("");
+
+      // The new component must have a non-empty module CSS file.
+      const badgeModulePath = join(uiPath, "badge.module.css");
+      await access(badgeModulePath);
+      const badgeModuleCss = await readFile(badgeModulePath, "utf-8");
+      expect(badgeModuleCss.trim()).not.toBe("");
+
+      // The compiled source must reference the CSS module.
+      const badgeSource = await readFile(newComponentPath, "utf-8");
+      expect(badgeSource).toContain(`import styles from "./badge.module.css"`);
+
+      // Existing components' module CSS must be unchanged.
+      const buttonModuleCss = await readFile(join(uiPath, "button.module.css"), "utf-8");
+      expect(buttonModuleCss).not.toBe("");
+
+      // The global CSS must still contain the base Tailwind output that was
+      // written by the first run.
+      const globalCssAfterSecondRun = await readFile(
+        join(projectPath, "src/index.css"),
+        "utf-8",
+      );
+      expect(globalCssAfterSecondRun).toContain("/*! tailwindcss");
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
