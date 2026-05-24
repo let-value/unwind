@@ -1,0 +1,21 @@
+.label {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-leading: 1;
+    line-height: 1;
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    -webkit-user-select: none;
+    user-select: none;
+}
+.label:is(:where(:global(.group))[data-disabled="true"] *) {
+    pointer-events: none;
+    opacity: 50%;
+}
+.label:is(:where(:global(.peer)):disabled ~ *) {
+    cursor: not-allowed;
+    opacity: 50%;
+}
