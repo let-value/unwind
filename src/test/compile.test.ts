@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { compileClasses, compileTailwindTargets, normalizeClassTokens } from "../compile.ts";
 
 interface FinalCase {
@@ -99,8 +99,7 @@ describe(compileClasses, () => {
         {
           node: {} as never,
           source: "className",
-          classNames:
-            "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
+          classNames: "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
           breadcrumbs: [],
           outputSelector: ".drawer-header",
         },
@@ -151,9 +150,54 @@ describe(compileClasses, () => {
     const css = local.toString();
 
     expect(css).toContain(
-      ".card-header:is(:where(.card)[data-size=\"sm\"] *):is(:global(.border-b))",
+      '.card-header:is(:where(.card)[data-size="sm"] *):is(:global(.border-b))',
     );
     expect(css).not.toContain(".group\\/card");
+  });
+
+  it("recovers shadcn theme utilities from compiled Tailwind CSS", async () => {
+    const compiledCss = `
+      /*! tailwindcss v4.2.2 | MIT License | https://tailwindcss.com */
+      @layer theme, base, components, utilities;
+      :root {
+        --muted: oklch(0.97 0 0);
+        --muted-foreground: oklch(0.556 0 0);
+        --border: oklch(0.922 0 0);
+        --ring: oklch(0.708 0 0);
+        --primary: oklch(0.205 0 0);
+      }
+    `;
+
+    const { local } = await compileClasses({
+      css: compiledCss,
+      outputSelector: ".item",
+      classNames:
+        "[a]:hover:bg-muted focus-visible:border-ring focus-visible:ring-ring/50 border-border bg-muted/50 text-muted-foreground [&>a:hover]:text-primary",
+    });
+
+    const css = local.toString();
+
+    expect(css).toContain("background-color: var(--muted)");
+    expect(css).toContain("border-color: var(--ring)");
+    expect(css).toContain("border-color: var(--border)");
+    expect(css).toContain("color: var(--muted-foreground)");
+    expect(css).toContain("color: var(--primary)");
+    expect(css).toContain("color-mix(in oklab, var(--ring) 50%, transparent)");
+    expect(css).toContain("color-mix(in oklab, var(--muted) 50%, transparent)");
+  });
+
+  it("warns when requested class tokens do not produce CSS", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      await compileClasses({
+        classNames: "not-a-tailwind-utility",
+        outputSelector: ".missing",
+      });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("Tailwind did not generate CSS"));
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   for (const testCase of finalCases) {

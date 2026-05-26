@@ -6,6 +6,108 @@ import type { TransformTarget } from "./targets.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss";`;
 
+const SHADCN_COLOR_VARIABLES = [
+  "background",
+  "foreground",
+  "card",
+  "card-foreground",
+  "popover",
+  "popover-foreground",
+  "primary",
+  "primary-foreground",
+  "secondary",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "border",
+  "input",
+  "ring",
+  "chart-1",
+  "chart-2",
+  "chart-3",
+  "chart-4",
+  "chart-5",
+  "sidebar",
+  "sidebar-foreground",
+  "sidebar-primary",
+  "sidebar-primary-foreground",
+  "sidebar-accent",
+  "sidebar-accent-foreground",
+  "sidebar-border",
+  "sidebar-ring",
+];
+
+function hasTailwindSourceDirective(css: string): boolean {
+  return (
+    /@import\s+["']tailwindcss["']/.test(css) || /@tailwind\b/.test(css) || /@theme\b/.test(css)
+  );
+}
+
+function appearsToBeCompiledTailwindCss(css: string): boolean {
+  return (
+    /tailwindcss v\d/.test(css) || /@layer\s+theme,\s*base,\s*components,\s*utilities/.test(css)
+  );
+}
+
+function collectCustomProperties(css: string): Set<string> {
+  const properties = new Set<string>();
+
+  for (const match of css.matchAll(/(--[a-zA-Z0-9-_]+)\s*:/g)) {
+    properties.add(match[1]);
+  }
+
+  return properties;
+}
+
+function createCompiledCssThemeBridge(css: string): string | undefined {
+  if (hasTailwindSourceDirective(css) || !appearsToBeCompiledTailwindCss(css)) {
+    return;
+  }
+
+  const customProperties = collectCustomProperties(css);
+  const themeDeclarations: string[] = [];
+
+  for (const name of SHADCN_COLOR_VARIABLES) {
+    if (customProperties.has(`--${name}`) && !customProperties.has(`--color-${name}`)) {
+      themeDeclarations.push(`  --color-${name}: var(--${name});`);
+    }
+  }
+
+  if (customProperties.has("--radius")) {
+    themeDeclarations.push("  --radius-sm: calc(var(--radius) * 0.6);");
+    themeDeclarations.push("  --radius-md: calc(var(--radius) * 0.8);");
+    themeDeclarations.push("  --radius-lg: var(--radius);");
+    themeDeclarations.push("  --radius-xl: calc(var(--radius) * 1.4);");
+    themeDeclarations.push("  --radius-2xl: calc(var(--radius) * 1.8);");
+    themeDeclarations.push("  --radius-3xl: calc(var(--radius) * 2.2);");
+    themeDeclarations.push("  --radius-4xl: calc(var(--radius) * 2.6);");
+  }
+
+  if (themeDeclarations.length === 0) {
+    return;
+  }
+
+  return [
+    TAILWIND_ENTRYPOINT,
+    "@custom-variant dark (&:is(.dark *));",
+    "@theme inline {",
+    ...themeDeclarations,
+    "}",
+  ].join("\n");
+}
+
+function prepareCssForTailwindBuild(css?: string): string {
+  if (!css) {
+    return TAILWIND_ENTRYPOINT;
+  }
+
+  const bridge = createCompiledCssThemeBridge(css);
+  return bridge ? `${bridge}\n${css}` : css;
+}
+
 export function normalizeClassTokens(classNames: string): string[] {
   return [
     ...new Set(
@@ -99,10 +201,34 @@ function replaceUtilitySelector(
 
 function isStructuralMarkerToken(token: string): boolean {
   return (
-    token === "group" ||
-    token === "peer" ||
-    token.startsWith("group/") ||
-    token.startsWith("peer/")
+    token === "group" || token === "peer" || token.startsWith("group/") || token.startsWith("peer/")
+  );
+}
+
+function warnUnresolvedClassTokens({ classTokens, root }: { classTokens: string[]; root: Root }) {
+  const matchedTokens = new Set<string>();
+  const requestedTokens = new Set(classTokens);
+
+  root.walkRules((rule) => {
+    for (const className of collectClassNamesFromSelector(rule.selector)) {
+      if (requestedTokens.has(className)) {
+        matchedTokens.add(className);
+      }
+    }
+  });
+
+  const missingTokens = classTokens.filter(
+    (token) => !matchedTokens.has(token) && !isStructuralMarkerToken(token),
+  );
+
+  if (missingTokens.length === 0) {
+    return;
+  }
+
+  const shownTokens = missingTokens.slice(0, 20).join(", ");
+  const suffix = missingTokens.length > 20 ? `, and ${missingTokens.length - 20} more` : "";
+  console.warn(
+    `[unwind] Tailwind did not generate CSS for ${missingTokens.length} requested class token(s): ${shownTokens}${suffix}. Check that your CSS input is a Tailwind source entry with the required theme mappings.`,
   );
 }
 
@@ -150,7 +276,7 @@ async function compileTargetStyles({
   markerSelectors: MarkerSelectors;
   localReferences: SelectorReferenceSet;
 }) {
-  const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
+  const compiler = await compile(prepareCssForTailwindBuild(css), {
     base: base ?? process.cwd(),
     onDependency: () => {},
   });
@@ -158,6 +284,7 @@ async function compileTargetStyles({
   const styles = compiler.build(buildTokens);
 
   const root = await parseCss(styles);
+  warnUnresolvedClassTokens({ classTokens, root });
   const global = getGlobalStyles({ root, classTokens });
   const local = await getLocalStyles({
     root,
@@ -208,10 +335,7 @@ function rewriteStructuralReferenceSelectors(
   }).processSync(selector);
 }
 
-function rewriteStructuralReferenceSelectorsInRule(
-  rule: Rule,
-  markerSelectors: MarkerSelectors,
-) {
+function rewriteStructuralReferenceSelectorsInRule(rule: Rule, markerSelectors: MarkerSelectors) {
   rule.selector = rewriteStructuralReferenceSelectors(rule.selector, markerSelectors);
 
   rule.walkRules((nestedRule) => {
@@ -422,10 +546,7 @@ function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
   });
 }
 
-function protectGlobalSelectorReferences(
-  root: Root,
-  localReferences: SelectorReferenceSet,
-) {
+function protectGlobalSelectorReferences(root: Root, localReferences: SelectorReferenceSet) {
   root.walkRules((rule) => {
     if (isInsideKeyframes(rule)) {
       return;
@@ -433,10 +554,7 @@ function protectGlobalSelectorReferences(
 
     rule.selector = selectorParser((selectorRoot) => {
       selectorRoot.walkClasses((node) => {
-        if (
-          localReferences.classes.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.classes.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 
@@ -444,10 +562,7 @@ function protectGlobalSelectorReferences(
       });
 
       selectorRoot.walkIds((node) => {
-        if (
-          localReferences.ids.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.ids.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 

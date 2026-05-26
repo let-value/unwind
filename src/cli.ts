@@ -63,11 +63,10 @@ function commonAncestor(paths: string[]): string {
   return parts[0].slice(0, i).join(sep) || sep;
 }
 
-// Returns true when the CSS string contains a Tailwind entry directive and can
-// be used as the Tailwind compiler input.  Returns false for already-compiled
-// output (which has no @import "tailwindcss" / @tailwind directives).
-function hasTailwindEntryDirective(css: string): boolean {
-  return /@import\s+["']tailwindcss["']/.test(css) || /@tailwind\b/.test(css);
+function hasCompiledTailwindMarker(css: string): boolean {
+  return (
+    /tailwindcss v\d/.test(css) || /@layer\s+theme,\s*base,\s*components,\s*utilities/.test(css)
+  );
 }
 
 async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Promise<string> {
@@ -119,11 +118,7 @@ async function main() {
     if (!values.css) {
       const metadata = await resolveShadcnProject(cwd);
       if (metadata) {
-        // If the CSS file has been compiled by a previous run, fall back to the
-        // default Tailwind entry so new components can still be compiled.
-        if (hasTailwindEntryDirective(metadata.css)) {
-          css = metadata.css;
-        }
+        css = metadata.css;
         base = metadata.base;
       }
     }
@@ -139,14 +134,8 @@ async function main() {
     shadcnMode = true;
     base = shadcnMetadata.base;
 
-    // If the CSS file has been compiled by a previous run (no @import "tailwindcss"
-    // / @tailwind directives), fall back to the default Tailwind entry so new
-    // components can still be compiled correctly.
-    if (hasTailwindEntryDirective(shadcnMetadata.css)) {
-      css = shadcnMetadata.css;
-    } else {
-      shadcnCssIsCompiled = true;
-    }
+    css = shadcnMetadata.css;
+    shadcnCssIsCompiled = hasCompiledTailwindMarker(shadcnMetadata.css);
 
     const searchDir = shadcnMetadata.uiPath ?? shadcnMetadata.componentsPath;
     inputFiles = (await Array.fromAsync(glob("**/*.{tsx,ts,jsx,js}", { cwd: searchDir }))).map(
@@ -198,7 +187,9 @@ async function main() {
       }
 
       const sourceContent = result.root.toSource();
-      const localCss = dry ? result.local.toString() : await mergeLocalCssWithExisting(cssDest, result.local);
+      const localCss = dry
+        ? result.local.toString()
+        : await mergeLocalCssWithExisting(cssDest, result.local);
 
       if (dry) {
         console.log(`  write: ${sourceDest}`);
