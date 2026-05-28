@@ -1,6 +1,6 @@
 {
   "name": "@let-value/unwind",
-  "version": "0.1.1-beta.6",
+  "version": "0.1.1-beta.7",
   "description": "A CLI codemod tool powered by jscodeshift",
   "bin": {
     "unwind": "dist/cli.mjs"
