@@ -4,6 +4,7 @@ import { glob, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, dirname, join, sep } from "node:path";
 import postcss, { type Root } from "postcss";
 import { mergeGlobalRoots } from "./compile.ts";
+import { createPreservedCssComment, stripPreservedCssComment } from "./preserve-css.ts";
 import { resolveShadcnProject } from "./shadcn.ts";
 import { transform } from "./transform.ts";
 
@@ -63,12 +64,6 @@ function commonAncestor(paths: string[]): string {
   return parts[0].slice(0, i).join(sep) || sep;
 }
 
-function hasCompiledTailwindMarker(css: string): boolean {
-  return (
-    /tailwindcss v\d/.test(css) || /@layer\s+theme,\s*base,\s*components,\s*utilities/.test(css)
-  );
-}
-
 async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Promise<string> {
   let existingLocalCss: string;
   try {
@@ -84,6 +79,8 @@ async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Prom
   if (existingLocalCss.trim() === "") {
     return nextLocal.toString();
   }
+
+  existingLocalCss = stripPreservedCssComment(existingLocalCss);
 
   try {
     const existingLocalRoot = postcss.parse(existingLocalCss);
@@ -135,7 +132,7 @@ async function main() {
     base = shadcnMetadata.base;
 
     css = shadcnMetadata.css;
-    shadcnCssIsCompiled = hasCompiledTailwindMarker(shadcnMetadata.css);
+    shadcnCssIsCompiled = shadcnMetadata.cssIsCompiled;
 
     const searchDir = shadcnMetadata.uiPath ?? shadcnMetadata.componentsPath;
     inputFiles = (await Array.fromAsync(glob("**/*.{tsx,ts,jsx,js}", { cwd: searchDir }))).map(
@@ -231,9 +228,17 @@ async function main() {
       // When the source CSS was already compiled, we compiled new components
       // using the default Tailwind entry. Merge the result into the existing
       // file so previously generated base styles and theme variables are kept.
-      const globalCss = shadcnCssIsCompiled
+      const compiledGlobalCss = shadcnCssIsCompiled
         ? await mergeLocalCssWithExisting(globalDest, newGlobalRoot)
         : newGlobalRoot.toString();
+      const strippedCompiledGlobalCss = stripPreservedCssComment(compiledGlobalCss);
+      const sourceImportsComment = createPreservedCssComment(
+        shadcnMetadata.css,
+        strippedCompiledGlobalCss,
+      );
+      const globalCss = [sourceImportsComment, strippedCompiledGlobalCss]
+        .filter(Boolean)
+        .join("\n");
       await mkdir(dirname(globalDest), { recursive: true });
       await writeFile(globalDest, globalCss, "utf-8");
     }

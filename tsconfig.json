@@ -6,18 +6,26 @@
     "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "jsx": "react-jsx",
-    "types": ["@types/node", "vite/client"],
+    "types": ["@types/node", "vite/client", "@vitest/browser"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
+    "ignoreDeprecations": "6.0",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "verbatimModuleSyntax": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/test/shadcn/compiled/*"],
+      "next-themes": ["src/test/shadcn/project/node_modules/next-themes/dist/index.d.ts"],
+      "shadcn-test/*": ["src/test/shadcn/project/*"],
+      "sonner": ["src/test/shadcn/project/node_modules/sonner/dist/index.d.ts"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "src/test/shadcn/project"]
 }

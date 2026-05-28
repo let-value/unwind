@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { writeFile, readFile, readdir, mkdir } from "node:fs/promises";
 import { basename } from "node:path";
 import { transformMany } from "../../transform.ts";
+import { createPreservedCssComment } from "../../preserve-css.ts";
 import { resolveShadcnProject } from "../../shadcn.ts";
 import { getCssModulePath } from "../../classnames.ts";
 
@@ -37,6 +38,12 @@ for (const result of results) {
 
 const globalCss = global.toString();
 if (globalCss) {
-  await writeFile(globalCssPath, globalCss, "utf-8");
+  await writeFile(
+    globalCssPath,
+    [project?.css ? createPreservedCssComment(project.css, globalCss) : undefined, globalCss]
+      .filter(Boolean)
+      .join("\n"),
+    "utf-8",
+  );
   console.log("wrote globals.css");
 }

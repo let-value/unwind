@@ -6,108 +6,6 @@ import type { TransformTarget } from "./targets.ts";
 
 const TAILWIND_ENTRYPOINT = `@import "tailwindcss";`;
 
-const SHADCN_COLOR_VARIABLES = [
-  "background",
-  "foreground",
-  "card",
-  "card-foreground",
-  "popover",
-  "popover-foreground",
-  "primary",
-  "primary-foreground",
-  "secondary",
-  "secondary-foreground",
-  "muted",
-  "muted-foreground",
-  "accent",
-  "accent-foreground",
-  "destructive",
-  "border",
-  "input",
-  "ring",
-  "chart-1",
-  "chart-2",
-  "chart-3",
-  "chart-4",
-  "chart-5",
-  "sidebar",
-  "sidebar-foreground",
-  "sidebar-primary",
-  "sidebar-primary-foreground",
-  "sidebar-accent",
-  "sidebar-accent-foreground",
-  "sidebar-border",
-  "sidebar-ring",
-];
-
-function hasTailwindSourceDirective(css: string): boolean {
-  return (
-    /@import\s+["']tailwindcss["']/.test(css) || /@tailwind\b/.test(css) || /@theme\b/.test(css)
-  );
-}
-
-function appearsToBeCompiledTailwindCss(css: string): boolean {
-  return (
-    /tailwindcss v\d/.test(css) || /@layer\s+theme,\s*base,\s*components,\s*utilities/.test(css)
-  );
-}
-
-function collectCustomProperties(css: string): Set<string> {
-  const properties = new Set<string>();
-
-  for (const match of css.matchAll(/(--[a-zA-Z0-9-_]+)\s*:/g)) {
-    properties.add(match[1]);
-  }
-
-  return properties;
-}
-
-function createCompiledCssThemeBridge(css: string): string | undefined {
-  if (hasTailwindSourceDirective(css) || !appearsToBeCompiledTailwindCss(css)) {
-    return;
-  }
-
-  const customProperties = collectCustomProperties(css);
-  const themeDeclarations: string[] = [];
-
-  for (const name of SHADCN_COLOR_VARIABLES) {
-    if (customProperties.has(`--${name}`) && !customProperties.has(`--color-${name}`)) {
-      themeDeclarations.push(`  --color-${name}: var(--${name});`);
-    }
-  }
-
-  if (customProperties.has("--radius")) {
-    themeDeclarations.push("  --radius-sm: calc(var(--radius) * 0.6);");
-    themeDeclarations.push("  --radius-md: calc(var(--radius) * 0.8);");
-    themeDeclarations.push("  --radius-lg: var(--radius);");
-    themeDeclarations.push("  --radius-xl: calc(var(--radius) * 1.4);");
-    themeDeclarations.push("  --radius-2xl: calc(var(--radius) * 1.8);");
-    themeDeclarations.push("  --radius-3xl: calc(var(--radius) * 2.2);");
-    themeDeclarations.push("  --radius-4xl: calc(var(--radius) * 2.6);");
-  }
-
-  if (themeDeclarations.length === 0) {
-    return;
-  }
-
-  return [
-    TAILWIND_ENTRYPOINT,
-    "@custom-variant dark (&:is(.dark *));",
-    "@theme inline {",
-    ...themeDeclarations,
-    "}",
-  ].join("\n");
-}
-
-function prepareCssForTailwindBuild(css?: string): string {
-  if (!css) {
-    return TAILWIND_ENTRYPOINT;
-  }
-
-  const bridge = createCompiledCssThemeBridge(css);
-  return bridge ? `${bridge}\n${css}` : css;
-}
-
 export function normalizeClassTokens(classNames: string): string[] {
   return [
     ...new Set(
@@ -205,6 +103,10 @@ function isStructuralMarkerToken(token: string): boolean {
   );
 }
 
+function isLikelyTailwindCandidate(token: string): boolean {
+  return /[:/\-[\]]/.test(token);
+}
+
 function warnUnresolvedClassTokens({ classTokens, root }: { classTokens: string[]; root: Root }) {
   const matchedTokens = new Set<string>();
   const requestedTokens = new Set(classTokens);
@@ -218,7 +120,10 @@ function warnUnresolvedClassTokens({ classTokens, root }: { classTokens: string[
   });
 
   const missingTokens = classTokens.filter(
-    (token) => !matchedTokens.has(token) && !isStructuralMarkerToken(token),
+    (token) =>
+      !matchedTokens.has(token) &&
+      !isStructuralMarkerToken(token) &&
+      isLikelyTailwindCandidate(token),
   );
 
   if (missingTokens.length === 0) {
@@ -276,7 +181,7 @@ async function compileTargetStyles({
   markerSelectors: MarkerSelectors;
   localReferences: SelectorReferenceSet;
 }) {
-  const compiler = await compile(prepareCssForTailwindBuild(css), {
+  const compiler = await compile(css ?? TAILWIND_ENTRYPOINT, {
     base: base ?? process.cwd(),
     onDependency: () => {},
   });

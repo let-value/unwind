@@ -20,7 +20,34 @@ export default defineConfig({
       {
         plugins: [react(), tailwindcss()],
         resolve: {
+          alias: {
+            react: resolve("node_modules/react"),
+            "react-dom": resolve("node_modules/react-dom"),
+            "react/jsx-dev-runtime": resolve("node_modules/react/jsx-dev-runtime.js"),
+            "react/jsx-runtime": resolve("node_modules/react/jsx-runtime.js"),
+            "next-themes": resolve(
+              "src/test/shadcn/project/node_modules/next-themes/dist/index.mjs",
+            ),
+            sonner: resolve("src/test/shadcn/project/node_modules/sonner/dist/index.mjs"),
+          },
           dedupe: ["react", "react-dom"],
+        },
+        optimizeDeps: {
+          include: [
+            "@base-ui/react/button",
+            "@base-ui/react/menu",
+            "@base-ui/react/scroll-area",
+            "@base-ui/react/tabs",
+            "@base-ui/react/toggle",
+            "class-variance-authority",
+            "clsx",
+            "lucide-react",
+            "next-themes",
+            "sonner",
+            "tailwind-merge",
+            "vaul",
+            "vitest-browser-react",
+          ],
         },
         test: {
           name: "browser",

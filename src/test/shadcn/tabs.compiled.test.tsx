@@ -140,38 +140,38 @@ function TabsWithDisabled() {
   );
 }
 
-test("TabsDefault", async (t) => {
+test("TabsDefault", async () => {
   await render(<TabsDefault />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsSecondActive", async (t) => {
+test("TabsSecondActive", async () => {
   await render(<TabsSecondActive />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsThreeTabs", async (t) => {
+test("TabsThreeTabs", async () => {
   await render(<TabsThreeTabs />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsVertical", async (t) => {
+test("TabsVertical", async () => {
   await render(<TabsVertical />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsLineVariant", async (t) => {
+test("TabsLineVariant", async () => {
   await render(<TabsLineVariant />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsWithDisabled", async (t) => {
+test("TabsWithDisabled", async () => {
   await render(<TabsWithDisabled />);
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { walkUp } from "./utils.ts";
 import { ResolverFactory } from "oxc-resolver";
 import assert from "node:assert";
+import { hasPreservedCssComment, restorePreservedCss } from "./preserve-css.ts";
 
 export const schema = z.object({
   style: z.string(),
@@ -34,12 +35,17 @@ export interface ShadcnMetadata {
   componentsJson: ComponentsConfig;
   cssPath: string;
   css: string;
+  cssIsCompiled: boolean;
   componentsPath: string;
   uiPath?: string;
 }
 
 const file = new ResolverFactory({ tsconfig: "auto" });
 const context = file.cloneWithOptions({ tsconfig: "auto", resolveToContext: true });
+
+export function createShadcnFallbackCss(compiledCss: string): string | undefined {
+  return restorePreservedCss(compiledCss);
+}
 
 export async function resolveShadcnProject(
   searchPath: string,
@@ -77,13 +83,18 @@ export async function resolveShadcnProject(
     ? context.resolveFileSync(componentsJsonPath, config.aliases.ui)
     : undefined;
 
+  const sourceCss = await readFile(css.path, "utf8");
+  const cssIsCompiled = hasPreservedCssComment(sourceCss);
+  const fallbackCss = createShadcnFallbackCss(sourceCss);
+
   return {
     base,
     packageJsonPath: css.packageJsonPath,
     componentsJsonPath,
     componentsJson: config,
     cssPath: css.path,
-    css: await readFile(css.path, "utf8"),
+    css: fallbackCss ?? sourceCss,
+    cssIsCompiled,
     componentsPath: components.path,
     uiPath: ui?.path,
   };
