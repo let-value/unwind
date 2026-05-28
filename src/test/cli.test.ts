@@ -128,7 +128,7 @@ test("no-args mode compiles shadcn ui components and rewrites the configured glo
     expect(globalCssAfterSecondRun).toContain("/*! tailwindcss");
 
     const sonnerCssAfterSecondRun = await readFile(join(uiPath, "sonner.module.css"), "utf-8");
-    expect(sonnerCssAfterSecondRun).toContain(".toaster {");
+    expect(sonnerCssAfterSecondRun).toContain(".toaster-success {");
 
     const thirdRunResult = await runCli(projectPath);
 

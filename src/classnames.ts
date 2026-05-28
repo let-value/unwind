@@ -22,6 +22,7 @@ export interface Breadcrumb {
     | "condition"
     | "classNames"
     | "compoundVariants"
+    | "property"
     | "className";
   name?: string;
 }
@@ -139,14 +140,10 @@ function getExpressionName(node: ASTNode): string | undefined {
   return undefined;
 }
 
-function serializeBreadcrumbs(breadcrumbs: Breadcrumb[]): string {
-  return breadcrumbs.map((crumb) => `${crumb.kind}:${crumb.name ?? ""}`).join(">");
-}
-
 function pushClassNameResult(
   { node, breadcrumbs, source }: Branch,
   results: ExtractedClassName[],
-  seen: Set<string>,
+  seen: Set<ASTNode>,
 ) {
   if (!source) {
     return;
@@ -157,12 +154,11 @@ function pushClassNameResult(
     return;
   }
 
-  const key = `${source}:${serializeBreadcrumbs(breadcrumbs)}:${classNames}`;
-  if (seen.has(key)) {
+  if (seen.has(node)) {
     return;
   }
 
-  seen.add(key);
+  seen.add(node);
   results.push({
     node,
     source,
@@ -240,6 +236,10 @@ function getExpressionBranches({ node, breadcrumbs, source }: Branch): Branch[] 
 
   switch (node.type) {
     case "JSXExpressionContainer":
+      if (getStaticString(node)) {
+        return [];
+      }
+
       return isASTNode(node.expression) ? [{ node: node.expression, breadcrumbs, source }] : [];
     case "CallExpression":
       return (Array.isArray(node.arguments) ? node.arguments : []).flatMap((argument) =>
@@ -440,6 +440,35 @@ function getCompoundVariantBranches({ node, breadcrumbs, source }: Branch): Bran
   return result;
 }
 
+function getObjectPropertyBranches({ node, breadcrumbs, source }: Branch): Branch[] | undefined {
+  if (node.type !== "ObjectExpression") {
+    return undefined;
+  }
+
+  const result: Branch[] = [];
+
+  for (const property of Array.isArray(node.properties) ? node.properties : []) {
+    if (!isASTNode(property)) {
+      continue;
+    }
+
+    const name = getPropertyName(property);
+    const value = getObjectPropertyValue(property);
+
+    if (!name || !value) {
+      continue;
+    }
+
+    result.push({
+      node: value,
+      breadcrumbs: [...breadcrumbs, { kind: "property", name }],
+      source,
+    });
+  }
+
+  return result.length > 0 ? result : undefined;
+}
+
 function getVariableDeclaratorBranches({
   node,
   breadcrumbs,
@@ -498,12 +527,13 @@ function getNextBranches(branch: Branch): Branch[] {
     getCvaBranches(branch) ??
     getVariantsBranches(branch) ??
     getCompoundVariantBranches(branch) ??
+    getObjectPropertyBranches(branch) ??
     getExpressionBranches(branch);
 
   return specializedBranches ?? getGenericChildBranches(branch);
 }
 
-function walkFile(branch: Branch, results: ExtractedClassName[], seen: Set<string>) {
+function walkFile(branch: Branch, results: ExtractedClassName[], seen: Set<ASTNode>) {
   pushClassNameResult(branch, results, seen);
 
   for (const nextBranch of getNextBranches(branch)) {
@@ -513,7 +543,7 @@ function walkFile(branch: Branch, results: ExtractedClassName[], seen: Set<strin
 
 export function getTreeClassNames(node: File): ExtractedClassName[] {
   const result: ExtractedClassName[] = [];
-  const seen = new Set<string>();
+  const seen = new Set<ASTNode>();
 
   const root: Branch = {
     node,

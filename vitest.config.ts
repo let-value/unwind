@@ -25,10 +25,8 @@ export default defineConfig({
             "react-dom": resolve("node_modules/react-dom"),
             "react/jsx-dev-runtime": resolve("node_modules/react/jsx-dev-runtime.js"),
             "react/jsx-runtime": resolve("node_modules/react/jsx-runtime.js"),
-            "next-themes": resolve(
-              "src/test/shadcn/project/node_modules/next-themes/dist/index.mjs",
-            ),
-            sonner: resolve("src/test/shadcn/project/node_modules/sonner/dist/index.mjs"),
+            "next-themes": resolve("node_modules/next-themes/dist/index.mjs"),
+            sonner: resolve("node_modules/sonner/dist/index.mjs"),
           },
           dedupe: ["react", "react-dom"],
         },

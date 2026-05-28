@@ -9,6 +9,10 @@ import { getCssModulePath } from "../../classnames.ts";
 const uiDir = fileURLToPath(new URL("./project/src/components/ui", import.meta.url));
 const compiledDir = fileURLToPath(new URL("./compiled", import.meta.url));
 const globalCssPath = `${compiledDir}/globals.css`;
+const sourceCssPath = fileURLToPath(new URL("./project/src/index.css", import.meta.url));
+const tailwindCssPath = fileURLToPath(
+  new URL("./project/node_modules/shadcn/dist/tailwind.css", import.meta.url),
+);
 
 const entries = await readdir(uiDir);
 const componentFiles = entries.filter((f) => f.endsWith(".tsx") || f.endsWith(".ts"));
@@ -17,6 +21,14 @@ const firstSrc = `${uiDir}/${componentFiles[0]}`;
 const project = await resolveShadcnProject(firstSrc);
 
 await mkdir(compiledDir, { recursive: true });
+await writeFile(
+  `${compiledDir}/tailwind.css`,
+  (await readFile(sourceCssPath, "utf-8")).replace(
+    /@import\s+["']shadcn\/tailwind\.css["'];/,
+    await readFile(tailwindCssPath, "utf-8"),
+  ),
+  "utf-8",
+);
 
 const { results, global } = await transformMany(
   await Promise.all(
