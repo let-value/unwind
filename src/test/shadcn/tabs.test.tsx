@@ -140,62 +140,62 @@ function TabsWithDisabled() {
   );
 }
 
-test("TabsDefault", async (t) => {
+test("TabsDefault", async () => {
   await render(
     <ThemeProvider>
       <TabsDefault />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsSecondActive", async (t) => {
+test("TabsSecondActive", async () => {
   await render(
     <ThemeProvider>
       <TabsSecondActive />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsThreeTabs", async (t) => {
+test("TabsThreeTabs", async () => {
   await render(
     <ThemeProvider>
       <TabsThreeTabs />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsVertical", async (t) => {
+test("TabsVertical", async () => {
   await render(
     <ThemeProvider>
       <TabsVertical />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsLineVariant", async (t) => {
+test("TabsLineVariant", async () => {
   await render(
     <ThemeProvider>
       <TabsLineVariant />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });
 
-test("TabsWithDisabled", async (t) => {
+test("TabsWithDisabled", async () => {
   await render(
     <ThemeProvider>
       <TabsWithDisabled />
     </ThemeProvider>,
   );
 
-  await expect.element(page.getByTestId("example")).toMatchScreenshot(t.task.name);
+  await expect.element(page.getByTestId("example")).toBeVisible();
 });

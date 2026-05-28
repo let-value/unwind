@@ -4,6 +4,7 @@ import { glob, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, dirname, join, sep } from "node:path";
 import postcss, { type Root } from "postcss";
 import { mergeGlobalRoots } from "./compile.ts";
+import { createPreservedCssComment, stripPreservedCssComment } from "./preserve-css.ts";
 import { resolveShadcnProject } from "./shadcn.ts";
 import { transform } from "./transform.ts";
 
@@ -79,6 +80,8 @@ async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Prom
     return nextLocal.toString();
   }
 
+  existingLocalCss = stripPreservedCssComment(existingLocalCss);
+
   try {
     const existingLocalRoot = postcss.parse(existingLocalCss);
     return mergeGlobalRoots([existingLocalRoot, nextLocal]).toString();
@@ -98,6 +101,7 @@ async function main() {
   let css: string | undefined;
   let base: string | undefined;
   let shadcnMode = false;
+  let shadcnCssIsCompiled = false;
   let shadcnMetadata: Awaited<ReturnType<typeof resolveShadcnProject>> | undefined;
 
   if (positionals.length > 0) {
@@ -125,8 +129,10 @@ async function main() {
     }
 
     shadcnMode = true;
-    css = shadcnMetadata.css;
     base = shadcnMetadata.base;
+
+    css = shadcnMetadata.css;
+    shadcnCssIsCompiled = shadcnMetadata.cssIsCompiled;
 
     const searchDir = shadcnMetadata.uiPath ?? shadcnMetadata.componentsPath;
     inputFiles = (await Array.fromAsync(glob("**/*.{tsx,ts,jsx,js}", { cwd: searchDir }))).map(
@@ -178,7 +184,9 @@ async function main() {
       }
 
       const sourceContent = result.root.toSource();
-      const localCss = dry ? result.local.toString() : await mergeLocalCssWithExisting(cssDest, result.local);
+      const localCss = dry
+        ? result.local.toString()
+        : await mergeLocalCssWithExisting(cssDest, result.local);
 
       if (dry) {
         console.log(`  write: ${sourceDest}`);
@@ -209,7 +217,7 @@ async function main() {
   }
 
   if (shadcnMode && shadcnMetadata && successCount > 0) {
-    const mergedGlobalCss = mergeGlobalRoots(globalRoots).toString();
+    const newGlobalRoot = mergeGlobalRoots(globalRoots);
     const globalDest = outputDir
       ? join(outputDir, relative(shadcnMetadata.base, shadcnMetadata.cssPath))
       : shadcnMetadata.cssPath;
@@ -217,8 +225,22 @@ async function main() {
     if (dry) {
       console.log(`  write: ${globalDest}`);
     } else {
+      // When the source CSS was already compiled, we compiled new components
+      // using the default Tailwind entry. Merge the result into the existing
+      // file so previously generated base styles and theme variables are kept.
+      const compiledGlobalCss = shadcnCssIsCompiled
+        ? await mergeLocalCssWithExisting(globalDest, newGlobalRoot)
+        : newGlobalRoot.toString();
+      const strippedCompiledGlobalCss = stripPreservedCssComment(compiledGlobalCss);
+      const sourceImportsComment = createPreservedCssComment(
+        shadcnMetadata.css,
+        strippedCompiledGlobalCss,
+      );
+      const globalCss = [sourceImportsComment, strippedCompiledGlobalCss]
+        .filter(Boolean)
+        .join("\n");
       await mkdir(dirname(globalDest), { recursive: true });
-      await writeFile(globalDest, mergedGlobalCss, "utf-8");
+      await writeFile(globalDest, globalCss, "utf-8");
     }
   }
 

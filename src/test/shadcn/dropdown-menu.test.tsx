@@ -225,10 +225,7 @@ function DropdownMenuWithCheckboxes() {
         <DropdownMenuContent style={{ minWidth: "10rem" }}>
           <DropdownMenuGroup>
             <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-            <DropdownMenuCheckboxItem
-              checked={showStatusBar}
-              onCheckedChange={setShowStatusBar}
-            >
+            <DropdownMenuCheckboxItem checked={showStatusBar} onCheckedChange={setShowStatusBar}>
               <IconPlaceholder
                 lucide="LayoutIcon"
                 tabler="IconLayout"
@@ -338,7 +335,7 @@ function DropdownMenuWithCheckboxesIcons() {
             <DropdownMenuLabel>Notification Preferences</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
               checked={notifications.email}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, email: checked === true })
               }
             >
@@ -353,7 +350,7 @@ function DropdownMenuWithCheckboxesIcons() {
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={notifications.sms}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, sms: checked === true })
               }
             >
@@ -368,7 +365,7 @@ function DropdownMenuWithCheckboxesIcons() {
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={notifications.push}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, push: checked === true })
               }
             >
@@ -549,13 +546,12 @@ function DropdownMenuWithAvatar() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button
-                variant="outline"
-                className="h-12 justify-start px-2 md:max-w-[200px]"
-              />
+              <Button variant="outline" className="h-12 justify-start px-2 md:max-w-[200px]" />
             }
           >
-            <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">CN</div>
+            <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
+              CN
+            </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">shadcn</span>
               <span className="truncate text-xs text-muted-foreground">shadcn@example.com</span>
@@ -569,15 +565,15 @@ function DropdownMenuWithAvatar() {
               className="ml-auto text-muted-foreground"
             />
           </DropdownMenuTrigger>
-          <DropdownMenuContent style={{ width: "14rem" }}>
-            {menuContent}
-          </DropdownMenuContent>
+          <DropdownMenuContent style={{ width: "14rem" }}>{menuContent}</DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={<Button variant="ghost" size="icon" className="rounded-full" />}
           >
-            <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">LR</div>
+            <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
+              LR
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top">
             {menuContent}
@@ -807,10 +803,7 @@ function DropdownMenuComplex() {
               />
               Sidebar
             </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showStatusBar}
-              onCheckedChange={setShowStatusBar}
-            >
+            <DropdownMenuCheckboxItem checked={showStatusBar} onCheckedChange={setShowStatusBar}>
               <IconPlaceholder
                 lucide="LayoutIcon"
                 tabler="IconLayout"
@@ -1093,7 +1086,3 @@ test("DropdownMenuComplex", async (t) => {
   await expect.element(menu).toBeVisible();
   await expect.element(menu).toMatchScreenshot(t.task.name);
 });
-
-
-
-

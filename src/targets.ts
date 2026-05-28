@@ -61,6 +61,7 @@ function getBreadcrumbWords(breadcrumb: Breadcrumb): string[] {
     case "variant":
     case "classNames":
     case "condition":
+    case "property":
       return breadcrumb.name ? normalizeNameWords(breadcrumb.name) : [];
     case "compoundVariants":
       return ["compound"];

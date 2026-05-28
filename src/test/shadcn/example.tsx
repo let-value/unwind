@@ -1,4 +1,4 @@
-import type { ComponentType, PropsWithChildren } from "react";
+import type { ComponentType, PropsWithChildren, SVGProps } from "react";
 
 import * as icons from "lucide-react";
 
@@ -18,7 +18,7 @@ export function IconPlaceholder({
   phosphor: _phosphor,
   remixicon: _remixicon,
   ...rest
-}: {
+}: SVGProps<SVGSVGElement> & {
   lucide?: keyof typeof icons;
   tabler?: string;
   hugeicons?: string;

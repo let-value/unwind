@@ -74,6 +74,55 @@ test("walks nested expression branches while preserving semantic breadcrumbs", a
   ]);
 });
 
+test("extracts repeated className string literals as distinct targets", () => {
+  const source = `
+    function Icons() {
+      return (
+        <div>
+          <span className="size-4" />
+          <span className="size-4" />
+          <span className="size-4" />
+        </div>
+      );
+    }
+  `;
+
+  const extracted = getSourceClassNames(source).filter((entry) => entry.classNames === "size-4");
+
+  expect(extracted).toHaveLength(3);
+  expect(new Set(extracted.map((entry) => entry.node)).size).toBe(3);
+});
+
+test("adds object property breadcrumbs for nested JSX className values", () => {
+  const source = `
+    function Toaster() {
+      return (
+        <Sonner
+          icons={{
+            success: <CircleCheckIcon className="size-4" />,
+            info: <InfoIcon className="size-4" />,
+          }}
+        />
+      );
+    }
+  `;
+
+  const extracted = getSourceClassNames(source).filter((entry) => entry.classNames === "size-4");
+
+  expect(extracted.map((entry) => entry.breadcrumbs)).toEqual([
+    [
+      { kind: "function", name: "Toaster" },
+      { kind: "property", name: "success" },
+      { kind: "className" },
+    ],
+    [
+      { kind: "function", name: "Toaster" },
+      { kind: "property", name: "info" },
+      { kind: "className" },
+    ],
+  ]);
+});
+
 describe(getCssModulePath, () => {
   it("derives a css module file path next to a tsx source file", () => {
     expect(getCssModulePath("src\\test\\shadcn\\project\\src\\components\\ui\\button.tsx")).toBe(

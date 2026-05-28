@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { compileClasses, compileTailwindTargets, normalizeClassTokens } from "../compile.ts";
 
 interface FinalCase {
@@ -99,8 +99,7 @@ describe(compileClasses, () => {
         {
           node: {} as never,
           source: "className",
-          classNames:
-            "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
+          classNames: "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
           breadcrumbs: [],
           outputSelector: ".drawer-header",
         },
@@ -151,9 +150,23 @@ describe(compileClasses, () => {
     const css = local.toString();
 
     expect(css).toContain(
-      ".card-header:is(:where(.card)[data-size=\"sm\"] *):is(:global(.border-b))",
+      '.card-header:is(:where(.card)[data-size="sm"] *):is(:global(.border-b))',
     );
     expect(css).not.toContain(".group\\/card");
+  });
+
+  it("warns when requested class tokens do not produce CSS", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      await compileClasses({
+        classNames: "bg-not-in-theme",
+        outputSelector: ".missing",
+      });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("Tailwind did not generate CSS"));
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   for (const testCase of finalCases) {

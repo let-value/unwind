@@ -99,10 +99,41 @@ function replaceUtilitySelector(
 
 function isStructuralMarkerToken(token: string): boolean {
   return (
-    token === "group" ||
-    token === "peer" ||
-    token.startsWith("group/") ||
-    token.startsWith("peer/")
+    token === "group" || token === "peer" || token.startsWith("group/") || token.startsWith("peer/")
+  );
+}
+
+function isLikelyTailwindCandidate(token: string): boolean {
+  return /[:/\-[\]]/.test(token);
+}
+
+function warnUnresolvedClassTokens({ classTokens, root }: { classTokens: string[]; root: Root }) {
+  const matchedTokens = new Set<string>();
+  const requestedTokens = new Set(classTokens);
+
+  root.walkRules((rule) => {
+    for (const className of collectClassNamesFromSelector(rule.selector)) {
+      if (requestedTokens.has(className)) {
+        matchedTokens.add(className);
+      }
+    }
+  });
+
+  const missingTokens = classTokens.filter(
+    (token) =>
+      !matchedTokens.has(token) &&
+      !isStructuralMarkerToken(token) &&
+      isLikelyTailwindCandidate(token),
+  );
+
+  if (missingTokens.length === 0) {
+    return;
+  }
+
+  const shownTokens = missingTokens.slice(0, 20).join(", ");
+  const suffix = missingTokens.length > 20 ? `, and ${missingTokens.length - 20} more` : "";
+  console.warn(
+    `[unwind] Tailwind did not generate CSS for ${missingTokens.length} requested class token(s): ${shownTokens}${suffix}. Check that your CSS input is a Tailwind source entry with the required theme mappings.`,
   );
 }
 
@@ -158,6 +189,7 @@ async function compileTargetStyles({
   const styles = compiler.build(buildTokens);
 
   const root = await parseCss(styles);
+  warnUnresolvedClassTokens({ classTokens, root });
   const global = getGlobalStyles({ root, classTokens });
   const local = await getLocalStyles({
     root,
@@ -208,10 +240,7 @@ function rewriteStructuralReferenceSelectors(
   }).processSync(selector);
 }
 
-function rewriteStructuralReferenceSelectorsInRule(
-  rule: Rule,
-  markerSelectors: MarkerSelectors,
-) {
+function rewriteStructuralReferenceSelectorsInRule(rule: Rule, markerSelectors: MarkerSelectors) {
   rule.selector = rewriteStructuralReferenceSelectors(rule.selector, markerSelectors);
 
   rule.walkRules((nestedRule) => {
@@ -422,10 +451,7 @@ function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
   });
 }
 
-function protectGlobalSelectorReferences(
-  root: Root,
-  localReferences: SelectorReferenceSet,
-) {
+function protectGlobalSelectorReferences(root: Root, localReferences: SelectorReferenceSet) {
   root.walkRules((rule) => {
     if (isInsideKeyframes(rule)) {
       return;
@@ -433,10 +459,7 @@ function protectGlobalSelectorReferences(
 
     rule.selector = selectorParser((selectorRoot) => {
       selectorRoot.walkClasses((node) => {
-        if (
-          localReferences.classes.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.classes.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 
@@ -444,10 +467,7 @@ function protectGlobalSelectorReferences(
       });
 
       selectorRoot.walkIds((node) => {
-        if (
-          localReferences.ids.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.ids.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 
