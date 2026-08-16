@@ -463,7 +463,7 @@ function normalizeOutputAst(root: Root): Root {
 // generated rules join `components`, so utilities still override them exactly
 // as they do in the shadcn source, while any unlayered stylesheet — everything
 // an application writes by hand — beats all of it without matching specificity.
-const LAYER_ORDER = "theme, base, components, utilities";
+const LAYER_ORDER = "properties, theme, base, components, utilities";
 const COMPONENT_LAYER = "components";
 
 function wrapInComponentLayer(root: Root) {

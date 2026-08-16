@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compileClasses > snapshots compound variants and pseudo elements 1`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     [data-ui]::before {
         content: var(--tw-content);
@@ -18,7 +18,7 @@ exports[`compileClasses > snapshots compound variants and pseudo elements 1`] = 
 `;
 
 exports[`compileClasses > snapshots custom selector 1`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .compiled {
         font-size: var(--text-sm);
@@ -30,7 +30,7 @@ exports[`compileClasses > snapshots custom selector 1`] = `
 `;
 
 exports[`compileClasses > snapshots merged utilities 1`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .output {
         padding: calc(var(--spacing) * 4);
@@ -40,7 +40,7 @@ exports[`compileClasses > snapshots merged utilities 1`] = `
 `;
 
 exports[`compileClasses > snapshots regular and hover utilities 1`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .output {
         padding: calc(var(--spacing) * 4);
@@ -54,7 +54,7 @@ exports[`compileClasses > snapshots regular and hover utilities 1`] = `
 `;
 
 exports[`compileClasses > snapshots single utility 1`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .output {
         padding: calc(var(--spacing) * 4);

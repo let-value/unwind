@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
     .select-group {
         scroll-margin-block: calc(var(--spacing) * 1);

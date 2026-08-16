@@ -605,7 +605,7 @@ exports[`transforms shadcn button fixture — all 15 targets replaced 2`] = `
 `;
 
 exports[`transforms shadcn button fixture — all 15 targets replaced 3`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .button {
         display: inline-flex;

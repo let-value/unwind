@@ -542,7 +542,7 @@ exports[`compiles button fixture into local and hoisted global css 1`] = `
 `;
 
 exports[`compiles button fixture into local and hoisted global css 2`] = `
-"@layer theme, base, components, utilities;
+"@layer properties, theme, base, components, utilities;
 @layer components {
     .button {
         display: inline-flex;
