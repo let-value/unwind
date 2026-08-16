@@ -24,28 +24,39 @@ jobs:
           ]
       fail-fast: false
     steps:
-      - name: Early exit
-        if: matrix.registry.enabled == false
-        run: exit 0
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6
+      # `run: exit 0` only ends its own step, so every step carries the guard.
+      - uses: actions/checkout@v6
+        if: matrix.registry.enabled
+      - uses: voidzero-dev/setup-vp@v1.17.0
+        if: matrix.registry.enabled
         with:
-          node-version: 24
-          cache: npm
-          registry-url: ${{ matrix.registry.url }}
-          scope: "@let-value"
-      - run: npm ci
-      - run: npm run build
-      - name: Resolve publish tag
-        id: publish_tag
+          node-version: "24"
+      # setup-vp does not write registry credentials the way actions/setup-node did.
+      - name: Configure registry auth
+        if: matrix.registry.enabled
         run: |
-          VERSION="$(npm pkg get version)"
+          host="${REGISTRY_URL#https:}"
+          {
+            echo "@let-value:registry=${REGISTRY_URL}"
+            echo "${host%/}/:_authToken=\${NODE_AUTH_TOKEN}"
+          } > .npmrc
+        env:
+          REGISTRY_URL: ${{ matrix.registry.url }}
+      - run: vp pm ci
+        if: matrix.registry.enabled
+      - run: vp run build
+        if: matrix.registry.enabled
+      - name: Resolve publish tag and publish
+        if: matrix.registry.enabled
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
           if [[ "$VERSION" == *-* ]]; then
             TAG="next"
           else
             TAG="latest"
           fi
 
-          npm publish --tag "$TAG" --access ${{ matrix.registry.public && 'public' || 'restricted' }}
+          vp pm publish --tag "$TAG" --access "$ACCESS" --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets[matrix.registry.token] }}
+          ACCESS: ${{ matrix.registry.public && 'public' || 'restricted' }}
