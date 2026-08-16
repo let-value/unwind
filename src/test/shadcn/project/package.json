@@ -49,11 +49,11 @@
     "globals": "17.11.0",
     "typescript": "~7.0.2",
     "typescript-eslint": "8.67.0",
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.8",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.9",
     "vite-plus": "0.2.9"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.8"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.9"
   },
   "devEngines": {
     "packageManager": {
