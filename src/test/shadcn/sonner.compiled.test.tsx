@@ -1,20 +1,21 @@
-import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { beforeEach, test } from "vitest";
 import { toast } from "sonner";
 
 import "shadcn-compiled/tailwind.css";
 import "shadcn-compiled/globals.css";
 import { Toaster } from "shadcn-compiled/sonner.tsx";
 
+import { matchToastScreenshot, resetToasts } from "./sonner.test-helpers.ts";
+
+beforeEach(resetToasts);
+
 test("SonnerDefault", async (t) => {
   await render(<Toaster />);
 
   toast("Event has been created");
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });
 
 test("SonnerSuccess", async (t) => {
@@ -22,9 +23,7 @@ test("SonnerSuccess", async (t) => {
 
   toast.success("Profile updated successfully");
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });
 
 test("SonnerError", async (t) => {
@@ -32,9 +31,7 @@ test("SonnerError", async (t) => {
 
   toast.error("Something went wrong");
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });
 
 test("SonnerWarning", async (t) => {
@@ -42,9 +39,7 @@ test("SonnerWarning", async (t) => {
 
   toast.warning("Your session is about to expire");
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });
 
 test("SonnerInfo", async (t) => {
@@ -52,9 +47,7 @@ test("SonnerInfo", async (t) => {
 
   toast.info("A new software update is available");
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });
 
 test("SonnerWithDescription", async (t) => {
@@ -64,7 +57,5 @@ test("SonnerWithDescription", async (t) => {
     description: "Monday, January 13th at 6:00pm",
   });
 
-  const toastEl = page.locator("[data-sonner-toast]").first();
-  await expect.element(toastEl).toBeVisible();
-  await expect.element(page.locator("[data-sonner-toaster]")).toMatchScreenshot(t.task.name);
+  await matchToastScreenshot(t.task.name);
 });

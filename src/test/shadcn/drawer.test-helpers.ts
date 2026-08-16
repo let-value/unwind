@@ -5,5 +5,9 @@ export async function openDrawerAndMatchScreenshot(testName: string, triggerName
   await page.getByRole("button", { name: triggerName }).click();
   const drawer = page.getByRole("dialog");
   await expect.element(drawer).toBeVisible();
-  await expect.element(drawer).toMatchScreenshot(testName);
+  // Text antialiasing alone moves ~2% of the pixels in a drawer this full of
+  // copy, so the comparison has to sit above that noise floor.
+  await expect.element(drawer).toMatchScreenshot(testName, {
+    comparatorOptions: { allowedMismatchedPixelRatio: 0.05 },
+  });
 }

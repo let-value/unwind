@@ -29,9 +29,12 @@ const { results, global } = await transformMany(
 );
 
 for (const result of results) {
-  const cssModulePath = getCssModulePath(result.path);
   await writeFile(result.path, result.root.toSource(), "utf-8");
-  await writeFile(cssModulePath, result.local.toString(), "utf-8");
+
+  if (result.targetCount > 0) {
+    await writeFile(getCssModulePath(result.path), result.local.toString(), "utf-8");
+  }
+
   console.log(`compiled ${basename(result.path)}`);
 }
 

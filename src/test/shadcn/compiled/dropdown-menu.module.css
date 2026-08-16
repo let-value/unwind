@@ -25,6 +25,11 @@
     --tw-outline-style: none;
     outline-style: none;
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .dropdown-menu-content-z {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
+}
 .dropdown-menu-content-z[data-side="bottom"] {
     --tw-enter-translate-y: calc(2*var(--spacing)*-1);
 }
@@ -121,11 +126,21 @@
     background-color: var(--destructive);
     color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .dropdown-menu-item[data-variant="destructive"]:focus {
+        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
+    }
+}
 :is(.dropdown-menu-item[data-variant="destructive"] > *):is(svg) {
     color: var(--destructive);
 }
 .dropdown-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
     background-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .dropdown-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
+        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
 }
 .dropdown-menu-item:where([data-disabled="true"]), .dropdown-menu-item:where([data-disabled]:not([data-disabled="false"])) {
     pointer-events: none;
@@ -196,6 +211,11 @@
     --tw-ring-color: var(--foreground);
     --tw-duration: 100ms;
     transition-duration: 100ms;
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .dropdown-menu-sub-content {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
 }
 .dropdown-menu-sub-content[data-side="bottom"] {
     --tw-enter-translate-y: calc(2*var(--spacing)*-1);
@@ -333,18 +353,4 @@
 }
 .dropdown-menu-shortcut:is(:where(.dropdown-menu-item):focus *) {
     color: var(--accent-foreground);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .dropdown-menu-content-z {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
-    .dropdown-menu-item[data-variant="destructive"]:focus {
-        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
-    }
-    .dropdown-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
-        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .dropdown-menu-sub-content {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
 }

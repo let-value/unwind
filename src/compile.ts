@@ -99,10 +99,7 @@ function replaceUtilitySelector(
 
 function isStructuralMarkerToken(token: string): boolean {
   return (
-    token === "group" ||
-    token === "peer" ||
-    token.startsWith("group/") ||
-    token.startsWith("peer/")
+    token === "group" || token === "peer" || token.startsWith("group/") || token.startsWith("peer/")
   );
 }
 
@@ -208,10 +205,7 @@ function rewriteStructuralReferenceSelectors(
   }).processSync(selector);
 }
 
-function rewriteStructuralReferenceSelectorsInRule(
-  rule: Rule,
-  markerSelectors: MarkerSelectors,
-) {
+function rewriteStructuralReferenceSelectorsInRule(rule: Rule, markerSelectors: MarkerSelectors) {
   rule.selector = rewriteStructuralReferenceSelectors(rule.selector, markerSelectors);
 
   rule.walkRules((nestedRule) => {
@@ -422,10 +416,7 @@ function createGlobalWrapper(node: selectorParser.Node): selectorParser.Pseudo {
   });
 }
 
-function protectGlobalSelectorReferences(
-  root: Root,
-  localReferences: SelectorReferenceSet,
-) {
+function protectGlobalSelectorReferences(root: Root, localReferences: SelectorReferenceSet) {
   root.walkRules((rule) => {
     if (isInsideKeyframes(rule)) {
       return;
@@ -433,10 +424,7 @@ function protectGlobalSelectorReferences(
 
     rule.selector = selectorParser((selectorRoot) => {
       selectorRoot.walkClasses((node) => {
-        if (
-          localReferences.classes.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.classes.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 
@@ -444,10 +432,7 @@ function protectGlobalSelectorReferences(
       });
 
       selectorRoot.walkIds((node) => {
-        if (
-          localReferences.ids.has(node.value) ||
-          isInsideGlobalPseudo(node)
-        ) {
+        if (localReferences.ids.has(node.value) || isInsideGlobalPseudo(node)) {
           return;
         }
 
@@ -506,26 +491,52 @@ function unwrapLayers(container: Container): void {
   }
 }
 
+function findFallbackRule(container: Container, selector: string): Rule | undefined {
+  let fallback: Rule | undefined;
+
+  for (const node of container.nodes ?? []) {
+    if (node.type === "rule" && node.selector === selector) {
+      fallback = node;
+    }
+  }
+
+  return fallback;
+}
+
 // Tailwind emits @supports blocks (with opacity-correct color-mix values)
 // before the plain fallback rules for the same selector. After @layer
 // unwrapping both sets of rules exist at the same cascade level, so later
-// source order wins. Move every @supports block to the end of its container
-// so the opacity-correct values override the solid-color fallbacks in browsers
-// that support color-mix.
+// source order wins and the fallback would win. Each overriding rule moves
+// directly behind the fallback it overrides — no further, or it would also
+// start beating the state variants that follow it, which is how a base
+// `text-foreground/60` ends up overriding `data-active:text-foreground`.
 function reorderSupportsBlocks(container: Container): void {
-  const supportsNodes: Node[] = [];
   for (const node of (container.nodes ?? []).slice()) {
     if (node.type !== "atrule") continue;
     const atRule = node as AtRule;
-    if (atRule.name === "supports") {
-      supportsNodes.push(node);
-      atRule.remove();
-    } else if (atRule.name === "media") {
+
+    if (atRule.name === "media") {
       reorderSupportsBlocks(atRule);
+      continue;
     }
-  }
-  for (const node of supportsNodes) {
-    container.append(node);
+
+    if (atRule.name !== "supports") continue;
+
+    for (const child of (atRule.nodes ?? []).slice()) {
+      if (child.type !== "rule") continue;
+
+      const fallback = findFallbackRule(container, child.selector);
+      if (!fallback) continue;
+
+      const relocated = atRule.clone({ nodes: [] });
+      child.remove();
+      relocated.append(child);
+      fallback.after(relocated);
+    }
+
+    if ((atRule.nodes ?? []).length === 0) {
+      atRule.remove();
+    }
   }
 }
 
@@ -560,8 +571,10 @@ async function getLocalStyles({
   protectGlobalSelectorReferences(flat, localReferences);
   mergeDuplicateChildren(flat);
   unwrapLayers(flat);
-  reorderSupportsBlocks(flat);
   mergeDuplicateChildren(flat);
+  // Runs last: merging by at-rule signature would pull the relocated blocks
+  // back together.
+  reorderSupportsBlocks(flat);
   return normalizeOutputAst(flat);
 }
 
@@ -623,6 +636,14 @@ export function mergeGlobalRoots(roots: Root[]): Root {
   }
   pruneEmptyContainers(merged);
   mergeDuplicateChildren(merged);
+  return normalizeOutputAst(merged);
+}
+
+// Merging recombines @supports blocks by signature, which undoes the placement
+// reorderSupportsBlocks depends on, so local roots have to be reordered again.
+export function mergeLocalRoots(roots: Root[]): Root {
+  const merged = mergeGlobalRoots(roots);
+  reorderSupportsBlocks(merged);
   return normalizeOutputAst(merged);
 }
 

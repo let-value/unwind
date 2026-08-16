@@ -24,6 +24,11 @@
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .table-footer {
+        background-color: color-mix(in oklab, var(--muted) 50%, transparent)
+    }
+}
 .table-footer>tr:last-child {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 0px;
@@ -47,6 +52,11 @@
 }
 .table-row:has(*[aria-expanded="true"]) {
     background-color: var(--muted);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .table-row:has(*[aria-expanded="true"]) {
+        background-color: color-mix(in oklab, var(--muted) 50%, transparent)
+    }
 }
 .table-row[data-state="selected"] {
     background-color: var(--muted);
@@ -77,12 +87,4 @@
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     color: var(--muted-foreground);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .table-footer {
-        background-color: color-mix(in oklab, var(--muted) 50%, transparent)
-    }
-    .table-row:has(*[aria-expanded="true"]) {
-        background-color: color-mix(in oklab, var(--muted) 50%, transparent)
-    }
 }

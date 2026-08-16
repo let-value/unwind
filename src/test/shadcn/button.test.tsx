@@ -5,7 +5,7 @@ import { ArrowUpIcon } from "lucide-react";
 
 import "shadcn-test/src/index.css";
 import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
-import { Button, buttonVariants } from "shadcn-test/src/components/ui/button";
+import { Button, buttonVariants } from "shadcn-test/src/components/ui/button.tsx";
 
 import { Example, IconPlaceholder } from "./example.tsx";
 

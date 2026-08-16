@@ -38,6 +38,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--ring);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .select-trigger-flex:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
 .select-trigger-flex:disabled {
     cursor: not-allowed;
     opacity: 50%;
@@ -47,6 +52,11 @@
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .select-trigger-flex[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
 }
 .select-trigger-flex[data-placeholder] {
     color: var(--muted-foreground);
@@ -69,6 +79,11 @@
 .select-trigger-flex:is(:global(.dark) *) {
     background-color: var(--input);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .select-trigger-flex:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+    }
+}
 @media (hover: hover) {
     .select-trigger-flex:is(:global(.dark) *):hover {
         background-color: var(--input)
@@ -82,6 +97,12 @@
 .select-trigger-flex:is(:global(.dark) *)[aria-invalid="true"] {
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .select-trigger-flex:is(:global(.dark) *)[aria-invalid="true"] {
+        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
 }
 .select-trigger-flex svg {
     pointer-events: none;
@@ -120,6 +141,11 @@
     --tw-ring-color: var(--foreground);
     --tw-duration: 100ms;
     transition-duration: 100ms;
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .select-content-relative {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
 }
 .select-content-relative[data-align-trigger="true"] {
     animation: none;
@@ -267,22 +293,4 @@
 .select-scroll-down-button svg:not([class*='size-']) {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .select-trigger-flex:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
-    }
-    .select-trigger-flex[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .select-trigger-flex:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
-    }
-    .select-trigger-flex:is(:global(.dark) *)[aria-invalid="true"] {
-        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
-    }
-    .select-content-relative {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
 }

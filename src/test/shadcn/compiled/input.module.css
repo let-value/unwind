@@ -40,6 +40,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--ring);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .input:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
 .input:disabled {
     pointer-events: none;
     cursor: not-allowed;
@@ -51,6 +56,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .input[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 @media (width >= 48rem) {
     .input {
         font-size: var(--text-sm);
@@ -60,20 +70,16 @@
 .input:is(:global(.dark) *) {
     background-color: var(--input);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .input:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+    }
+}
 .input:is(:global(.dark) *)[aria-invalid="true"] {
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
 }
 @supports (color: color-mix(in lab, red, red)) {
-    .input:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
-    }
-    .input[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .input:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
-    }
     .input:is(:global(.dark) *)[aria-invalid="true"] {
         border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
         --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)

@@ -55,6 +55,11 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .tabs-trigger-relative {
+        color: color-mix(in oklab, var(--foreground) 60%, transparent)
+    }
+}
 .tabs-trigger-relative:is(:where(.tabs):where([data-orientation="vertical"]) *) {
     width: 100%;
     justify-content: flex-start;
@@ -75,6 +80,11 @@
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
     outline-color: var(--ring);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .tabs-trigger-relative:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    }
 }
 .tabs-trigger-relative:disabled {
     pointer-events: none;
@@ -128,6 +138,11 @@
     background-color: var(--input);
     color: var(--foreground);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .tabs-trigger-data:is(:global(.dark) *):where([data-state="active"]), .tabs-trigger-data:is(:global(.dark) *):where([data-active]:not([data-active="false"])) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent);
+    }
+}
 .tabs-trigger-after::after {
     content: var(--tw-content);
     position: absolute;
@@ -159,15 +174,4 @@
     line-height: var(--tw-leading, var(--text-sm--line-height));
     --tw-outline-style: none;
     outline-style: none;
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .tabs-trigger-relative {
-        color: color-mix(in oklab, var(--foreground) 60%, transparent)
-    }
-    .tabs-trigger-relative:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
-    }
-    .tabs-trigger-data:is(:global(.dark) *):where([data-state="active"]), .tabs-trigger-data:is(:global(.dark) *):where([data-active]:not([data-active="false"])) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent);
-    }
 }

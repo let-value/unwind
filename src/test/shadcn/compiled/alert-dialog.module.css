@@ -7,6 +7,18 @@
     --tw-duration: 100ms;
     transition-duration: 100ms;
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .alert-dialog-overlay {
+        background-color: color-mix(in oklab, var(--color-black) 10%, transparent)
+    }
+}
+@supports (backdrop-filter: var(--tw)) {
+    .alert-dialog-overlay {
+        --tw-backdrop-blur: blur(var(--blur-xs));
+        -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+        backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)
+    }
+}
 .alert-dialog-overlay:where([data-state="open"]), .alert-dialog-overlay:where([data-open]:not([data-open="false"])) {
     animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
     --tw-enter-opacity: calc(0/100);
@@ -39,6 +51,11 @@
     transition-duration: 100ms;
     --tw-outline-style: none;
     outline-style: none;
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .alert-dialog-content {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
 }
 .alert-dialog-content[data-size="default"] {
     max-width: var(--container-xs);
@@ -141,20 +158,5 @@
 @media (hover: hover) {
     :is(.alert-dialog-description > *):is(a):hover {
         color: var(--foreground)
-    }
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .alert-dialog-overlay {
-        background-color: color-mix(in oklab, var(--color-black) 10%, transparent)
-    }
-    .alert-dialog-content {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
-}
-@supports (backdrop-filter: var(--tw)) {
-    .alert-dialog-overlay {
-        --tw-backdrop-blur: blur(var(--blur-xs));
-        -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-        backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)
     }
 }

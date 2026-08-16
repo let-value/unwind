@@ -1,4 +1,6 @@
+"use client";;
 import styles from "./tooltip.module.css";
+
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 
 import { cn } from "#/lib/utils.ts";

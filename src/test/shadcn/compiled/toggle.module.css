@@ -30,6 +30,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--ring);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .toggle:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
 .toggle:disabled {
     pointer-events: none;
     opacity: 50%;
@@ -38,11 +43,21 @@
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .toggle[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 .toggle[aria-pressed="true"] {
     background-color: var(--muted);
 }
 .toggle:is(:global(.dark) *)[aria-invalid="true"] {
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .toggle:is(:global(.dark) *)[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
 }
 .toggle svg {
     pointer-events: none;
@@ -95,15 +110,4 @@
 }
 .toggle-size-lg:has(*[data-icon="inline-start"]) {
     padding-left: calc(var(--spacing) * 2);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .toggle:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
-    }
-    .toggle[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .toggle:is(:global(.dark) *)[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
-    }
 }

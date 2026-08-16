@@ -75,6 +75,22 @@ function getStaticString(node: ASTNode): string | undefined {
       .join("");
   }
 
+  // String.raw`p-[2px]\_x` keeps Tailwind's own escapes intact, so the class
+  // string is the raw text rather than the cooked one.
+  if (node.type === "TaggedTemplateExpression") {
+    if (
+      !isASTNode(node.tag) ||
+      getExpressionName(node.tag) !== "String.raw" ||
+      !isASTNode(node.quasi) ||
+      node.quasi.type !== "TemplateLiteral" ||
+      node.quasi.expressions.length > 0
+    ) {
+      return undefined;
+    }
+
+    return node.quasi.quasis.map((entry) => entry.value.raw).join("");
+  }
+
   if (node.type === "TSLiteralType" && isASTNode(node.literal)) {
     return getStaticString(node.literal);
   }
@@ -194,18 +210,101 @@ function getFunctionDeclarationBranches({
   ];
 }
 
+const CLASS_PROPERTY_NAMES = new Set(["class", "className"]);
+
+function isClassNameAttributeName(name: string): boolean {
+  return name === "className" || (name.length > "ClassName".length && name.endsWith("ClassName"));
+}
+
+// A `classNames` prop maps slot names to class strings (react-day-picker,
+// input-otp and friends), so every property value is a class name.
+function getClassNameRecordBranches(
+  value: ASTNode,
+  breadcrumbs: Breadcrumb[],
+): Branch[] | undefined {
+  const object =
+    value.type === "JSXExpressionContainer" && isASTNode(value.expression)
+      ? value.expression
+      : value;
+
+  if (object.type !== "ObjectExpression") {
+    return undefined;
+  }
+
+  const result: Branch[] = [];
+
+  for (const property of Array.isArray(object.properties) ? object.properties : []) {
+    if (!isASTNode(property)) {
+      continue;
+    }
+
+    const name = getPropertyName(property);
+    const node = getObjectPropertyValue(property);
+
+    if (!name || !node) {
+      continue;
+    }
+
+    result.push({
+      node,
+      breadcrumbs: [...breadcrumbs, { kind: "classNames", name }],
+      source: "className",
+    });
+  }
+
+  return result;
+}
+
 function getClassNameAttributeBranches({ node, breadcrumbs }: Branch): Branch[] | undefined {
   if (node.type !== "JSXAttribute" || !isASTNode(node.name) || !isASTNode(node.value)) {
     return undefined;
   }
 
-  if (node.name.type !== "JSXIdentifier" || node.name.name !== "className") {
+  if (node.name.type !== "JSXIdentifier" || typeof node.name.name !== "string") {
+    return undefined;
+  }
+
+  const attributeName = node.name.name;
+
+  if (attributeName === "classNames") {
+    return getClassNameRecordBranches(node.value, breadcrumbs);
+  }
+
+  if (!isClassNameAttributeName(attributeName)) {
     return undefined;
   }
 
   return [
     {
       node: node.value,
+      breadcrumbs: [
+        ...breadcrumbs,
+        attributeName === "className"
+          ? { kind: "className" }
+          : { kind: "classNames", name: attributeName },
+      ],
+      source: "className",
+    },
+  ];
+}
+
+// `mergeProps({ className: cn(...) })` and other prop objects carry class
+// strings outside of any JSX attribute.
+function getClassNamePropertyBranches({ node, breadcrumbs, source }: Branch): Branch[] | undefined {
+  if (source || (node.type !== "ObjectProperty" && node.type !== "Property")) {
+    return undefined;
+  }
+
+  const name = getPropertyName(node);
+  const value = getObjectPropertyValue(node);
+
+  if (!name || !value || !CLASS_PROPERTY_NAMES.has(name)) {
+    return undefined;
+  }
+
+  return [
+    {
+      node: value,
       breadcrumbs: [...breadcrumbs, { kind: "className" }],
       source: "className",
     },
@@ -252,6 +351,12 @@ function getExpressionBranches({ node, breadcrumbs, source }: Branch): Branch[] 
     case "MemberExpression":
       // styles["foo"] and similar lookups are already transformed references,
       // not class strings to compile again.
+      return [];
+    case "BinaryExpression":
+      // Operands of a comparison are values being tested, never class names.
+      return [];
+    case "TaggedTemplateExpression":
+      // The tagged expression as a whole is the class string; its quasi is not.
       return [];
     case "ConditionalExpression": {
       const name = isASTNode(node.test) ? getExpressionName(node.test) : undefined;
@@ -402,20 +507,31 @@ function getVariantsBranches({ node, breadcrumbs, source }: Branch): Branch[] | 
     }
 
     const name = getPropertyName(property);
-    const node = getObjectPropertyValue(property);
+    const value = getObjectPropertyValue(property);
 
-    if (!node || (name !== "class" && name !== "className")) {
+    if (name && CLASS_PROPERTY_NAMES.has(name) && value) {
+      result.push({ node: value, breadcrumbs, source });
       continue;
     }
 
-    result.push({
-      node,
-      breadcrumbs,
-      source,
-    });
+    // clsx object arguments read the other way round: the key is the class
+    // name and the value is the condition that toggles it.
+    const key = "key" in property && isASTNode(property.key) ? property.key : undefined;
+    const computed = "computed" in property && Boolean(property.computed);
+
+    if (key && !computed) {
+      result.push({
+        node: key,
+        breadcrumbs: [
+          ...breadcrumbs,
+          { kind: "condition", name: value ? getExpressionName(value) : undefined },
+        ],
+        source,
+      });
+    }
   }
 
-  return result.length > 0 ? result : undefined;
+  return result;
 }
 
 function getCompoundVariantBranches({ node, breadcrumbs, source }: Branch): Branch[] | undefined {
@@ -495,6 +611,7 @@ function getNextBranches(branch: Branch): Branch[] {
     getVariableDeclaratorBranches(branch) ??
     getFunctionDeclarationBranches(branch) ??
     getClassNameAttributeBranches(branch) ??
+    getClassNamePropertyBranches(branch) ??
     getCvaBranches(branch) ??
     getVariantsBranches(branch) ??
     getCompoundVariantBranches(branch) ??

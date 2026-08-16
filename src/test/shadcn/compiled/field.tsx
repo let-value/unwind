@@ -1,6 +1,4 @@
-"use client";;
 import styles from "./field.module.css";
-
 import { useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 

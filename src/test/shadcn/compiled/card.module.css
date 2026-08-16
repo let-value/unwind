@@ -1,11 +1,11 @@
 .card {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--spacing) * 6);
+    gap: var(--card-spacing);
     overflow: hidden;
     border-radius: calc(var(--radius) * 1.4);
     background-color: var(--card);
-    padding-block: calc(var(--spacing) * 6);
+    padding-block: var(--card-spacing);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     color: var(--card-foreground);
@@ -13,13 +13,18 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     --tw-ring-color: var(--foreground);
+    --card-spacing: calc(var(--spacing) * 6);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .card {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
 }
 .card:has(>img:first-child) {
     padding-top: calc(var(--spacing) * 0);
 }
 .card[data-size="sm"] {
-    gap: calc(var(--spacing) * 4);
-    padding-block: calc(var(--spacing) * 4);
+    --card-spacing: calc(var(--spacing) * 4);
 }
 :is(.card > *):is(img:first-child) {
     border-top-left-radius: calc(var(--radius) * 1.4);
@@ -38,13 +43,7 @@
     gap: calc(var(--spacing) * 1);
     border-top-left-radius: calc(var(--radius) * 1.4);
     border-top-right-radius: calc(var(--radius) * 1.4);
-    padding-inline: calc(var(--spacing) * 6);
-}
-.card-header:is(:where(.card)[data-size="sm"] *) {
-    padding-inline: calc(var(--spacing) * 4);
-}
-.card-header:is(:where(.card)[data-size="sm"] *):is(:global(.border-b)) {
-    padding-bottom: calc(var(--spacing) * 4);
+    padding-inline: var(--card-spacing);
 }
 .card-header:has(*[data-slot="card-action"]) {
     grid-template-columns: 1fr auto;
@@ -53,7 +52,7 @@
     grid-template-rows: auto auto;
 }
 .card-header:is(:global(.border-b)) {
-    padding-bottom: calc(var(--spacing) * 6);
+    padding-bottom: var(--card-spacing);
 }
 .card-title {
     font-family: var(--font-sans);
@@ -81,29 +80,18 @@
     justify-self: flex-end;
 }
 .card-content {
-    padding-inline: calc(var(--spacing) * 6);
-}
-.card-content:is(:where(.card)[data-size="sm"] *) {
-    padding-inline: calc(var(--spacing) * 4);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    padding-inline: var(--card-spacing);
 }
 .card-footer {
     display: flex;
     align-items: center;
     border-bottom-right-radius: calc(var(--radius) * 1.4);
     border-bottom-left-radius: calc(var(--radius) * 1.4);
-    padding-inline: calc(var(--spacing) * 6);
-}
-.card-footer:is(:where(.card)[data-size="sm"] *) {
-    padding-inline: calc(var(--spacing) * 4);
-}
-.card-footer:is(:where(.card)[data-size="sm"] *):is(:global(.border-t)) {
-    padding-top: calc(var(--spacing) * 4);
+    padding-inline: var(--card-spacing);
 }
 .card-footer:is(:global(.border-t)) {
-    padding-top: calc(var(--spacing) * 6);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .card {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
+    padding-top: var(--card-spacing);
 }

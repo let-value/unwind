@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import "shadcn-test/src/index.css";
 import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
-import { Toggle } from "shadcn-test/src/components/ui/toggle";
+import { Toggle } from "shadcn-test/src/components/ui/toggle.tsx";
 
 import { Example, IconPlaceholder } from "./example.tsx";
 

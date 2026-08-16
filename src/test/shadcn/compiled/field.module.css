@@ -115,6 +115,12 @@
     border-color: var(--primary);
     background-color: var(--primary);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .field-label-group:has(*:where([data-state="checked"]), *:where([data-checked]:not([data-checked="false"]))) {
+        border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+        background-color: color-mix(in oklab, var(--primary) 5%, transparent)
+    }
+}
 .field-label-group:has(>[data-slot=field]) {
     border-radius: calc(var(--radius) * 0.8);
     border-style: var(--tw-border-style);
@@ -127,6 +133,12 @@
     border-color: var(--primary);
     background-color: var(--primary);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .field-label-group:is(:global(.dark) *):has(*:where([data-state="checked"]), *:where([data-checked]:not([data-checked="false"]))) {
+        border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+        background-color: color-mix(in oklab, var(--primary) 10%, transparent)
+    }
+}
 .field-label-has:has(>[data-slot=field]) {
     width: 100%;
     flex-direction: column;
@@ -138,8 +150,6 @@
     gap: calc(var(--spacing) * 2);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
-    --tw-leading: var(--leading-snug);
-    line-height: var(--leading-snug);
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
 }
@@ -212,14 +222,4 @@
     --tw-font-weight: var(--font-weight-normal);
     font-weight: var(--font-weight-normal);
     color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .field-label-group:has(*:where([data-state="checked"]), *:where([data-checked]:not([data-checked="false"]))) {
-        border-color: color-mix(in oklab, var(--primary) 30%, transparent);
-        background-color: color-mix(in oklab, var(--primary) 5%, transparent)
-    }
-    .field-label-group:is(:global(.dark) *):has(*:where([data-state="checked"]), *:where([data-checked]:not([data-checked="false"]))) {
-        border-color: color-mix(in oklab, var(--primary) 20%, transparent);
-        background-color: color-mix(in oklab, var(--primary) 10%, transparent)
-    }
 }

@@ -27,6 +27,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--ring);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .button:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
 .button:active:not(*[aria-haspopup]) {
     --tw-translate-y: 1px;
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -41,9 +46,20 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .button[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 .button:is(:global(.dark) *)[aria-invalid="true"] {
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .button:is(:global(.dark) *)[aria-invalid="true"] {
+        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
 }
 .button svg {
     pointer-events: none;
@@ -61,6 +77,11 @@
     .button-variant-default:hover {
         background-color: var(--primary)
     }
+    @supports (color: color-mix(in lab, red, red)) {
+        .button-variant-default:hover {
+            background-color: color-mix(in oklab, var(--primary) 80%, transparent)
+        }
+    }
     .button-variant-outline:hover {
         background-color: var(--muted);
         color: var(--foreground)
@@ -68,8 +89,18 @@
     .button-variant-outline:is(:global(.dark) *):hover {
         background-color: var(--input)
     }
+    @supports (color: color-mix(in lab, red, red)) {
+        .button-variant-outline:is(:global(.dark) *):hover {
+            background-color: color-mix(in oklab, var(--input) 50%, transparent)
+        }
+    }
     .button-variant-secondary:hover {
         background-color: var(--secondary)
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+        .button-variant-secondary:hover {
+            background-color: color-mix(in oklch,var(--secondary),var(--foreground) 5%)
+        }
     }
     .button-variant-ghost:hover {
         background-color: var(--muted);
@@ -78,34 +109,29 @@
     .button-variant-ghost:is(:global(.dark) *):hover {
         background-color: var(--muted)
     }
+    @supports (color: color-mix(in lab, red, red)) {
+        .button-variant-ghost:is(:global(.dark) *):hover {
+            background-color: color-mix(in oklab, var(--muted) 50%, transparent)
+        }
+    }
     .button-variant-destructive:hover {
         background-color: var(--destructive)
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+        .button-variant-destructive:hover {
+            background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+        }
     }
     .button-variant-destructive:is(:global(.dark) *):hover {
         background-color: var(--destructive)
     }
-    .button-variant-link:hover {
-        text-decoration-line: underline
-    }
     @supports (color: color-mix(in lab, red, red)) {
-        .button-variant-default:hover {
-            background-color: color-mix(in oklab, var(--primary) 80%, transparent)
-        }
-        .button-variant-outline:is(:global(.dark) *):hover {
-            background-color: color-mix(in oklab, var(--input) 50%, transparent)
-        }
-        .button-variant-secondary:hover {
-            background-color: color-mix(in oklab, var(--secondary) 80%, transparent)
-        }
-        .button-variant-ghost:is(:global(.dark) *):hover {
-            background-color: color-mix(in oklab, var(--muted) 50%, transparent)
-        }
-        .button-variant-destructive:hover {
-            background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-        }
         .button-variant-destructive:is(:global(.dark) *):hover {
             background-color: color-mix(in oklab, var(--destructive) 30%, transparent)
         }
+    }
+    .button-variant-link:hover {
+        text-decoration-line: underline
     }
 }
 .button-variant-outline {
@@ -121,6 +147,11 @@
 .button-variant-outline:is(:global(.dark) *) {
     border-color: var(--input);
     background-color: var(--input);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .button-variant-outline:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+    }
 }
 .button-variant-secondary {
     background-color: var(--secondary);
@@ -138,15 +169,36 @@
     background-color: var(--destructive);
     color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .button-variant-destructive {
+        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
+    }
+}
 .button-variant-destructive:focus-visible {
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .button-variant-destructive:focus-visible {
+        border-color: color-mix(in oklab, var(--destructive) 40%, transparent);
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 .button-variant-destructive:is(:global(.dark) *) {
     background-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .button-variant-destructive:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 .button-variant-destructive:is(:global(.dark) *):focus-visible {
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .button-variant-destructive:is(:global(.dark) *):focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
 }
 .button-variant-link {
     color: var(--primary);
@@ -240,32 +292,4 @@
 .button-size-icon-lg {
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .button:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
-    }
-    .button[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .button:is(:global(.dark) *)[aria-invalid="true"] {
-        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
-    }
-    .button-variant-outline:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
-    }
-    .button-variant-destructive {
-        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
-    }
-    .button-variant-destructive:focus-visible {
-        border-color: color-mix(in oklab, var(--destructive) 40%, transparent);
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .button-variant-destructive:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .button-variant-destructive:is(:global(.dark) *):focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
-    }
 }

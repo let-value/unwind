@@ -41,6 +41,19 @@ export interface ShadcnMetadata {
 const file = new ResolverFactory({ tsconfig: "auto" });
 const context = file.cloneWithOptions({ tsconfig: "auto", resolveToContext: true });
 
+// shadcn writes `tailwind.css` as a package-root-relative path ("src/index.css"),
+// which a node resolver reads as a bare package specifier. Fall back to the
+// explicit relative form so both spellings resolve, alongside alias specifiers.
+function resolveEntry(componentsJsonPath: string, specifier: string) {
+  const resolved = file.resolveFileSync(componentsJsonPath, specifier);
+
+  if (resolved.path || specifier.startsWith(".") || specifier.startsWith("/")) {
+    return resolved;
+  }
+
+  return file.resolveFileSync(componentsJsonPath, `./${specifier}`);
+}
+
 export async function resolveShadcnProject(
   searchPath: string,
 ): Promise<ShadcnMetadata | undefined> {
@@ -66,7 +79,7 @@ export async function resolveShadcnProject(
     return;
   }
 
-  const css = file.resolveFileSync(componentsJsonPath, config.tailwind.css);
+  const css = resolveEntry(componentsJsonPath, config.tailwind.css);
   assert(css.path, "Failed to resolve Tailwind CSS entry point");
   assert(css.packageJsonPath, "Failed to resolve Tailwind CSS entry point package.json");
 

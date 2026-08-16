@@ -28,6 +28,11 @@
     --tw-outline-style: none;
     outline-style: none;
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .context-menu-content-z {
+        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
+    }
+}
 .context-menu-content-z[data-side="bottom"] {
     --tw-enter-translate-y: calc(2*var(--spacing)*-1);
 }
@@ -123,11 +128,21 @@
     background-color: var(--destructive);
     color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .context-menu-item[data-variant="destructive"]:focus {
+        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
+    }
+}
 :is(.context-menu-item[data-variant="destructive"] > *):is(svg) {
     color: var(--destructive);
 }
 .context-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
     background-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .context-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
+        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
 }
 .context-menu-item:where([data-disabled="true"]), .context-menu-item:where([data-disabled]:not([data-disabled="false"])) {
     pointer-events: none;
@@ -279,15 +294,4 @@
 }
 .context-menu-shortcut:is(:where(.context-menu-item):focus *) {
     color: var(--accent-foreground);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .context-menu-content-z {
-        --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent)
-    }
-    .context-menu-item[data-variant="destructive"]:focus {
-        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
-    }
-    .context-menu-item:is(:global(.dark) *)[data-variant="destructive"]:focus {
-        background-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
 }

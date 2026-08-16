@@ -83,9 +83,16 @@ function ScrollAreaHorizontal() {
                 />
               </div>
               <figcaption
-                style={{ paddingTop: "0.5rem", fontSize: "0.75rem", color: "var(--muted-foreground)" }}
+                style={{
+                  paddingTop: "0.5rem",
+                  fontSize: "0.75rem",
+                  color: "var(--muted-foreground)",
+                }}
               >
-                Photo by <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{artwork.artist}</span>
+                Photo by{" "}
+                <span style={{ fontWeight: 600, color: "var(--foreground)" }}>
+                  {artwork.artist}
+                </span>
               </figcaption>
             </figure>
           ))}
@@ -129,6 +136,3 @@ test("ScrollAreaHorizontal", async (t) => {
     },
   });
 });
-
-
-

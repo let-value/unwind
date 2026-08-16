@@ -16,6 +16,10 @@
       "types": "./dist/index.d.mts"
     }
   },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "vitest": "vitest",
@@ -66,17 +70,13 @@
     "vitest": "4.1.2",
     "vitest-browser-react": "2.1.0"
   },
-  "engines": {
-    "node": ">=22"
-  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
       "onFail": "download"
     }
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+  "engines": {
+    "node": ">=22"
   }
 }

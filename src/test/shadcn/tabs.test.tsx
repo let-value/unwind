@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import "shadcn-test/src/index.css";
 import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "shadcn-test/src/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "shadcn-test/src/components/ui/tabs.tsx";
 
 import { Example } from "./example.tsx";
 

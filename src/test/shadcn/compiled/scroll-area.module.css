@@ -18,6 +18,11 @@
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .scroll-area-size:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    }
+}
 .scroll-bar-flex {
     display: flex;
     touch-action: none;
@@ -47,9 +52,4 @@
     flex: 1;
     border-radius: calc(infinity * 1px);
     background-color: var(--border);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .scroll-area-size:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
-    }
 }

@@ -19,20 +19,24 @@ import { openDrawerAndMatchScreenshot } from "./drawer.test-helpers.ts";
 
 const DRAWER_SIDES = ["top", "right", "bottom", "left"] as const;
 
+const DRAWER_SWIPE_DIRECTIONS = {
+  top: "up",
+  right: "right",
+  bottom: "down",
+  left: "left",
+} as const;
+
 function DrawerParagraphs() {
   return (
     <>
       {Array.from({ length: 10 }).map((_, index) => (
-        <p
-          key={index}
-          className="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed"
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-          nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+        <p key={index} className="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
         </p>
       ))}
     </>
@@ -45,14 +49,9 @@ function DrawerWithSides() {
       <h1 className="text-2xl font-bold">Sides</h1>
       <div className="flex flex-wrap gap-2">
         {DRAWER_SIDES.map((side) => (
-          <Drawer
-            key={side}
-            direction={side === "bottom" ? undefined : side}
-          >
-            <DrawerTrigger asChild>
-              <Button variant="outline" className="capitalize">
-                {side}
-              </Button>
+          <Drawer key={side} swipeDirection={DRAWER_SWIPE_DIRECTIONS[side]}>
+            <DrawerTrigger render={<Button variant="outline" className="capitalize" />}>
+              {side}
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
@@ -64,9 +63,7 @@ function DrawerWithSides() {
               </div>
               <DrawerFooter>
                 <Button>Submit</Button>
-                <DrawerClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DrawerClose>
+                <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
@@ -80,10 +77,8 @@ function ScrollableDrawer() {
   return (
     <div className="flex flex-col gap-2 p-2" data-testid="example">
       <h1 className="text-2xl font-bold">Scrollable Content</h1>
-      <Drawer direction="right">
-        <DrawerTrigger asChild>
-          <Button variant="outline">Scrollable Content</Button>
-        </DrawerTrigger>
+      <Drawer swipeDirection="right">
+        <DrawerTrigger render={<Button variant="outline" />}>Scrollable Content</DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Move Goal</DrawerTitle>
@@ -94,9 +89,7 @@ function ScrollableDrawer() {
           </div>
           <DrawerFooter>
             <Button>Submit</Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
+            <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

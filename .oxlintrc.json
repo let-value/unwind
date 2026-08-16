@@ -5,5 +5,5 @@
     "no-console": "off",
     "no-debugger": "error"
   },
-  "ignorePatterns": ["dist", "node_modules"]
+  "ignorePatterns": ["dist", "node_modules", "src/test/shadcn/compiled", "src/test/shadcn/project"]
 }

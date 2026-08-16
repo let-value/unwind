@@ -99,8 +99,7 @@ describe(compileClasses, () => {
         {
           node: {} as never,
           source: "className",
-          classNames:
-            "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
+          classNames: "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
           breadcrumbs: [],
           outputSelector: ".drawer-header",
         },
@@ -151,7 +150,7 @@ describe(compileClasses, () => {
     const css = local.toString();
 
     expect(css).toContain(
-      ".card-header:is(:where(.card)[data-size=\"sm\"] *):is(:global(.border-b))",
+      '.card-header:is(:where(.card)[data-size="sm"] *):is(:global(.border-b))',
     );
     expect(css).not.toContain(".group\\/card");
   });

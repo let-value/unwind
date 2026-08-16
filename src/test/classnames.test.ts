@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { describe, expect, it, test } from "vitest";
 import { getCssModulePath, getSourceClassNames, type ExtractedClassName } from "../classnames.ts";
 
@@ -76,12 +77,23 @@ test("walks nested expression branches while preserving semantic breadcrumbs", a
 
 describe(getCssModulePath, () => {
   it("derives a css module file path next to a tsx source file", () => {
-    expect(getCssModulePath("src\\test\\shadcn\\project\\src\\components\\ui\\button.tsx")).toBe(
-      "src\\test\\shadcn\\project\\src\\components\\ui\\button.module.css",
+    const source = join(
+      "src",
+      "test",
+      "shadcn",
+      "project",
+      "src",
+      "components",
+      "ui",
+      "button.tsx",
+    );
+
+    expect(getCssModulePath(source)).toBe(
+      join("src", "test", "shadcn", "project", "src", "components", "ui", "button.module.css"),
     );
   });
 
   it("derives a css module file path for relative source paths", () => {
-    expect(getCssModulePath("components/button.tsx")).toBe("components\\button.module.css");
+    expect(getCssModulePath("components/button.tsx")).toBe(join("components", "button.module.css"));
   });
 });

@@ -33,6 +33,11 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--ring);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .checkbox-peer:focus-visible {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
 .checkbox-peer:disabled {
     cursor: not-allowed;
     opacity: 50%;
@@ -43,15 +48,31 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-ring-color: var(--destructive);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .checkbox-peer[aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
 .checkbox-peer[aria-invalid="true"][aria-checked="true"] {
     border-color: var(--primary);
 }
 .checkbox-peer:is(:global(.dark) *) {
     background-color: var(--input);
 }
+@supports (color: color-mix(in lab, red, red)) {
+    .checkbox-peer:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+    }
+}
 .checkbox-peer:is(:global(.dark) *)[aria-invalid="true"] {
     border-color: var(--destructive);
     --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .checkbox-peer:is(:global(.dark) *)[aria-invalid="true"] {
+        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
 }
 .checkbox-peer:is(:global(.dark) *):where([data-state="checked"]), .checkbox-peer:is(:global(.dark) *):where([data-checked]:not([data-checked="false"])) {
     background-color: var(--primary);
@@ -70,19 +91,4 @@
 .checkbox-grid>svg {
     width: calc(var(--spacing) * 3.5);
     height: calc(var(--spacing) * 3.5);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .checkbox-peer:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
-    }
-    .checkbox-peer[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
-    }
-    .checkbox-peer:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
-    }
-    .checkbox-peer:is(:global(.dark) *)[aria-invalid="true"] {
-        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
-    }
 }

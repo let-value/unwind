@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 import { glob, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, dirname, join, sep } from "node:path";
 import postcss, { type Root } from "postcss";
-import { mergeGlobalRoots } from "./compile.ts";
+import { mergeGlobalRoots, mergeLocalRoots } from "./compile.ts";
 import { resolveShadcnProject } from "./shadcn.ts";
 import { transform } from "./transform.ts";
 
@@ -81,7 +81,7 @@ async function mergeLocalCssWithExisting(cssPath: string, nextLocal: Root): Prom
 
   try {
     const existingLocalRoot = postcss.parse(existingLocalCss);
-    return mergeGlobalRoots([existingLocalRoot, nextLocal]).toString();
+    return mergeLocalRoots([existingLocalRoot, nextLocal]).toString();
   } catch {
     // Preserve existing authored CSS even if it cannot be parsed cleanly.
     return `${existingLocalCss.trimEnd()}\n\n${nextLocal.toString()}`;
@@ -178,7 +178,9 @@ async function main() {
       }
 
       const sourceContent = result.root.toSource();
-      const localCss = dry ? result.local.toString() : await mergeLocalCssWithExisting(cssDest, result.local);
+      const localCss = dry
+        ? result.local.toString()
+        : await mergeLocalCssWithExisting(cssDest, result.local);
 
       if (dry) {
         console.log(`  write: ${sourceDest}`);

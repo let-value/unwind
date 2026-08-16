@@ -1,4 +1,6 @@
+"use client";;
 import styles from "./dialog.module.css";
+
 import * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 

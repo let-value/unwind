@@ -71,13 +71,25 @@ export async function transform({
       (path.parent.node as { value?: ASTNode }).value === path.node
     ) {
       path.replace(j.jsxExpressionContainer(replacement));
-    } else {
-      path.replace(replacement);
+      return;
     }
+
+    // A clsx object key has to become computed once it is an expression.
+    const parent = path.parent.node as { key?: ASTNode; computed?: boolean };
+    if (parent.key === path.node) {
+      parent.computed = true;
+    }
+
+    path.replace(replacement);
   }
 
   root.find(j.StringLiteral).forEach((path) => {
     const key = nodeToKey.get(path.node);
+    if (key) replaceNode(path as Parameters<typeof replaceNode>[0], key);
+  });
+
+  root.find(j.TaggedTemplateExpression).forEach((path) => {
+    const key = nodeToKey.get(path.node as unknown as ASTNode);
     if (key) replaceNode(path as Parameters<typeof replaceNode>[0], key);
   });
 

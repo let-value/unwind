@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import "shadcn-test/src/index.css";
 import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
-import { Button } from "shadcn-test/src/components/ui/button";
+import { Button } from "shadcn-test/src/components/ui/button.tsx";
 import {
   Card,
   CardAction,
@@ -13,7 +13,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "shadcn-test/src/components/ui/card";
+} from "shadcn-test/src/components/ui/card.tsx";
 
 import { Example, IconPlaceholder } from "./example.tsx";
 
@@ -44,10 +44,7 @@ function CardLogin() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center">
                   <label htmlFor="password">Password</label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block underline-offset-4 hover:underline"
-                  >
+                  <a href="#" className="ml-auto inline-block underline-offset-4 hover:underline">
                     Forgot your password?
                   </a>
                 </div>
@@ -102,9 +99,7 @@ function CardMeetingNotes() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <p>
-            Client requested dashboard redesign with focus on mobile responsiveness.
-          </p>
+          <p>Client requested dashboard redesign with focus on mobile responsiveness.</p>
           <ol className="mt-4 flex list-decimal flex-col gap-2 pl-6">
             <li>New analytics widgets for daily/weekly metrics</li>
             <li>Simplified navigation menu</li>
@@ -137,11 +132,7 @@ function CardMeetingNotes() {
 function CardWithImage() {
   return (
     <Example title="With Image">
-      <Card
-        size="default"
-        className="relative mx-auto w-full max-w-sm"
-        style={{ paddingTop: 0 }}
-      >
+      <Card size="default" className="relative mx-auto w-full max-w-sm" style={{ paddingTop: 0 }}>
         <div className="absolute inset-0 z-30 aspect-video bg-primary opacity-50 mix-blend-color" />
         <img
           src={LANDSCAPE_IMAGE}
@@ -214,14 +205,12 @@ function CardHeaderWithBorder() {
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="border-b">
           <CardTitle>Header with Border</CardTitle>
-          <CardDescription>
-            This is a card with a header that has a bottom border.
-          </CardDescription>
+          <CardDescription>This is a card with a header that has a bottom border.</CardDescription>
         </CardHeader>
         <CardContent>
           <p>
-            The header has a border-b class applied, creating a visual separation between
-            the header and content sections.
+            The header has a border-b class applied, creating a visual separation between the header
+            and content sections.
           </p>
         </CardContent>
       </Card>
@@ -235,8 +224,8 @@ function CardFooterWithBorder() {
       <Card className="mx-auto w-full max-w-sm">
         <CardContent>
           <p>
-            The footer has a border-t class applied, creating a visual separation between
-            the content and footer sections.
+            The footer has a border-t class applied, creating a visual separation between the
+            content and footer sections.
           </p>
         </CardContent>
         <CardFooter className="border-t">
@@ -259,8 +248,8 @@ function CardDefault() {
         </CardHeader>
         <CardContent>
           <p>
-            The card component supports a size prop that defaults to &quot;default&quot;
-            for standard spacing and sizing.
+            The card component supports a size prop that defaults to &quot;default&quot; for
+            standard spacing and sizing.
           </p>
         </CardContent>
         <CardFooter>
@@ -283,8 +272,8 @@ function CardSmall() {
         </CardHeader>
         <CardContent>
           <p>
-            The card component supports a size prop that can be set to &quot;sm&quot; for
-            a more compact appearance.
+            The card component supports a size prop that can be set to &quot;sm&quot; for a more
+            compact appearance.
           </p>
         </CardContent>
         <CardFooter>
@@ -309,8 +298,8 @@ function CardHeaderWithBorderSmall() {
         </CardHeader>
         <CardContent>
           <p>
-            The header has a border-b class applied, creating a visual separation between
-            the header and content sections.
+            The header has a border-b class applied, creating a visual separation between the header
+            and content sections.
           </p>
         </CardContent>
       </Card>
@@ -324,8 +313,8 @@ function CardFooterWithBorderSmall() {
       <Card size="sm" className="mx-auto w-full max-w-sm">
         <CardContent>
           <p>
-            The footer has a border-t class applied, creating a visual separation between
-            the content and footer sections.
+            The footer has a border-t class applied, creating a visual separation between the
+            content and footer sections.
           </p>
         </CardContent>
         <CardFooter className="border-t">

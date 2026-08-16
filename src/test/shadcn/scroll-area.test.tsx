@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 
 import "shadcn-test/src/index.css";
 import { ThemeProvider } from "shadcn-test/src/components/theme-provider.tsx";
-import { ScrollArea, ScrollBar } from "shadcn-test/src/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "shadcn-test/src/components/ui/scroll-area.tsx";
 
 import { Example } from "./example.tsx";
 
@@ -83,9 +83,16 @@ function ScrollAreaHorizontal() {
                 />
               </div>
               <figcaption
-                style={{ paddingTop: "0.5rem", fontSize: "0.75rem", color: "var(--muted-foreground)" }}
+                style={{
+                  paddingTop: "0.5rem",
+                  fontSize: "0.75rem",
+                  color: "var(--muted-foreground)",
+                }}
               >
-                Photo by <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{artwork.artist}</span>
+                Photo by{" "}
+                <span style={{ fontWeight: 600, color: "var(--foreground)" }}>
+                  {artwork.artist}
+                </span>
               </figcaption>
             </figure>
           ))}
@@ -137,5 +144,3 @@ test("ScrollAreaHorizontal", async (t) => {
     },
   });
 });
-
-
