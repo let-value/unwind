@@ -1,0 +1,93 @@
+.alert {
+    position: relative;
+    display: grid;
+    width: 100%;
+    gap: calc(var(--spacing) * 0.5);
+    border-radius: var(--radius);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 3);
+    text-align: left;
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+}
+.alert:has(*[data-slot="alert-action"]) {
+    position: relative;
+    padding-right: calc(var(--spacing) * 18);
+}
+.alert:has(>svg) {
+    grid-template-columns: auto 1fr;
+    column-gap: calc(var(--spacing) * 2.5);
+}
+:is(.alert > *):is(svg) {
+    grid-row: span 2 / span 2;
+    --tw-translate-y: calc(var(--spacing) * 0.5);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+    color: currentcolor;
+}
+:is(.alert > *):is(svg:not([class*='size-'])) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+.alert-variant-default {
+    background-color: var(--card);
+    color: var(--card-foreground);
+}
+.alert-variant-destructive {
+    background-color: var(--card);
+    color: var(--destructive);
+}
+:is(.alert-variant-destructive > *)[data-slot="alert-description"] {
+    color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    :is(.alert-variant-destructive > *)[data-slot="alert-description"] {
+        color: color-mix(in oklab, var(--destructive) 90%, transparent)
+    }
+}
+:is(.alert-variant-destructive > *):is(svg) {
+    color: currentcolor;
+}
+.alert-title {
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+}
+.alert-title:is(:where(.alert):has(>svg) *) {
+    grid-column-start: 2;
+}
+.alert-title a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+}
+@media (hover: hover) {
+    .alert-title a:hover {
+        color: var(--foreground)
+    }
+    .alert-description a:hover {
+        color: var(--foreground)
+    }
+}
+.alert-description {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    text-wrap: balance;
+    color: var(--muted-foreground);
+}
+@media (width >= 48rem) {
+    .alert-description {
+        text-wrap: pretty
+    }
+}
+.alert-description a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+}
+.alert-description p:not(:last-child) {
+    margin-bottom: calc(var(--spacing) * 4);
+}
+.alert-action {
+    position: absolute;
+    top: calc(var(--spacing) * 2.5);
+    right: calc(var(--spacing) * 3);
+}

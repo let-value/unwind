@@ -1,0 +1,130 @@
+.input-otp-container-name {
+    display: flex;
+    align-items: center;
+}
+.input-otp-container-name:has(*:disabled) {
+    opacity: 50%;
+}
+.input-otp:disabled {
+    cursor: not-allowed;
+}
+.input-otpgroup {
+    display: flex;
+    align-items: center;
+    border-radius: calc(var(--radius) * 0.8);
+}
+.input-otpgroup:has(*[aria-invalid="true"]) {
+    border-color: var(--destructive);
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpgroup:has(*[aria-invalid="true"]) {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
+.input-otpgroup:is(:global(.dark) *):has(*[aria-invalid="true"]) {
+    --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpgroup:is(:global(.dark) *):has(*[aria-invalid="true"]) {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
+}
+.input-otpslot-relative {
+    position: relative;
+    display: flex;
+    width: calc(var(--spacing) * 9);
+    height: calc(var(--spacing) * 9);
+    align-items: center;
+    justify-content: center;
+    border-block-style: var(--tw-border-style);
+    border-block-width: 1px;
+    border-right-style: var(--tw-border-style);
+    border-right-width: 1px;
+    border-color: var(--input);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    transition-property: all;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    --tw-outline-style: none;
+    outline-style: none;
+}
+.input-otpslot-relative:first-child {
+    border-top-left-radius: calc(var(--radius) * 0.8);
+    border-bottom-left-radius: calc(var(--radius) * 0.8);
+    border-left-style: var(--tw-border-style);
+    border-left-width: 1px;
+}
+.input-otpslot-relative:last-child {
+    border-top-right-radius: calc(var(--radius) * 0.8);
+    border-bottom-right-radius: calc(var(--radius) * 0.8);
+}
+.input-otpslot-relative[aria-invalid="true"] {
+    border-color: var(--destructive);
+}
+.input-otpslot-relative[data-active="true"] {
+    z-index: 10;
+    border-color: var(--ring);
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    --tw-ring-color: var(--ring);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpslot-relative[data-active="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+    }
+}
+.input-otpslot-relative[data-active="true"][aria-invalid="true"] {
+    border-color: var(--destructive);
+    --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpslot-relative[data-active="true"][aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+    }
+}
+.input-otpslot-relative:is(:global(.dark) *) {
+    background-color: var(--input);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpslot-relative:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+    }
+}
+.input-otpslot-relative:is(:global(.dark) *)[data-active="true"][aria-invalid="true"] {
+    --tw-ring-color: var(--destructive);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .input-otpslot-relative:is(:global(.dark) *)[data-active="true"][aria-invalid="true"] {
+        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+    }
+}
+.input-otpslot-pointer {
+    pointer-events: none;
+    position: absolute;
+    inset: calc(var(--spacing) * 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.input-otpslot-h {
+    height: calc(var(--spacing) * 4);
+    width: 1px;
+    animation: caret-blink 1.25s ease-out infinite;
+    background-color: var(--foreground);
+    --tw-duration: 1000ms;
+    transition-duration: 1000ms;
+}
+.input-otpseparator {
+    display: flex;
+    align-items: center;
+}
+.input-otpseparator svg:not([class*='size-']) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}

@@ -1,0 +1,89 @@
+.button-group {
+    display: flex;
+    width: fit-content;
+    align-items: stretch;
+}
+:is(.button-group > *):focus-visible {
+    position: relative;
+    z-index: 10;
+}
+.button-group:has(>[data-slot=button-group]) {
+    gap: calc(var(--spacing) * 2);
+}
+.button-group:has(*:is(select[aria-hidden=true]:last-child))>[data-slot=select-trigger]:last-of-type {
+    border-top-right-radius: calc(var(--radius) * 0.8);
+    border-bottom-right-radius: calc(var(--radius) * 0.8);
+}
+.button-group>[data-slot=select-trigger]:not([class*='w-']) {
+    width: fit-content;
+}
+.button-group>input {
+    flex: 1;
+}
+:is(.button-group-orientation-horizontal > *)[data-slot] {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.button-group-orientation-horizontal>[data-slot]:not(:has(~[data-slot])) {
+    border-top-right-radius: calc(var(--radius) * 0.8) !important;
+    border-bottom-right-radius: calc(var(--radius) * 0.8) !important;
+}
+.button-group-orientation-horizontal>[data-slot]~[data-slot] {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left-style: var(--tw-border-style);
+    border-left-width: 0px;
+}
+.button-group-orientation-vertical {
+    flex-direction: column;
+}
+:is(.button-group-orientation-vertical > *)[data-slot] {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.button-group-orientation-vertical>[data-slot]:not(:has(~[data-slot])) {
+    border-bottom-right-radius: calc(var(--radius) * 0.8) !important;
+    border-bottom-left-radius: calc(var(--radius) * 0.8) !important;
+}
+.button-group-orientation-vertical>[data-slot]~[data-slot] {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-style: var(--tw-border-style);
+    border-top-width: 0px;
+}
+.button-group-text {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    border-radius: calc(var(--radius) * 0.8);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    background-color: var(--muted);
+    padding-inline: calc(var(--spacing) * 2.5);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+.button-group-text svg {
+    pointer-events: none;
+}
+.button-group-text svg:not([class*='size-']) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+.button-group-separator {
+    position: relative;
+    align-self: stretch;
+    background-color: var(--input);
+}
+.button-group-separator:where([data-orientation="horizontal"]) {
+    margin-inline: 1px;
+    width: auto;
+}
+.button-group-separator:where([data-orientation="vertical"]) {
+    margin-block: 1px;
+    height: auto;
+}

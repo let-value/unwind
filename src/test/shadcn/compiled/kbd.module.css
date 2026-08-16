@@ -1,0 +1,47 @@
+.kbd {
+    pointer-events: none;
+    display: inline-flex;
+    height: calc(var(--spacing) * 5);
+    width: fit-content;
+    min-width: calc(var(--spacing) * 5);
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
+    border-radius: calc(var(--radius) * 0.6);
+    background-color: var(--muted);
+    padding-inline: calc(var(--spacing) * 1);
+    font-family: "Inter Variable", sans-serif;
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--muted-foreground);
+    -webkit-user-select: none;
+    user-select: none;
+}
+:where(*[data-slot="tooltip-content"]) .kbd {
+    background-color: var(--background);
+    color: var(--background);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    :where(*[data-slot="tooltip-content"]) .kbd {
+        background-color: color-mix(in oklab, var(--background) 20%, transparent)
+    }
+}
+:where(*[data-slot="tooltip-content"]) .kbd:is(:global(.dark) *) {
+    background-color: var(--background);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    :where(*[data-slot="tooltip-content"]) .kbd:is(:global(.dark) *) {
+        background-color: color-mix(in oklab, var(--background) 10%, transparent)
+    }
+}
+.kbd svg:not([class*='size-']) {
+    width: calc(var(--spacing) * 3);
+    height: calc(var(--spacing) * 3);
+}
+.kbd-group {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+}

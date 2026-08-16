@@ -1,0 +1,78 @@
+.message-group {
+    display: flex;
+    min-width: calc(var(--spacing) * 0);
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+}
+.message {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-width: calc(var(--spacing) * 0);
+    gap: calc(var(--spacing) * 2);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+}
+.message[data-align="end"] {
+    flex-direction: row-reverse;
+}
+.message-avatar {
+    display: flex;
+    width: fit-content;
+    min-width: calc(var(--spacing) * 8);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    overflow: hidden;
+    border-radius: calc(infinity * 1px);
+    background-color: var(--muted);
+}
+.message-avatar:is(:where(.message):has(*[data-slot="message-footer"]) *) {
+    --tw-translate-y: calc(var(--spacing) * -8);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+.message-content {
+    display: flex;
+    width: 100%;
+    min-width: calc(var(--spacing) * 0);
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2.5);
+    overflow-wrap: break-word;
+}
+:is(.message-content:is(:where(.message)[data-align="end"] *) > *)[data-slot] {
+    align-self: flex-end;
+}
+.message-header {
+    display: flex;
+    max-width: 100%;
+    min-width: calc(var(--spacing) * 0);
+    align-items: center;
+    padding-inline: calc(var(--spacing) * 3);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--muted-foreground);
+}
+.message-header:is(:where(.message):has(*[data-variant="ghost"]) *) {
+    padding-inline: calc(var(--spacing) * 0);
+}
+.message-footer {
+    display: flex;
+    max-width: 100%;
+    min-width: calc(var(--spacing) * 0);
+    align-items: center;
+    padding-inline: calc(var(--spacing) * 3);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--muted-foreground);
+}
+.message-footer:is(:where(.message):has(*[data-variant="ghost"]) *) {
+    padding-inline: calc(var(--spacing) * 0);
+}
+.message-footer:is(:where(.message)[data-align="end"] *) {
+    justify-content: flex-end;
+}

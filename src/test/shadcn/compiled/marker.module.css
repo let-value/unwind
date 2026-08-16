@@ -1,0 +1,71 @@
+.marker {
+    position: relative;
+    display: flex;
+    min-height: calc(var(--spacing) * 4);
+    width: 100%;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    text-align: left;
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    color: var(--muted-foreground);
+}
+.marker svg:not([class*='size-']) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+.marker:is(a) {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+}
+@media (hover: hover) {
+    .marker:is(a):hover {
+        color: var(--foreground)
+    }
+    :is(.marker-content > *):is(a):hover {
+        color: var(--foreground)
+    }
+}
+.marker-variant-separator::before {
+    content: var(--tw-content);
+    margin-right: calc(var(--spacing) * 1);
+    height: 1px;
+    min-width: calc(var(--spacing) * 0);
+    flex: 1;
+    background-color: var(--border);
+}
+.marker-variant-separator::after {
+    content: var(--tw-content);
+    margin-left: calc(var(--spacing) * 1);
+    height: 1px;
+    min-width: calc(var(--spacing) * 0);
+    flex: 1;
+    background-color: var(--border);
+}
+.marker-variant-border {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    padding-bottom: calc(var(--spacing) * 2);
+}
+.marker-icon {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    flex-shrink: 0;
+}
+.marker-icon svg:not([class*='size-']) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+.marker-content {
+    min-width: calc(var(--spacing) * 0);
+    overflow-wrap: break-word;
+}
+.marker-content:is(:where(.marker)[data-variant="separator"] *) {
+    flex: none;
+    text-align: center;
+}
+:is(.marker-content > *):is(a) {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+}

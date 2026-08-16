@@ -1,0 +1,186 @@
+.chart-container {
+    display: flex;
+    aspect-ratio: var(--aspect-video);
+    justify-content: center;
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+}
+.chart-container :global(.recharts-cartesian-axis-tick) text {
+    fill: var(--muted-foreground);
+}
+.chart-container :global(.recharts-cartesian-grid) line[stroke='#ccc'] {
+    stroke: var(--border);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .chart-container :global(.recharts-cartesian-grid) line[stroke='#ccc'] {
+        stroke: color-mix(in oklab, var(--border) 50%, transparent)
+    }
+}
+.chart-container :global(.recharts-curve):global(.recharts-tooltip-cursor) {
+    stroke: var(--border);
+}
+.chart-container :global(.recharts-dot)[stroke='#fff'] {
+    stroke: transparent;
+}
+.chart-container :global(.recharts-layer) {
+    --tw-outline-style: none;
+    outline-style: none;
+}
+@media (forced-colors: active) {
+    .chart-container :global(.recharts-layer) {
+        outline: 2px solid transparent;
+        outline-offset: 2px
+    }
+    .chart-container :global(.recharts-sector) {
+        outline: 2px solid transparent;
+        outline-offset: 2px
+    }
+    .chart-container :global(.recharts-surface) {
+        outline: 2px solid transparent;
+        outline-offset: 2px
+    }
+}
+.chart-container :global(.recharts-polar-grid) [stroke='#ccc'] {
+    stroke: var(--border);
+}
+.chart-container :global(.recharts-radial-bar-background-sector) {
+    fill: var(--muted);
+}
+.chart-container :global(.recharts-rectangle):global(.recharts-tooltip-cursor) {
+    fill: var(--muted);
+}
+.chart-container :global(.recharts-reference-line) [stroke='#ccc'] {
+    stroke: var(--border);
+}
+.chart-container :global(.recharts-sector) {
+    --tw-outline-style: none;
+    outline-style: none;
+}
+.chart-container :global(.recharts-sector)[stroke='#fff'] {
+    stroke: transparent;
+}
+.chart-container :global(.recharts-surface) {
+    --tw-outline-style: none;
+    outline-style: none;
+}
+.chart-tooltip-content-label {
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+}
+.chart-tooltip-content-grid {
+    display: grid;
+    min-width: calc(var(--spacing) * 32);
+    align-items: flex-start;
+    gap: calc(var(--spacing) * 1.5);
+    border-radius: var(--radius);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--background);
+    padding-inline: calc(var(--spacing) * 2.5);
+    padding-block: calc(var(--spacing) * 1.5);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+@supports (color: color-mix(in lab, red, red)) {
+    .chart-tooltip-content-grid {
+        border-color: color-mix(in oklab, var(--border) 50%, transparent);
+    }
+}
+.chart-tooltip-content-grid-gap {
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+}
+.chart-tooltip-content-flex {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: calc(var(--spacing) * 2);
+}
+.chart-tooltip-content-flex>svg {
+    height: calc(var(--spacing) * 2.5);
+    width: calc(var(--spacing) * 2.5);
+    color: var(--muted-foreground);
+}
+.chart-tooltip-content-items {
+    align-items: center;
+}
+.chart-tooltip-content-shrink {
+    flex-shrink: 0;
+    border-radius: 2px;
+    border-color: var(--color-border);
+    background-color: var(--color-bg);
+}
+.chart-tooltip-content-h {
+    height: calc(var(--spacing) * 2.5);
+    width: calc(var(--spacing) * 2.5);
+}
+.chart-tooltip-content-w {
+    width: calc(var(--spacing) * 1);
+}
+.chart-tooltip-content-w-0 {
+    width: calc(var(--spacing) * 0);
+    border-style: var(--tw-border-style);
+    border-width: 1.5px;
+    --tw-border-style: dashed;
+    border-style: dashed;
+    background-color: transparent;
+}
+.chart-tooltip-content-my {
+    margin-block: calc(var(--spacing) * 0.5);
+}
+.chart-tooltip-content-flex-1 {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    --tw-leading: 1;
+    line-height: 1;
+}
+.chart-tooltip-content-nest-label-items {
+    align-items: flex-end;
+}
+.chart-tooltip-content-nest-label-items-center {
+    align-items: center;
+}
+.chart-tooltip-content-text {
+    color: var(--muted-foreground);
+}
+.chart-tooltip-content-font {
+    font-family: var(--font-mono);
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--foreground);
+    --tw-numeric-spacing: tabular-nums;
+    font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+}
+.chart-legend-content-flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 4);
+}
+.chart-legend-content-pb {
+    padding-bottom: calc(var(--spacing) * 3);
+}
+.chart-legend-content-pt {
+    padding-top: calc(var(--spacing) * 3);
+}
+.chart-legend-content-flex-items {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1.5);
+}
+.chart-legend-content-flex-items>svg {
+    height: calc(var(--spacing) * 3);
+    width: calc(var(--spacing) * 3);
+    color: var(--muted-foreground);
+}
+.chart-legend-content-h {
+    height: calc(var(--spacing) * 2);
+    width: calc(var(--spacing) * 2);
+    flex-shrink: 0;
+    border-radius: 2px;
+}
