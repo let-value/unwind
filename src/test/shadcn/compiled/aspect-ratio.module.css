@@ -1,4 +1,7 @@
-.aspect-ratio {
-    position: relative;
-    aspect-ratio: var(--ratio);
+@layer theme, base, components, utilities;
+@layer components {
+    .aspect-ratio {
+        position: relative;
+        aspect-ratio: var(--ratio);
+    }
 }

@@ -1,99 +1,102 @@
-.radio-group {
-    display: grid;
-    width: 100%;
-    gap: calc(var(--spacing) * 3);
-}
-.radio-group-item {
-    position: relative;
-    display: flex;
-    aspect-ratio: 1 / 1;
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    flex-shrink: 0;
-    border-radius: calc(infinity * 1px);
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-    border-color: var(--input);
-    --tw-outline-style: none;
-    outline-style: none;
-}
-.radio-group-item::after {
-    content: var(--tw-content);
-    position: absolute;
-    inset-inline: calc(var(--spacing) * -3);
-    inset-block: calc(var(--spacing) * -2);
-}
-.radio-group-item:focus-visible {
-    border-color: var(--ring);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-color: var(--ring);
-}
-@supports (color: color-mix(in lab, red, red)) {
+@layer theme, base, components, utilities;
+@layer components {
+    .radio-group {
+        display: grid;
+        width: 100%;
+        gap: calc(var(--spacing) * 3);
+    }
+    .radio-group-item {
+        position: relative;
+        display: flex;
+        aspect-ratio: 1 / 1;
+        width: calc(var(--spacing) * 4);
+        height: calc(var(--spacing) * 4);
+        flex-shrink: 0;
+        border-radius: calc(infinity * 1px);
+        border-style: var(--tw-border-style);
+        border-width: 1px;
+        border-color: var(--input);
+        --tw-outline-style: none;
+        outline-style: none;
+    }
+    .radio-group-item::after {
+        content: var(--tw-content);
+        position: absolute;
+        inset-inline: calc(var(--spacing) * -3);
+        inset-block: calc(var(--spacing) * -2);
+    }
     .radio-group-item:focus-visible {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+        border-color: var(--ring);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-color: var(--ring);
     }
-}
-.radio-group-item:disabled {
-    cursor: not-allowed;
-    opacity: 50%;
-}
-.radio-group-item[aria-invalid="true"] {
-    border-color: var(--destructive);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .radio-group-item:focus-visible {
+            --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+        }
+    }
+    .radio-group-item:disabled {
+        cursor: not-allowed;
+        opacity: 50%;
+    }
     .radio-group-item[aria-invalid="true"] {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+        border-color: var(--destructive);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-color: var(--destructive);
     }
-}
-.radio-group-item[aria-invalid="true"][aria-checked="true"] {
-    border-color: var(--primary);
-}
-.radio-group-item:is(:global(.dark) *) {
-    background-color: var(--input);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .radio-group-item[aria-invalid="true"] {
+            --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+        }
+    }
+    .radio-group-item[aria-invalid="true"][aria-checked="true"] {
+        border-color: var(--primary);
+    }
     .radio-group-item:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+        background-color: var(--input);
     }
-}
-.radio-group-item:is(:global(.dark) *)[aria-invalid="true"] {
-    border-color: var(--destructive);
-    --tw-ring-color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .radio-group-item:is(:global(.dark) *) {
+            background-color: color-mix(in oklab, var(--input) 30%, transparent)
+        }
+    }
     .radio-group-item:is(:global(.dark) *)[aria-invalid="true"] {
-        border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+        border-color: var(--destructive);
+        --tw-ring-color: var(--destructive);
     }
-}
-.radio-group-item:is(:global(.dark) *):where([data-state="checked"]), .radio-group-item:is(:global(.dark) *):where([data-checked]:not([data-checked="false"])) {
-    background-color: var(--primary);
-}
-.radio-group-item:where([data-state="checked"]), .radio-group-item:where([data-checked]:not([data-checked="false"])) {
-    border-color: var(--primary);
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-}
-.radio-group-item-flex {
-    display: flex;
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    align-items: center;
-    justify-content: center;
-}
-.radio-group-item-absolute {
-    position: absolute;
-    top: calc(1 / 2 * 100%);
-    left: calc(1 / 2 * 100%);
-    width: calc(var(--spacing) * 2);
-    height: calc(var(--spacing) * 2);
-    --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-    --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
-    border-radius: calc(infinity * 1px);
-    background-color: var(--primary-foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+        .radio-group-item:is(:global(.dark) *)[aria-invalid="true"] {
+            border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+            --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+        }
+    }
+    .radio-group-item:is(:global(.dark) *):where([data-state="checked"]), .radio-group-item:is(:global(.dark) *):where([data-checked]:not([data-checked="false"])) {
+        background-color: var(--primary);
+    }
+    .radio-group-item:where([data-state="checked"]), .radio-group-item:where([data-checked]:not([data-checked="false"])) {
+        border-color: var(--primary);
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+    }
+    .radio-group-item-flex {
+        display: flex;
+        width: calc(var(--spacing) * 4);
+        height: calc(var(--spacing) * 4);
+        align-items: center;
+        justify-content: center;
+    }
+    .radio-group-item-absolute {
+        position: absolute;
+        top: calc(1 / 2 * 100%);
+        left: calc(1 / 2 * 100%);
+        width: calc(var(--spacing) * 2);
+        height: calc(var(--spacing) * 2);
+        --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+        translate: var(--tw-translate-x) var(--tw-translate-y);
+        --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+        border-radius: calc(infinity * 1px);
+        background-color: var(--primary-foreground);
+    }
 }

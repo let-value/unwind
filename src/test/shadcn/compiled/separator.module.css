@@ -1,12 +1,15 @@
-.separator {
-    flex-shrink: 0;
-    background-color: var(--border);
-}
-.separator:where([data-orientation="horizontal"]) {
-    height: 1px;
-    width: 100%;
-}
-.separator:where([data-orientation="vertical"]) {
-    width: 1px;
-    align-self: stretch;
+@layer theme, base, components, utilities;
+@layer components {
+    .separator {
+        flex-shrink: 0;
+        background-color: var(--border);
+    }
+    .separator:where([data-orientation="horizontal"]) {
+        height: 1px;
+        width: 100%;
+    }
+    .separator:where([data-orientation="vertical"]) {
+        width: 1px;
+        align-self: stretch;
+    }
 }

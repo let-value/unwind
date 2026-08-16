@@ -1,252 +1,255 @@
-.input-group {
-    position: relative;
-    display: flex;
-    height: calc(var(--spacing) * 9);
-    width: 100%;
-    min-width: calc(var(--spacing) * 0);
-    align-items: center;
-    border-radius: calc(var(--radius) * 0.8);
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-    border-color: var(--input);
-    --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    transition-property: color,box-shadow;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-    --tw-outline-style: none;
-    outline-style: none;
-}
-:where(*[data-slot="combobox-content"]) .input-group:focus-within {
-    border-color: inherit;
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group:has(*:is([data-slot=input-group-control]:focus-visible)) {
-    border-color: var(--ring);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-color: var(--ring);
-}
-@supports (color: color-mix(in lab, red, red)) {
+@layer theme, base, components, utilities;
+@layer components {
+    .input-group {
+        position: relative;
+        display: flex;
+        height: calc(var(--spacing) * 9);
+        width: 100%;
+        min-width: calc(var(--spacing) * 0);
+        align-items: center;
+        border-radius: calc(var(--radius) * 0.8);
+        border-style: var(--tw-border-style);
+        border-width: 1px;
+        border-color: var(--input);
+        --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        transition-property: color,box-shadow;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+        --tw-outline-style: none;
+        outline-style: none;
+    }
+    :where(*[data-slot="combobox-content"]) .input-group:focus-within {
+        border-color: inherit;
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
     .input-group:has(*:is([data-slot=input-group-control]:focus-visible)) {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+        border-color: var(--ring);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-color: var(--ring);
     }
-}
-.input-group:has(*:is([data-slot][aria-invalid=true])) {
-    border-color: var(--destructive);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .input-group:has(*:is([data-slot=input-group-control]:focus-visible)) {
+            --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+        }
+    }
     .input-group:has(*:is([data-slot][aria-invalid=true])) {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+        border-color: var(--destructive);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-color: var(--destructive);
     }
-}
-.input-group:has(>[data-align=block-end]) {
-    height: auto;
-    flex-direction: column;
-}
-.input-group:has(>[data-align=block-end])>input {
-    padding-top: calc(var(--spacing) * 3);
-}
-.input-group:has(>[data-align=block-start]) {
-    height: auto;
-    flex-direction: column;
-}
-.input-group:has(>[data-align=block-start])>input {
-    padding-bottom: calc(var(--spacing) * 3);
-}
-.input-group:has(>textarea) {
-    height: auto;
-}
-.input-group:is(:global(.dark) *) {
-    background-color: var(--input);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .input-group:has(*:is([data-slot][aria-invalid=true])) {
+            --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent)
+        }
+    }
+    .input-group:has(>[data-align=block-end]) {
+        height: auto;
+        flex-direction: column;
+    }
+    .input-group:has(>[data-align=block-end])>input {
+        padding-top: calc(var(--spacing) * 3);
+    }
+    .input-group:has(>[data-align=block-start]) {
+        height: auto;
+        flex-direction: column;
+    }
+    .input-group:has(>[data-align=block-start])>input {
+        padding-bottom: calc(var(--spacing) * 3);
+    }
+    .input-group:has(>textarea) {
+        height: auto;
+    }
     .input-group:is(:global(.dark) *) {
-        background-color: color-mix(in oklab, var(--input) 30%, transparent)
+        background-color: var(--input);
     }
-}
-.input-group:is(:global(.dark) *):has(*:is([data-slot][aria-invalid=true])) {
-    --tw-ring-color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .input-group:is(:global(.dark) *) {
+            background-color: color-mix(in oklab, var(--input) 30%, transparent)
+        }
+    }
     .input-group:is(:global(.dark) *):has(*:is([data-slot][aria-invalid=true])) {
-        --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+        --tw-ring-color: var(--destructive);
     }
-}
-.input-group:has(>[data-align=inline-end])>input {
-    padding-right: calc(var(--spacing) * 1.5);
-}
-.input-group:has(>[data-align=inline-start])>input {
-    padding-left: calc(var(--spacing) * 1.5);
-}
-.input-group-addon {
-    display: flex;
-    height: auto;
-    cursor: text;
-    align-items: center;
-    justify-content: center;
-    gap: calc(var(--spacing) * 2);
-    padding-block: calc(var(--spacing) * 1.5);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-    color: var(--muted-foreground);
-    -webkit-user-select: none;
-    user-select: none;
-}
-.input-group-addon:is(:where(.input-group)[data-disabled="true"] *) {
-    opacity: 50%;
-}
-.input-group-addon>kbd {
-    border-radius: calc(var(--radius) - 5px);
-}
-.input-group-addon>svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-}
-.input-group-addon-align-inline-start {
-    order: -9999;
-    padding-left: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-inline-start:has(>button) {
-    margin-left: calc(var(--spacing) * -1);
-}
-.input-group-addon-align-inline-start:has(>kbd) {
-    margin-left: -0.15rem;
-}
-.input-group-addon-align-inline-end {
-    order: 9999;
-    padding-right: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-inline-end:has(>button) {
-    margin-right: calc(var(--spacing) * -1);
-}
-.input-group-addon-align-inline-end:has(>kbd) {
-    margin-right: -0.15rem;
-}
-.input-group-addon-align-block-start {
-    order: -9999;
-    width: 100%;
-    justify-content: flex-start;
-    padding-inline: calc(var(--spacing) * 2.5);
-    padding-top: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-block-start:is(:where(.input-group):has(>input) *) {
-    padding-top: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-block-start:is(:global(.border-b)) {
-    padding-bottom: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-block-end {
-    order: 9999;
-    width: 100%;
-    justify-content: flex-start;
-    padding-inline: calc(var(--spacing) * 2.5);
-    padding-bottom: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-block-end:is(:where(.input-group):has(>input) *) {
-    padding-bottom: calc(var(--spacing) * 2);
-}
-.input-group-addon-align-block-end:is(:global(.border-t)) {
-    padding-top: calc(var(--spacing) * 2);
-}
-.input-group-button {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-    --tw-shadow: 0 0 #0000;
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group-button-size-xs {
-    height: calc(var(--spacing) * 6);
-    gap: calc(var(--spacing) * 1);
-    border-radius: calc(var(--radius) - 5px);
-    padding-inline: calc(var(--spacing) * 1.5);
-}
-.input-group-button-size-xs>svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 3.5);
-    height: calc(var(--spacing) * 3.5);
-}
-.input-group-button-size-icon-xs {
-    width: calc(var(--spacing) * 6);
-    height: calc(var(--spacing) * 6);
-    border-radius: calc(var(--radius) - 5px);
-    padding: calc(var(--spacing) * 0);
-}
-.input-group-button-size-icon-xs:has(>svg) {
-    padding: calc(var(--spacing) * 0);
-}
-.input-group-button-size-icon-sm {
-    width: calc(var(--spacing) * 8);
-    height: calc(var(--spacing) * 8);
-    padding: calc(var(--spacing) * 0);
-}
-.input-group-button-size-icon-sm:has(>svg) {
-    padding: calc(var(--spacing) * 0);
-}
-.input-group-text {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-    color: var(--muted-foreground);
-}
-.input-group-text svg {
-    pointer-events: none;
-}
-.input-group-text svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-}
-.input-group-flex {
-    flex: 1;
-    border-radius: 0;
-    border-style: var(--tw-border-style);
-    border-width: 0px;
-    background-color: transparent;
-    --tw-shadow: 0 0 #0000;
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-}
-.input-group-flex:focus-visible {
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group-flex[aria-invalid="true"] {
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group-flex:is(:global(.dark) *) {
-    background-color: transparent;
-}
-.input-group-textarea {
-    flex: 1;
-    resize: none;
-    border-radius: 0;
-    border-style: var(--tw-border-style);
-    border-width: 0px;
-    background-color: transparent;
-    padding-block: calc(var(--spacing) * 2);
-    --tw-shadow: 0 0 #0000;
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-}
-.input-group-textarea:focus-visible {
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group-textarea[aria-invalid="true"] {
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-.input-group-textarea:is(:global(.dark) *) {
-    background-color: transparent;
+    @supports (color: color-mix(in lab, red, red)) {
+        .input-group:is(:global(.dark) *):has(*:is([data-slot][aria-invalid=true])) {
+            --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent)
+        }
+    }
+    .input-group:has(>[data-align=inline-end])>input {
+        padding-right: calc(var(--spacing) * 1.5);
+    }
+    .input-group:has(>[data-align=inline-start])>input {
+        padding-left: calc(var(--spacing) * 1.5);
+    }
+    .input-group-addon {
+        display: flex;
+        height: auto;
+        cursor: text;
+        align-items: center;
+        justify-content: center;
+        gap: calc(var(--spacing) * 2);
+        padding-block: calc(var(--spacing) * 1.5);
+        font-size: var(--text-sm);
+        line-height: var(--tw-leading, var(--text-sm--line-height));
+        --tw-font-weight: var(--font-weight-medium);
+        font-weight: var(--font-weight-medium);
+        color: var(--muted-foreground);
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    .input-group-addon:is(:where(.input-group)[data-disabled="true"] *) {
+        opacity: 50%;
+    }
+    .input-group-addon>kbd {
+        border-radius: calc(var(--radius) - 5px);
+    }
+    .input-group-addon>svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 4);
+        height: calc(var(--spacing) * 4);
+    }
+    .input-group-addon-align-inline-start {
+        order: -9999;
+        padding-left: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-inline-start:has(>button) {
+        margin-left: calc(var(--spacing) * -1);
+    }
+    .input-group-addon-align-inline-start:has(>kbd) {
+        margin-left: -0.15rem;
+    }
+    .input-group-addon-align-inline-end {
+        order: 9999;
+        padding-right: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-inline-end:has(>button) {
+        margin-right: calc(var(--spacing) * -1);
+    }
+    .input-group-addon-align-inline-end:has(>kbd) {
+        margin-right: -0.15rem;
+    }
+    .input-group-addon-align-block-start {
+        order: -9999;
+        width: 100%;
+        justify-content: flex-start;
+        padding-inline: calc(var(--spacing) * 2.5);
+        padding-top: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-block-start:is(:where(.input-group):has(>input) *) {
+        padding-top: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-block-start:is(:global(.border-b)) {
+        padding-bottom: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-block-end {
+        order: 9999;
+        width: 100%;
+        justify-content: flex-start;
+        padding-inline: calc(var(--spacing) * 2.5);
+        padding-bottom: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-block-end:is(:where(.input-group):has(>input) *) {
+        padding-bottom: calc(var(--spacing) * 2);
+    }
+    .input-group-addon-align-block-end:is(:global(.border-t)) {
+        padding-top: calc(var(--spacing) * 2);
+    }
+    .input-group-button {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 2);
+        font-size: var(--text-sm);
+        line-height: var(--tw-leading, var(--text-sm--line-height));
+        --tw-shadow: 0 0 #0000;
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    .input-group-button-size-xs {
+        height: calc(var(--spacing) * 6);
+        gap: calc(var(--spacing) * 1);
+        border-radius: calc(var(--radius) - 5px);
+        padding-inline: calc(var(--spacing) * 1.5);
+    }
+    .input-group-button-size-xs>svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 3.5);
+        height: calc(var(--spacing) * 3.5);
+    }
+    .input-group-button-size-icon-xs {
+        width: calc(var(--spacing) * 6);
+        height: calc(var(--spacing) * 6);
+        border-radius: calc(var(--radius) - 5px);
+        padding: calc(var(--spacing) * 0);
+    }
+    .input-group-button-size-icon-xs:has(>svg) {
+        padding: calc(var(--spacing) * 0);
+    }
+    .input-group-button-size-icon-sm {
+        width: calc(var(--spacing) * 8);
+        height: calc(var(--spacing) * 8);
+        padding: calc(var(--spacing) * 0);
+    }
+    .input-group-button-size-icon-sm:has(>svg) {
+        padding: calc(var(--spacing) * 0);
+    }
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 2);
+        font-size: var(--text-sm);
+        line-height: var(--tw-leading, var(--text-sm--line-height));
+        color: var(--muted-foreground);
+    }
+    .input-group-text svg {
+        pointer-events: none;
+    }
+    .input-group-text svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 4);
+        height: calc(var(--spacing) * 4);
+    }
+    .input-group-flex {
+        flex: 1;
+        border-radius: 0;
+        border-style: var(--tw-border-style);
+        border-width: 0px;
+        background-color: transparent;
+        --tw-shadow: 0 0 #0000;
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    }
+    .input-group-flex:focus-visible {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    .input-group-flex[aria-invalid="true"] {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    .input-group-flex:is(:global(.dark) *) {
+        background-color: transparent;
+    }
+    .input-group-textarea {
+        flex: 1;
+        resize: none;
+        border-radius: 0;
+        border-style: var(--tw-border-style);
+        border-width: 0px;
+        background-color: transparent;
+        padding-block: calc(var(--spacing) * 2);
+        --tw-shadow: 0 0 #0000;
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    }
+    .input-group-textarea:focus-visible {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    .input-group-textarea[aria-invalid="true"] {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    .input-group-textarea:is(:global(.dark) *) {
+        background-color: transparent;
+    }
 }

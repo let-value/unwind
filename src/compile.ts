@@ -459,6 +459,26 @@ function normalizeOutputAst(root: Root): Root {
   return root;
 }
 
+// Tailwind's own layer order, which its compiled output already declares. The
+// generated rules join `components`, so utilities still override them exactly
+// as they do in the shadcn source, while any unlayered stylesheet — everything
+// an application writes by hand — beats all of it without matching specificity.
+const LAYER_ORDER = "theme, base, components, utilities";
+const COMPONENT_LAYER = "components";
+
+function wrapInComponentLayer(root: Root) {
+  if ((root.nodes ?? []).length === 0) {
+    return;
+  }
+
+  const layer = postcss.atRule({ name: "layer", params: COMPONENT_LAYER });
+
+  moveChildren(root, layer);
+
+  root.append(postcss.atRule({ name: "layer", params: LAYER_ORDER }));
+  root.append(layer);
+}
+
 function pruneEmptyContainers(container: Container) {
   if (!container.nodes) {
     return;
@@ -515,7 +535,7 @@ function reorderSupportsBlocks(container: Container): void {
     if (node.type !== "atrule") continue;
     const atRule = node as AtRule;
 
-    if (atRule.name === "media") {
+    if (atRule.name === "media" || atRule.name === "layer") {
       reorderSupportsBlocks(atRule);
       continue;
     }
@@ -575,6 +595,7 @@ async function getLocalStyles({
   // Runs last: merging by at-rule signature would pull the relocated blocks
   // back together.
   reorderSupportsBlocks(flat);
+  wrapInComponentLayer(flat);
   return normalizeOutputAst(flat);
 }
 

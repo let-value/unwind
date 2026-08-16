@@ -1,343 +1,346 @@
-.attachment {
-    position: relative;
-    display: flex;
-    width: fit-content;
-    max-width: 100%;
-    min-width: calc(var(--spacing) * 0);
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    border-radius: calc(var(--radius) * 1.4);
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-    background-color: var(--card);
-    color: var(--card-foreground);
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-}
-.attachment:focus-within {
-    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    --tw-ring-color: var(--ring);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .attachment:focus-within {
-        --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
+@layer theme, base, components, utilities;
+@layer components {
+    .attachment {
+        position: relative;
+        display: flex;
+        width: fit-content;
+        max-width: 100%;
+        min-width: calc(var(--spacing) * 0);
+        flex-shrink: 0;
+        flex-wrap: wrap;
+        border-radius: calc(var(--radius) * 1.4);
+        border-style: var(--tw-border-style);
+        border-width: 1px;
+        background-color: var(--card);
+        color: var(--card-foreground);
+        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
     }
-}
-@media (hover: hover) {
-    .attachment:has(>a,>button):hover {
-        background-color: var(--muted)
+    .attachment:focus-within {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        --tw-ring-color: var(--ring);
     }
     @supports (color: color-mix(in lab, red, red)) {
-        .attachment:has(>a,>button):hover {
-            background-color: color-mix(in oklab, var(--muted) 50%, transparent)
+        .attachment:focus-within {
+            --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent)
         }
     }
-}
-.attachment[data-state="error"] {
-    border-color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @media (hover: hover) {
+        .attachment:has(>a,>button):hover {
+            background-color: var(--muted)
+        }
+        @supports (color: color-mix(in lab, red, red)) {
+            .attachment:has(>a,>button):hover {
+                background-color: color-mix(in oklab, var(--muted) 50%, transparent)
+            }
+        }
+    }
     .attachment[data-state="error"] {
-        border-color: color-mix(in oklab, var(--destructive) 30%, transparent)
+        border-color: var(--destructive);
     }
-}
-.attachment[data-state="idle"] {
-    --tw-border-style: dashed;
-    border-style: dashed;
-}
-.attachment-size-default {
-    gap: calc(var(--spacing) * 2);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-}
-.attachment-size-default:has(*[data-slot="attachment-content"]) {
-    padding-inline: calc(var(--spacing) * 2.5);
-    padding-block: calc(var(--spacing) * 2);
-}
-.attachment-size-default:has(*[data-slot="attachment-media"]) {
-    padding: calc(var(--spacing) * 2);
-}
-.attachment-size-sm {
-    gap: calc(var(--spacing) * 2.5);
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-}
-.attachment-size-sm:has(*[data-slot="attachment-content"]) {
-    padding-inline: calc(var(--spacing) * 2);
-    padding-block: calc(var(--spacing) * 1.5);
-}
-.attachment-size-sm:has(*[data-slot="attachment-media"]) {
-    padding: calc(var(--spacing) * 1.5);
-}
-.attachment-size-xs {
-    gap: calc(var(--spacing) * 1.5);
-    border-radius: var(--radius);
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-}
-.attachment-size-xs:has(*[data-slot="attachment-content"]) {
-    padding-inline: calc(var(--spacing) * 1.5);
-    padding-block: calc(var(--spacing) * 1);
-}
-.attachment-size-xs:has(*[data-slot="attachment-media"]) {
-    padding: calc(var(--spacing) * 1);
-}
-.attachment-orientation-horizontal {
-    min-width: calc(var(--spacing) * 40);
-    align-items: center;
-}
-.attachment-orientation-vertical {
-    width: calc(var(--spacing) * 24);
-    flex-direction: column;
-}
-.attachment-orientation-vertical:has(*[data-slot="attachment-content"]) {
-    width: calc(var(--spacing) * 30);
-}
-.attachment-media {
-    position: relative;
-    display: flex;
-    aspect-ratio: 1 / 1;
-    width: calc(var(--spacing) * 10);
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: var(--radius);
-    background-color: var(--muted);
-    color: var(--foreground);
-}
-.attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) {
-    width: 100%;
-}
-:is(.attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) > *)[data-slot="spinner"] {
-    width: calc(var(--spacing) * 6) !important;
-    height: calc(var(--spacing) * 6) !important;
-}
-.attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 6);
-    height: calc(var(--spacing) * 6);
-}
-.attachment-media:is(:where(.attachment)[data-size="sm"] *) {
-    width: calc(var(--spacing) * 8);
-}
-.attachment-media:is(:where(.attachment)[data-size="xs"] *) {
-    width: calc(var(--spacing) * 7);
-    border-radius: calc(var(--radius) * 0.8);
-}
-.attachment-media:is(:where(.attachment)[data-size="xs"] *) svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 3.5);
-    height: calc(var(--spacing) * 3.5);
-}
-.attachment-media:is(:where(.attachment)[data-state="error"] *) {
-    background-color: var(--destructive);
-    color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .attachment[data-state="error"] {
+            border-color: color-mix(in oklab, var(--destructive) 30%, transparent)
+        }
+    }
+    .attachment[data-state="idle"] {
+        --tw-border-style: dashed;
+        border-style: dashed;
+    }
+    .attachment-size-default {
+        gap: calc(var(--spacing) * 2);
+        font-size: var(--text-sm);
+        line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+    .attachment-size-default:has(*[data-slot="attachment-content"]) {
+        padding-inline: calc(var(--spacing) * 2.5);
+        padding-block: calc(var(--spacing) * 2);
+    }
+    .attachment-size-default:has(*[data-slot="attachment-media"]) {
+        padding: calc(var(--spacing) * 2);
+    }
+    .attachment-size-sm {
+        gap: calc(var(--spacing) * 2.5);
+        font-size: var(--text-xs);
+        line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+    .attachment-size-sm:has(*[data-slot="attachment-content"]) {
+        padding-inline: calc(var(--spacing) * 2);
+        padding-block: calc(var(--spacing) * 1.5);
+    }
+    .attachment-size-sm:has(*[data-slot="attachment-media"]) {
+        padding: calc(var(--spacing) * 1.5);
+    }
+    .attachment-size-xs {
+        gap: calc(var(--spacing) * 1.5);
+        border-radius: var(--radius);
+        font-size: var(--text-xs);
+        line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+    .attachment-size-xs:has(*[data-slot="attachment-content"]) {
+        padding-inline: calc(var(--spacing) * 1.5);
+        padding-block: calc(var(--spacing) * 1);
+    }
+    .attachment-size-xs:has(*[data-slot="attachment-media"]) {
+        padding: calc(var(--spacing) * 1);
+    }
+    .attachment-orientation-horizontal {
+        min-width: calc(var(--spacing) * 40);
+        align-items: center;
+    }
+    .attachment-orientation-vertical {
+        width: calc(var(--spacing) * 24);
+        flex-direction: column;
+    }
+    .attachment-orientation-vertical:has(*[data-slot="attachment-content"]) {
+        width: calc(var(--spacing) * 30);
+    }
+    .attachment-media {
+        position: relative;
+        display: flex;
+        aspect-ratio: 1 / 1;
+        width: calc(var(--spacing) * 10);
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: var(--radius);
+        background-color: var(--muted);
+        color: var(--foreground);
+    }
+    .attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) {
+        width: 100%;
+    }
+    :is(.attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) > *)[data-slot="spinner"] {
+        width: calc(var(--spacing) * 6) !important;
+        height: calc(var(--spacing) * 6) !important;
+    }
+    .attachment-media:is(:where(.attachment)[data-orientation="vertical"] *) svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 6);
+        height: calc(var(--spacing) * 6);
+    }
+    .attachment-media:is(:where(.attachment)[data-size="sm"] *) {
+        width: calc(var(--spacing) * 8);
+    }
+    .attachment-media:is(:where(.attachment)[data-size="xs"] *) {
+        width: calc(var(--spacing) * 7);
+        border-radius: calc(var(--radius) * 0.8);
+    }
+    .attachment-media:is(:where(.attachment)[data-size="xs"] *) svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 3.5);
+        height: calc(var(--spacing) * 3.5);
+    }
     .attachment-media:is(:where(.attachment)[data-state="error"] *) {
-        background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
+        background-color: var(--destructive);
+        color: var(--destructive);
     }
-}
-.attachment-media svg {
-    pointer-events: none;
-}
-.attachment-media svg:not([class*='size-']) {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-}
-.attachment-media-variant-image {
-    opacity: 60%;
-}
-.attachment-media-variant-image:is(:where(.attachment)[data-state="done"] *) {
-    opacity: 100%;
-}
-.attachment-media-variant-image:is(:where(.attachment)[data-state="idle"] *) {
-    opacity: 100%;
-}
-:is(.attachment-media-variant-image > *):is(img) {
-    aspect-ratio: 1 / 1;
-    width: 100%;
-    object-fit: cover;
-}
-.attachment-content {
-    max-width: 100%;
-    min-width: calc(var(--spacing) * 0);
-    flex: 1;
-    --tw-leading: var(--leading-tight);
-    line-height: var(--leading-tight);
-}
-.attachment-content:is(:where(.attachment)[data-orientation="vertical"] *) {
-    padding-inline: calc(var(--spacing) * 1);
-}
-.attachment-title {
-    display: block;
-    max-width: 100%;
-    min-width: calc(var(--spacing) * 0);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-}
-.attachment-title:is(:where(.attachment)[data-state="processing"] *) {
-    --_spread: var(--shimmer-spread, calc(3ch + 40px));
-    --_base: currentColor;
-    --_highlight: var(
-    --shimmer-color,
-    oklch(from currentColor l c h / calc(alpha* 0.2))
-  );
-    background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), var(--_highlight) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, var(--_highlight) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) );
-    background-repeat: no-repeat;
-    background-size: calc(200% + var(--_spread) * 2) 100%;
-    background-position: 0 0;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: var(--shimmer-text-fill, transparent);
-    animation: tw-shimmer var(--shimmer-duration, 2s) linear infinite;
-}
-@supports (color: color-mix(in lab, red, red)) {
+    @supports (color: color-mix(in lab, red, red)) {
+        .attachment-media:is(:where(.attachment)[data-state="error"] *) {
+            background-color: color-mix(in oklab, var(--destructive) 10%, transparent)
+        }
+    }
+    .attachment-media svg {
+        pointer-events: none;
+    }
+    .attachment-media svg:not([class*='size-']) {
+        width: calc(var(--spacing) * 4);
+        height: calc(var(--spacing) * 4);
+    }
+    .attachment-media-variant-image {
+        opacity: 60%;
+    }
+    .attachment-media-variant-image:is(:where(.attachment)[data-state="done"] *) {
+        opacity: 100%;
+    }
+    .attachment-media-variant-image:is(:where(.attachment)[data-state="idle"] *) {
+        opacity: 100%;
+    }
+    :is(.attachment-media-variant-image > *):is(img) {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        object-fit: cover;
+    }
+    .attachment-content {
+        max-width: 100%;
+        min-width: calc(var(--spacing) * 0);
+        flex: 1;
+        --tw-leading: var(--leading-tight);
+        line-height: var(--leading-tight);
+    }
+    .attachment-content:is(:where(.attachment)[data-orientation="vertical"] *) {
+        padding-inline: calc(var(--spacing) * 1);
+    }
+    .attachment-title {
+        display: block;
+        max-width: 100%;
+        min-width: calc(var(--spacing) * 0);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        --tw-font-weight: var(--font-weight-medium);
+        font-weight: var(--font-weight-medium);
+    }
     .attachment-title:is(:where(.attachment)[data-state="processing"] *) {
-        background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) )
-    }
-}
-.attachment-title:is(:where(.attachment)[data-state="processing"] *):is(:global(.dark) *) {
-    --_highlight: var(
-      --shimmer-color,
-      oklch(from currentColor max(0.8, calc(l + 0.4)) c h / calc(alpha + 0.4))
-    );
-}
-.attachment-title:is(:where(.attachment)[data-state="processing"] *):where([dir="rtl"], [dir="rtl"] *) {
-    animation-direction: reverse;
-}
-.attachment-title:is(:where(.attachment)[data-state="uploading"] *) {
-    --_spread: var(--shimmer-spread, calc(3ch + 40px));
-    --_base: currentColor;
-    --_highlight: var(
+        --_spread: var(--shimmer-spread, calc(3ch + 40px));
+        --_base: currentColor;
+        --_highlight: var(
     --shimmer-color,
     oklch(from currentColor l c h / calc(alpha* 0.2))
   );
-    background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), var(--_highlight) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, var(--_highlight) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) );
-    background-repeat: no-repeat;
-    background-size: calc(200% + var(--_spread) * 2) 100%;
-    background-position: 0 0;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: var(--shimmer-text-fill, transparent);
-    animation: tw-shimmer var(--shimmer-duration, 2s) linear infinite;
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .attachment-title:is(:where(.attachment)[data-state="uploading"] *) {
-        background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) )
+        background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), var(--_highlight) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, var(--_highlight) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) );
+        background-repeat: no-repeat;
+        background-size: calc(200% + var(--_spread) * 2) 100%;
+        background-position: 0 0;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: var(--shimmer-text-fill, transparent);
+        animation: tw-shimmer var(--shimmer-duration, 2s) linear infinite;
     }
-}
-.attachment-title:is(:where(.attachment)[data-state="uploading"] *):is(:global(.dark) *) {
-    --_highlight: var(
+    @supports (color: color-mix(in lab, red, red)) {
+        .attachment-title:is(:where(.attachment)[data-state="processing"] *) {
+            background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) )
+        }
+    }
+    .attachment-title:is(:where(.attachment)[data-state="processing"] *):is(:global(.dark) *) {
+        --_highlight: var(
       --shimmer-color,
       oklch(from currentColor max(0.8, calc(l + 0.4)) c h / calc(alpha + 0.4))
     );
-}
-.attachment-title:is(:where(.attachment)[data-state="uploading"] *):where([dir="rtl"], [dir="rtl"] *) {
-    animation-direction: reverse;
-}
-.attachment-description-mt {
-    margin-top: calc(var(--spacing) * 0.5);
-    display: block;
-    min-width: calc(var(--spacing) * 0);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-    color: var(--muted-foreground);
-}
-.attachment-description-mt:is(:where(.attachment)[data-state="error"] *) {
-    color: var(--destructive);
-}
-@supports (color: color-mix(in lab, red, red)) {
-    .attachment-description-mt:is(:where(.attachment)[data-state="error"] *) {
-        color: color-mix(in oklab, var(--destructive) 80%, transparent)
     }
-}
-.attachment-description-max {
-    max-width: 100%;
-}
-.attachment-actions {
-    position: relative;
-    z-index: 20;
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-}
-.attachment-actions:is(:where(.attachment)[data-orientation="vertical"] *) {
-    position: absolute;
-    top: calc(var(--spacing) * 3);
-    right: calc(var(--spacing) * 3);
-    gap: calc(var(--spacing) * 1);
-}
-.attachment-trigger {
-    position: absolute;
-    inset: calc(var(--spacing) * 0);
-    z-index: 10;
-    --tw-outline-style: none;
-    outline-style: none;
-}
-.attachment-group {
-    display: flex;
-    min-width: calc(var(--spacing) * 0);
-    --_scroll-fade-size-s: var(
+    .attachment-title:is(:where(.attachment)[data-state="processing"] *):where([dir="rtl"], [dir="rtl"] *) {
+        animation-direction: reverse;
+    }
+    .attachment-title:is(:where(.attachment)[data-state="uploading"] *) {
+        --_spread: var(--shimmer-spread, calc(3ch + 40px));
+        --_base: currentColor;
+        --_highlight: var(
+    --shimmer-color,
+    oklch(from currentColor l c h / calc(alpha* 0.2))
+  );
+        background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), var(--_highlight) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, var(--_highlight) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) );
+        background-repeat: no-repeat;
+        background-size: calc(200% + var(--_spread) * 2) 100%;
+        background-position: 0 0;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: var(--shimmer-text-fill, transparent);
+        animation: tw-shimmer var(--shimmer-duration, 2s) linear infinite;
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+        .attachment-title:is(:where(.attachment)[data-state="uploading"] *) {
+            background-image: var( --shimmer-image, linear-gradient( calc(90deg + var(--shimmer-angle)), var(--_base) calc(50% - var(--_spread)), color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% - var(--_spread) * 0.5), var(--_highlight) 50%, color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% + var(--_spread) * 0.5), var(--_base) calc(50% + var(--_spread)) ) )
+        }
+    }
+    .attachment-title:is(:where(.attachment)[data-state="uploading"] *):is(:global(.dark) *) {
+        --_highlight: var(
+      --shimmer-color,
+      oklch(from currentColor max(0.8, calc(l + 0.4)) c h / calc(alpha + 0.4))
+    );
+    }
+    .attachment-title:is(:where(.attachment)[data-state="uploading"] *):where([dir="rtl"], [dir="rtl"] *) {
+        animation-direction: reverse;
+    }
+    .attachment-description-mt {
+        margin-top: calc(var(--spacing) * 0.5);
+        display: block;
+        min-width: calc(var(--spacing) * 0);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: var(--text-xs);
+        line-height: var(--tw-leading, var(--text-xs--line-height));
+        color: var(--muted-foreground);
+    }
+    .attachment-description-mt:is(:where(.attachment)[data-state="error"] *) {
+        color: var(--destructive);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+        .attachment-description-mt:is(:where(.attachment)[data-state="error"] *) {
+            color: color-mix(in oklab, var(--destructive) 80%, transparent)
+        }
+    }
+    .attachment-description-max {
+        max-width: 100%;
+    }
+    .attachment-actions {
+        position: relative;
+        z-index: 20;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+    }
+    .attachment-actions:is(:where(.attachment)[data-orientation="vertical"] *) {
+        position: absolute;
+        top: calc(var(--spacing) * 3);
+        right: calc(var(--spacing) * 3);
+        gap: calc(var(--spacing) * 1);
+    }
+    .attachment-trigger {
+        position: absolute;
+        inset: calc(var(--spacing) * 0);
+        z-index: 10;
+        --tw-outline-style: none;
+        outline-style: none;
+    }
+    .attachment-group {
+        display: flex;
+        min-width: calc(var(--spacing) * 0);
+        --_scroll-fade-size-s: var(
     --scroll-fade-s-size,
     var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
   );
-    --_scroll-fade-size-e: var(
+        --_scroll-fade-size-e: var(
     --scroll-fade-e-size,
     var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
   );
-    --scroll-fade-inline: linear-gradient(
+        --scroll-fade-inline: linear-gradient(
     to right,
     transparent 0,
     #000 var(--scroll-fade-s, 0px),
     #000 calc(100% - var(--scroll-fade-e, 0px)),
     transparent 100%
   );
-    -webkit-mask-image: var(--scroll-fade-mask, var(--scroll-fade-inline));
-    mask-image: var(--scroll-fade-mask, var(--scroll-fade-inline));
-    -webkit-mask-composite: source-in;
-    mask-composite: intersect;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    scroll-snap-type: x var(--tw-scroll-snap-strictness);
-    --tw-scroll-snap-strictness: mandatory;
-    scroll-padding-inline: calc(var(--spacing) * 1);
-    gap: calc(var(--spacing) * 3);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    padding-block: calc(var(--spacing) * 1);
-}
-@supports (animation-timeline: scroll()) {
-    .attachment-group {
-        animation: scroll-fade-reveal-s 1ms ease-in-out, scroll-fade-reveal-e 1ms ease-in-out;
-        animation-timeline: scroll(self inline), scroll(self inline);
-        animation-range: 0 var(--scroll-fade-reveal, calc(var(--spacing) * 24)), calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
-        animation-fill-mode: both
+        -webkit-mask-image: var(--scroll-fade-mask, var(--scroll-fade-inline));
+        mask-image: var(--scroll-fade-mask, var(--scroll-fade-inline));
+        -webkit-mask-composite: source-in;
+        mask-composite: intersect;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        scroll-snap-type: x var(--tw-scroll-snap-strictness);
+        --tw-scroll-snap-strictness: mandatory;
+        scroll-padding-inline: calc(var(--spacing) * 1);
+        gap: calc(var(--spacing) * 3);
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        padding-block: calc(var(--spacing) * 1);
     }
-}
-@supports not (animation-timeline: scroll()) {
-    .attachment-group {
-        --scroll-fade-s: var(--_scroll-fade-size-s);
-        --scroll-fade-e: var(--_scroll-fade-size-e)
+    @supports (animation-timeline: scroll()) {
+        .attachment-group {
+            animation: scroll-fade-reveal-s 1ms ease-in-out, scroll-fade-reveal-e 1ms ease-in-out;
+            animation-timeline: scroll(self inline), scroll(self inline);
+            animation-range: 0 var(--scroll-fade-reveal, calc(var(--spacing) * 24)), calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
+            animation-fill-mode: both
+        }
     }
-}
-.attachment-group:where([dir="rtl"], [dir="rtl"] *) {
-    --scroll-fade-inline: linear-gradient(
+    @supports not (animation-timeline: scroll()) {
+        .attachment-group {
+            --scroll-fade-s: var(--_scroll-fade-size-s);
+            --scroll-fade-e: var(--_scroll-fade-size-e)
+        }
+    }
+    .attachment-group:where([dir="rtl"], [dir="rtl"] *) {
+        --scroll-fade-inline: linear-gradient(
       to left,
       transparent 0,
       #000 var(--scroll-fade-s, 0px),
       #000 calc(100% - var(--scroll-fade-e, 0px)),
       transparent 100%
     );
-}
-:is(.attachment-group > *)[data-slot="attachment"] {
-    flex: none;
-    scroll-snap-align: start;
+    }
+    :is(.attachment-group > *)[data-slot="attachment"] {
+        flex: none;
+        scroll-snap-align: start;
+    }
 }
