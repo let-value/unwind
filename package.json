@@ -46,16 +46,23 @@
     "@tailwindcss/vite": "4.2.2",
     "@types/jscodeshift": "^17.3.0",
     "@types/node": "25.5.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
     "@vitest/browser-playwright": "4.1.2",
     "@vitest/coverage-v8": "4.1.2",
     "bumpp": "^11.0.1",
+    "lucide-react": "1.31.0",
     "oxfmt": "0.43.0",
     "oxlint": "1.58.0",
-    "shadcn-compiled": "file:./src/test/shadcn/compiled",
-    "shadcn-test": "file:./src/test/shadcn/project",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "shadcn-compiled": "workspace:*",
+    "shadcn-test": "workspace:shadcn@*",
+    "sonner": "^2.0.8",
     "tsdown": "0.21.7",
     "typescript": "6.0.2",
+    "vite": "^8.0.3",
     "vitest": "4.1.2",
     "vitest-browser-react": "2.1.0"
   },
@@ -64,8 +71,7 @@
   },
   "devEngines": {
     "packageManager": {
-      "name": "npm",
-      "version": "12.0.2",
+      "name": "pnpm",
       "onFail": "download"
     }
   },

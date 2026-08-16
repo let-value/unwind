@@ -1,0 +1,6 @@
+packages:
+  - "src/test/shadcn/project"
+  - "src/test/shadcn/compiled"
+
+allowBuilds:
+  msw: true

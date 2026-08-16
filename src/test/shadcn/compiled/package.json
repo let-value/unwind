@@ -7,6 +7,6 @@
     "#/*": "./*"
   },
   "dependencies": {
-    "shadcn-test": "file:../project"
+    "shadcn-test": "workspace:shadcn@*"
   }
 }
